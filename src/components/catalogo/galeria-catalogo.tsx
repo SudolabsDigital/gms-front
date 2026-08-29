@@ -2,9 +2,21 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ZoomIn, MessageSquare, Play, X, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import {
+  ZoomIn,
+  MessageSquare,
+  Play,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Share2,
+  Copy,
+  Check,
+} from "lucide-react";
 import type { ItemCatalogo } from "@/lib/catalogo/esquema";
 import { siteConfig } from "@/config/site-config";
+import { WhatsAppIcon } from "@/components/landing/social-icons";
 import { cn } from "@/lib/utils";
 
 export function GaleriaCatalogo({
@@ -15,6 +27,7 @@ export function GaleriaCatalogo({
   categoriaNombre: string;
 }) {
   const [seleccionado, setSeleccionado] = useState<number | null>(null);
+  const [copiado, setCopiado] = useState(false);
 
   useEffect(() => {
     if (seleccionado === null) return;
@@ -36,6 +49,12 @@ export function GaleriaCatalogo({
     };
   }, [seleccionado, items.length]);
 
+  const copiarEnlace = (url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2500);
+  };
+
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-border bg-card p-12 text-center text-muted-foreground">
@@ -44,12 +63,15 @@ export function GaleriaCatalogo({
     );
   }
 
+  const itemActual = seleccionado !== null ? items[seleccionado] : null;
+  const urlItemActual = itemActual ? `${siteConfig.url}/catalogo/item/${itemActual.id}` : "";
+
   return (
     <>
       {/* ── Masonry Grid Collage ── */}
       <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
         {items.map((item, index) => {
-          const mensajeWhatsApp = `Hola GMS Integra, vi la foto «${item.titulo}» (${item.subcategoriaNombre}) en el catálogo de ${categoriaNombre} y deseo solicitar una cotización.`;
+          const mensajeWhatsApp = `Hola GMS Integra, vi la foto «${item.titulo}» (${item.subcategoriaNombre}) en el catálogo de ${categoriaNombre} (${siteConfig.url}/catalogo/item/${item.id}) y deseo solicitar una cotización.`;
           const urlWhatsApp = `https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(mensajeWhatsApp)}`;
 
           return (
@@ -106,11 +128,11 @@ export function GaleriaCatalogo({
                   href={urlWhatsApp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex size-8 shrink-0 items-center justify-center rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs"
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs"
                   title="Cotizar este modelo por WhatsApp"
                   aria-label="Cotizar en WhatsApp"
                 >
-                  <MessageSquare className="size-4" />
+                  <WhatsAppIcon className="size-4 text-white" />
                 </a>
               </div>
             </div>
@@ -119,7 +141,7 @@ export function GaleriaCatalogo({
       </div>
 
       {/* ── Modal Lightbox ── */}
-      {seleccionado !== null && (
+      {seleccionado !== null && itemActual && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-6"
           onClick={() => setSeleccionado(null)}
@@ -135,7 +157,7 @@ export function GaleriaCatalogo({
                 e.stopPropagation();
                 setSeleccionado(seleccionado - 1);
               }}
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 z-10"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 z-10 cursor-pointer"
               aria-label="Anterior"
             >
               <ChevronLeft className="size-6" />
@@ -150,36 +172,58 @@ export function GaleriaCatalogo({
             {/* Imagen Principal */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={items[seleccionado].src}
-              alt={items[seleccionado].titulo}
+              src={itemActual.src}
+              alt={itemActual.titulo}
               className="max-h-[75vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
             />
 
             {/* Barra de Información y Acción del Modal */}
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full rounded-xl bg-slate-900/90 border border-white/10 p-4 text-white backdrop-blur-md">
-              <div className="text-center sm:text-left min-w-0">
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full rounded-2xl bg-slate-900/95 border border-white/15 p-4 sm:p-5 text-white backdrop-blur-md shadow-2xl">
+              <div className="text-center sm:text-left min-w-0 flex-1">
                 <span className="text-[11px] font-bold text-[#00c9ff] uppercase tracking-wider block">
-                  {categoriaNombre} · {items[seleccionado].subcategoriaNombre}
+                  {categoriaNombre} · {itemActual.subcategoriaNombre}
                 </span>
-                <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
-                  {items[seleccionado].titulo}
+                <h3 className="text-sm sm:text-base font-bold text-white leading-snug truncate">
+                  {itemActual.titulo}
                 </h3>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-white/50 hidden sm:inline">
-                  {seleccionado + 1} / {items.length}
-                </span>
+              <div className="flex flex-wrap items-center justify-center gap-2.5 shrink-0">
+                {/* Botón Copiar Enlace Canónico */}
+                <button
+                  type="button"
+                  onClick={() => copiarEnlace(urlItemActual)}
+                  className="flex size-10 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors border border-white/15 cursor-pointer"
+                  title="Copiar enlace directo del modelo"
+                  aria-label="Copiar enlace"
+                >
+                  {copiado ? <Check className="size-4 text-emerald-400" /> : <Copy className="size-4" />}
+                </button>
 
+                {/* Compartir por WhatsApp */}
                 <a
-                  href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                    `Hola GMS Integra, deseo cotizar el modelo «${items[seleccionado].titulo}» (${categoriaNombre}) del catálogo web.`
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `Mira este modelo de ${itemActual.titulo} (${itemActual.subcategoriaNombre}) en el catálogo de GMS Integra: ${urlItemActual}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-500 transition-colors shadow-sm"
+                  className="flex size-10 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors border border-white/15"
+                  title="Compartir por WhatsApp"
+                  aria-label="Compartir por WhatsApp"
                 >
-                  <MessageSquare className="size-4" />
+                  <Share2 className="size-4 text-slate-300" />
+                </a>
+
+                {/* Botón Cotizar este Modelo */}
+                <a
+                  href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
+                    `Hola GMS Integra, deseo cotizar el modelo «${itemActual.titulo}» (${categoriaNombre}) del catálogo: ${urlItemActual}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-emerald-500 transition-all shadow-md active:scale-98"
+                >
+                  <WhatsAppIcon className="size-4 text-white" />
                   <span>Cotizar este Modelo</span>
                 </a>
               </div>
@@ -194,7 +238,7 @@ export function GaleriaCatalogo({
                 e.stopPropagation();
                 setSeleccionado(seleccionado + 1);
               }}
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 z-10"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 z-10 cursor-pointer"
               aria-label="Siguiente"
             >
               <ChevronRight className="size-6" />
@@ -205,7 +249,7 @@ export function GaleriaCatalogo({
           <button
             type="button"
             onClick={() => setSeleccionado(null)}
-            className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 z-10"
+            className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-red-500/80 hover:border-red-500 border border-white/15 z-10 cursor-pointer"
             aria-label="Cerrar"
           >
             <X className="size-5" />

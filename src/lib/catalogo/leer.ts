@@ -95,3 +95,10 @@ export function buscarEnCatalogo(query: string, limite = 24): ItemCatalogo[] {
 export function obtenerSlugsCategorias(): { categoria: string }[] {
   return catalogo.categorias.map((c) => ({ categoria: c.slug }));
 }
+
+/**
+ * IDs de items destacados para generación de rutas estáticas.
+ */
+export function obtenerSlugsDeItems(): { id: string }[] {
+  return catalogo.items.filter((i) => i.destacado).map((i) => ({ id: i.id }));
+}

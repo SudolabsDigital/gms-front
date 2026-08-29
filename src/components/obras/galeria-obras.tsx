@@ -122,6 +122,16 @@ export function GaleriaObras({
     touchStartX.current = null;
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hashId = window.location.hash.replace("#", "");
+      const index = obras.findIndex((o) => o.id === hashId);
+      if (index !== -1) {
+        setSeleccionada(index);
+      }
+    }
+  }, [obras]);
+
   const copiarEnlace = (url: string) => {
     navigator.clipboard.writeText(url);
     setCopiado(true);
@@ -129,9 +139,9 @@ export function GaleriaObras({
   };
 
   const obraActual = seleccionada !== null ? obrasFiltradas[seleccionada] : null;
-  const urlObraActual = obraActual ? `${siteConfig.url}/obras#${obraActual.id}` : "";
+  const urlObraActual = obraActual ? `${siteConfig.url}/obras/${obraActual.id}` : "";
   const mensajeWhatsApp = obraActual
-    ? `Hola GMS Integra, vi la obra «${obraActual.titulo}» en ${obraActual.ubicacionDetalle} y deseo cotizar un proyecto similar.`
+    ? `Hola GMS Integra, vi la obra «${obraActual.titulo}» en ${obraActual.ubicacionDetalle} (${urlObraActual}) y deseo cotizar un proyecto similar.`
     : "";
 
   return (
