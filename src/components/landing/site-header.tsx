@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Menu,
   Phone,
   ArrowRight,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,25 +25,63 @@ import {
 } from "@/components/ui/sheet";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "./social-icons";
 
-const NAV = [
-  { label: "Inicio", href: "#inicio" },
-  { label: "Líneas", href: "#servicios" },
-  { label: "Obras", href: "#obras" },
-  { label: "Proceso", href: "#proceso" },
-  { label: "Materiales", href: "#materiales" },
-  { label: "Preguntas", href: "#faq" },
+export interface NavItem {
+  label: string;
+  href: string;
+  isExternal?: boolean;
+  badge?: string;
+}
+
+const NAV: NavItem[] = [
+  { label: "Inicio", href: "/" },
+  { label: "Catálogo", href: "/catalogo" },
+  { label: "Obras", href: "/obras", badge: "Showcase" },
+  { label: "Blog", href: "/blog" },
 ];
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 15);
     };
     window.addEventListener("scroll", handleScroll);
+
+    // Auto-scroll al ancla si se llega desde otra ruta (ej: /blog -> /#servicios)
+    if (pathname === "/" && window.location.hash) {
+      const targetId = window.location.hash.replace("#", "");
+      const el = document.getElementById(targetId);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [pathname]);
+
+  const esRutaActiva = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href.startsWith("/#")) return false;
+    return pathname.startsWith(href);
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("/#")) {
+      const targetId = href.replace("/#", "");
+      if (pathname === "/") {
+        e.preventDefault();
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+          window.history.pushState(null, "", `#${targetId}`);
+        }
+      }
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-300">
@@ -52,14 +92,14 @@ export function SiteHeader() {
           "w-full border-b transition-all duration-300",
           scrolled
             ? "border-border bg-white shadow-sm py-2.5"
-            : "border-border/60 bg-white/98 shadow-xs py-3.5"
+            : "border-border/60 bg-white/98 shadow-xs py-3"
         )}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           
           {/* Logo Corporativo */}
-          <a
-            href="#inicio"
+          <Link
+            href="/"
             className="flex items-center gap-3 transition-transform hover:scale-102 shrink-0"
             aria-label="GMS Integra - Inicio"
           >
@@ -77,20 +117,43 @@ export function SiteHeader() {
                 Ventanas & Mamparas · Huancayo
               </span>
             </div>
-          </a>
+          </Link>
 
           {/* Navegación Desktop */}
           <nav className="hidden lg:flex items-center gap-1">
-            {NAV.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="group relative text-slate-700 hover:text-primary font-bold uppercase tracking-wider text-xs rounded px-3.5 py-2 transition-colors"
-              >
-                {item.label}
-                <span className="bg-primary absolute bottom-1 left-3.5 h-[2px] w-0 rounded-full transition-all duration-300 group-hover:w-[calc(100%-28px)]" />
-              </a>
-            ))}
+            {NAV.map((item) => {
+              const activo = esRutaActiva(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className={cn(
+                    "group relative font-bold uppercase tracking-wider text-xs rounded px-3 py-2 transition-colors inline-flex items-center gap-1.5",
+                    activo
+                      ? "text-primary font-black bg-primary/5"
+                      : "text-slate-700 hover:text-primary hover:bg-slate-50"
+                  )}
+                >
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-primary px-1.5 py-0.2 text-[9px] font-black uppercase text-white shadow-xs">
+                      <Sparkles className="size-2.5" />
+                      {item.badge}
+                    </span>
+                  )}
+                  <span
+                    className={cn(
+                      "bg-primary absolute bottom-0.5 left-3 h-[2px] rounded-full transition-all duration-300",
+                      activo
+                        ? "w-[calc(100%-24px)]"
+                        : "w-0 group-hover:w-[calc(100%-24px)]"
+                    )}
+                  />
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Acciones de Contacto & Redes Desktop */}
@@ -186,16 +249,31 @@ export function SiteHeader() {
 
                   {/* Enlaces de Navegación */}
                   <nav className="flex flex-col gap-1 py-5">
-                    {NAV.map((item) => (
-                      <SheetClose asChild key={item.href}>
-                        <a
-                          href={item.href}
-                          className="text-slate-800 hover:text-primary hover:bg-primary-light rounded px-4 py-2.5 text-sm font-bold uppercase tracking-wide transition-colors"
-                        >
-                          {item.label}
-                        </a>
-                      </SheetClose>
-                    ))}
+                    {NAV.map((item) => {
+                      const activo = esRutaActiva(item.href);
+
+                      return (
+                        <SheetClose asChild key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={(e) => handleNavClick(e, item.href)}
+                            className={cn(
+                              "rounded px-4 py-2.5 text-sm font-bold uppercase tracking-wide transition-colors flex items-center justify-between",
+                              activo
+                                ? "bg-primary/10 text-primary font-black"
+                                : "text-slate-800 hover:text-primary hover:bg-slate-100"
+                            )}
+                          >
+                            <span>{item.label}</span>
+                            {item.badge && (
+                              <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-xs">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        </SheetClose>
+                      );
+                    })}
                   </nav>
                 </div>
 

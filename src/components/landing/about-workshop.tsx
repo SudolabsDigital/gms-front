@@ -1,159 +1,302 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowRight, MapPin } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
+import { Button } from "@/components/ui/button";
 
-import imgMampara from "@/assets/mampara_monumental_terraza.jpg";
-import imgBano from "@/assets/bano_spa_vidrio_templado.jpg";
-import imgFachada from "@/assets/fachada_muro_cortina.jpg";
-import imgDivisiones from "@/assets/divisiones_oficina.jpg";
-import imgCerramiento from "@/assets/cerramiento_terraza.jpg";
-import imgVentana from "@/assets/ventana_aluminio.jpg";
+const INTERVALO_CARRUSEL_MS = 5000;
 
-const OBRAS = [
+const PROYECTOS_COLLAGE = [
   {
-    id: "mamparas",
-    label: "Serie 80",
-    title: "Mamparas Monumentales",
-    desc: "Vanos panorámicos piso a techo con rodamiento pesado",
-    image: imgMampara,
-    wa: "Hola GMS Integra, solicito cotización para Mamparas Monumentales Serie 80.",
-    span: "col-span-1 md:col-span-2 row-span-2",
+    id: "san-carlos",
+    titulo: "Residencial San Carlos",
+    subtitulo: "Mamparas Panorámicas Serie 80 & Línea Spazio",
+    ubicacion: "San Carlos, Huancayo",
+    span: "col-span-12 lg:col-span-6 row-span-2 min-h-[360px] lg:min-h-[580px]",
+    wa: "Hola GMS Integra, vi las obras de Residencial San Carlos y deseo cotizar acabados similares.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-433.webp",
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-434.webp",
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-435.webp",
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-436.webp",
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-437.webp",
+    ],
   },
   {
-    id: "banos",
-    label: "Spazio",
-    title: "Mamparas de Baño",
-    desc: "Puertas de ducha con herrajes inoxidables y sellado hermético",
-    image: imgBano,
-    wa: "Hola GMS Integra, solicito cotización para Mamparas de Baño Spazio.",
-    span: "col-span-1",
+    id: "uncp",
+    titulo: "Universidad Nacional del Centro (UNCP)",
+    subtitulo: "Sistemas Vidriados, Puertas & Divisiones Institucionales",
+    ubicacion: "Ciudad Universitaria, Huancayo",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, vi las obras de la UNCP y solicito cotización para proyecto institucional.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras-hyo-sist-uncp-213.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-sist-uncp-214.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-sist-uncp-215.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-sist-uncp-216.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-sist-uncp-217.webp",
+    ],
   },
   {
-    id: "divisiones",
-    label: "Oficinas",
-    title: "Divisiones de Vidrio",
-    desc: "Mamparas divisorias para oficinas y locales comerciales",
-    image: imgDivisiones,
-    wa: "Hola GMS Integra, solicito cotización para Divisiones de Vidrio para oficina.",
-    span: "col-span-1",
+    id: "usil-lima",
+    titulo: "Campus USIL Lima",
+    subtitulo: "Divisiones Acústicas & Carpintería de Aluminio",
+    ubicacion: "Lima Metropolitana",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, solicito cotización para proyecto institucional similar a USIL Lima.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras-lima-u-san-ignacio-de-loyola-350.webp",
+      "/catalogo/obras-ejecutadas/obras-lima-u-san-ignacio-de-loyola-351.webp",
+      "/catalogo/obras-ejecutadas/obras-lima-u-san-ignacio-de-loyola-352.webp",
+      "/catalogo/obras-ejecutadas/obras-lima-u-san-ignacio-de-loyola-353.webp",
+      "/catalogo/obras-ejecutadas/obras-lima-u-san-ignacio-de-loyola-354.webp",
+    ],
   },
   {
-    id: "cerramiento",
-    label: "Terrazas",
-    title: "Cerramientos & Techos",
-    desc: "Techos y cerramientos herméticos para terrazas y patios",
-    image: imgCerramiento,
-    wa: "Hola GMS Integra, solicito cotización para Cerramientos de Terraza.",
-    span: "col-span-1",
+    id: "la-huaycha",
+    titulo: "Estación & Grifo La Huaycha",
+    subtitulo: "Muros Cortina, Fachadas Integrales & Coberturas",
+    ubicacion: "La Huaycha, Junín",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, vi las obras del Grifo La Huaycha y deseo cotizar cerramientos.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/la-huaycha25-1.webp",
+      "/catalogo/obras-ejecutadas/la-huaycha25-2.webp",
+      "/catalogo/obras-ejecutadas/la-huaycha25-3.webp",
+      "/catalogo/obras-ejecutadas/la-huaycha25-4.webp",
+      "/catalogo/obras-ejecutadas/la-huaycha25-5.webp",
+    ],
   },
   {
-    id: "fachadas",
-    label: "Estructural",
-    title: "Muros Cortina",
-    desc: "Fachadas integrales de vidrio para proyectos comerciales",
-    image: imgFachada,
-    wa: "Hola GMS Integra, solicito cotización para Muros Cortina.",
-    span: "col-span-1",
+    id: "la-cantuta",
+    titulo: "Edificio Residencial La Cantuta",
+    subtitulo: "Ventanas Herméticas & Cerramientos Vidriados",
+    ubicacion: "San Carlos, Huancayo",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, vi el Edificio La Cantuta y deseo cotizar ventanas herméticas.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras-hyo-edif-la-cantuta-130.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-edif-la-cantuta-147.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-santa-rosa-201.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-santa-rosa-202.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-santa-rosa-203.webp",
+    ],
   },
   {
-    id: "ventanas",
-    label: "Serie 38 / 25",
-    title: "Ventanas Herméticas",
-    desc: "Aislamiento acústico y térmico con felpa y empaque EPDM",
-    image: imgVentana,
-    wa: "Hola GMS Integra, solicito cotización para Ventanas Herméticas Serie 38.",
-    span: "col-span-1",
+    id: "jauja",
+    titulo: "Complejo Hospitalario Jauja",
+    subtitulo: "Ventanas Herméticas & Divisiones de Alta Higiene",
+    ubicacion: "Jauja, Junín",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, solicito cotización para proyecto similar al Hospital de Jauja.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras-hyo-h-jauja-156.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-h-jauja-157.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-h-jauja-158.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-h-jauja-159.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-h-jauja-160.webp",
+    ],
+  },
+  {
+    id: "huallhuas",
+    titulo: "Residencial Huallhuas",
+    subtitulo: "Techos de Policarbonato & Cerramientos Panorámicos",
+    ubicacion: "Huallhuas, Huancayo",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, vi las obras en Huallhuas y solicito cotización.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obrahuallhuas25-13.webp",
+      "/catalogo/obras-ejecutadas/obrahuallhuas25-14.webp",
+      "/catalogo/obras-ejecutadas/obrahuallhuas25-15.webp",
+      "/catalogo/obras-ejecutadas/obrahuallhuas25-16.webp",
+      "/catalogo/obras-ejecutadas/obrahuallhuas25-17.webp",
+    ],
+  },
+  {
+    id: "el-tambo",
+    titulo: "Edificios Av. Evitamiento",
+    subtitulo: "Ventanas Serie 25 / 38 & Barandas Inox 304",
+    ubicacion: "El Tambo, Huancayo",
+    span: "col-span-12 lg:col-span-6 row-span-2 min-h-[360px] lg:min-h-[580px]",
+    wa: "Hola GMS Integra, solicito cotización para edificio multifamiliar en El Tambo.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras-hyo-evitamiento-136.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-evitamiento-137.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-evitamiento-138.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-evitamiento-139.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-evitamiento-140.webp",
+    ],
+  },
+  {
+    id: "primavera",
+    titulo: "Residencial Primavera 2025",
+    subtitulo: "Mamparas Panorámicas & Fachadas Integrales",
+    ubicacion: "Huancayo Metropolitano",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, vi Residencial Primavera 2025 y solicito cotización.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-415.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-416.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-417.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-418.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-419.webp",
+    ],
+  },
+  {
+    id: "raez",
+    titulo: "Estructuras & Coberturas Ráez",
+    subtitulo: "Ingeniería en Fierro Estructural & Policarbonato Alveolar",
+    ubicacion: "Chilca, Huancayo",
+    span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
+    wa: "Hola GMS Integra, solicito cotización para estructuras y techos de policarbonato.",
+    fotos: [
+      "/catalogo/obras-ejecutadas/obras-hyo-raez-estructura-metalica-162.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-raez-estructura-metalica-163.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-raez-estructura-metalica-164.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-raez-estructura-metalica-165.webp",
+      "/catalogo/obras-ejecutadas/obras-hyo-raez-estructura-metalica-166.webp",
+    ],
   },
 ];
 
 export function AboutWorkshop() {
+  const [slideGlobalIdx, setSlideGlobalIdx] = useState(0);
+
+  // Transición sincronizada en grupo (Efecto cortina simultáneo)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideGlobalIdx((prev) => (prev + 1) % 5);
+    }, INTERVALO_CARRUSEL_MS);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section id="obras" className="relative border-b border-border overflow-hidden">
+    <section id="obras" className="relative border-b border-border overflow-hidden bg-slate-950">
+      
+      {/* ── Barra Superior Integrada en el Collage ── */}
+      <div className="w-full bg-[#0A1118] px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <span className="size-2.5 rounded-full bg-[#00c9ff] animate-pulse" />
+          <h2 className="text-sm sm:text-base font-black uppercase tracking-wider text-white font-sans">
+            Proyectos Ejecutados
+          </h2>
+          <span className="text-xs text-slate-400 hidden sm:inline">
+            · 472 Obras en Huancayo, Junín & Lima
+          </span>
+        </div>
 
-      {/* ── Mosaico de Obras a Pantalla Completa ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[300px] md:auto-rows-[280px]">
-
-        {OBRAS.map((obra) => (
-          <div
-            key={obra.id}
-            className={`group relative overflow-hidden cursor-pointer ${obra.span}`}
-          >
-            {/* Fotografía de Obra Real */}
-            <Image
-              src={obra.image}
-              alt={`${obra.title} - GMS Integra Huancayo`}
-              className="absolute inset-0 size-full object-cover object-center group-hover:scale-105 transition-transform duration-700 brightness-95"
-            />
-
-            {/* Degradado base solo en tercio inferior */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-
-            {/* Hover: oscurecimiento */}
-            <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/45 transition-all duration-500" />
-
-            {/* Badge Etiqueta Superior */}
-            <div className="absolute top-4 left-4 z-10">
-              <span className="rounded border border-white/30 bg-black/60 px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-white shadow-xs">
-                {obra.label}
-              </span>
-            </div>
-
-            {/* Contenido en la base */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 p-5 sm:p-6">
-              <div className="h-0.5 w-8 bg-primary rounded mb-3 group-hover:w-16 transition-all duration-500" />
-
-              <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-white leading-tight font-sans drop-shadow-md">
-                {obra.title}
-              </h3>
-              <p className="text-xs text-white/80 mt-1 font-normal line-clamp-1">
-                {obra.desc}
-              </p>
-
-              {/* Botón WhatsApp visible en hover */}
-              <div className="mt-3.5 overflow-hidden max-h-0 group-hover:max-h-16 transition-all duration-500">
-                <a
-                  href={`https://wa.me/51958413806?text=${encodeURIComponent(obra.wa)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white bg-white/20 hover:bg-white/30 border border-white/40 rounded px-4 py-2 transition-colors"
-                >
-                  <WhatsAppIcon className="size-3.5" />
-                  <span>Cotizar</span>
-                  <ArrowRight className="size-3" />
-                </a>
-              </div>
-            </div>
+        {/* Indicadores Sincronizados de Cortina */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            {[0, 1, 2, 3, 4].map((idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setSlideGlobalIdx(idx)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  idx === slideGlobalIdx
+                    ? "w-7 bg-[#00c9ff]"
+                    : "w-2 bg-white/30 hover:bg-white/60"
+                }`}
+                aria-label={`Ver secuencia ${idx + 1}`}
+              />
+            ))}
           </div>
-        ))}
+
+          <Button
+            size="sm"
+            asChild
+            className="rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 text-white h-8 px-3.5"
+          >
+            <Link href="/obras">
+              <span>Ver las 472 Obras</span>
+              <ArrowRight className="size-3 ml-1" />
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {/* ── Franja inferior de conversión ── */}
-      <div className="bg-[#1A2B45] px-6 sm:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-700">
-        <p className="text-xs sm:text-sm text-slate-300 font-medium text-center sm:text-left">
-          ¿Tienes un diseño o plano especial para tu proyecto? Fabricamos soluciones a medida.
-        </p>
+      {/* ── Collage Fotográfico de Ancho Completo (10 Grandes Proyectos) ── */}
+      <div className="grid grid-cols-12 auto-rows-fr w-full gap-[2px] bg-white/10">
+        {PROYECTOS_COLLAGE.map((proyecto) => {
+          return (
+            <div
+              key={proyecto.id}
+              className={`group relative overflow-hidden bg-slate-950 flex flex-col justify-end ${proyecto.span}`}
+            >
+              {/* Fotos en Transición Sincronizada */}
+              {proyecto.fotos.map((foto, fIdx) => {
+                const esActiva = fIdx === slideGlobalIdx;
+                return (
+                  <div
+                    key={fIdx}
+                    className={`absolute inset-0 size-full transition-opacity duration-1000 ease-in-out ${
+                      esActiva ? "opacity-100 z-10 scale-100" : "opacity-0 z-0 scale-104 pointer-events-none"
+                    }`}
+                  >
+                    <Image
+                      src={foto}
+                      alt={`${proyecto.titulo} - Toma ${fIdx + 1}`}
+                      fill
+                      priority={fIdx === 0}
+                      className="size-full object-cover object-center transition-transform duration-1000 group-hover:scale-106 brightness-[0.93]"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
+                    />
+                  </div>
+                );
+              })}
 
-        <Button
-          size="sm"
-          className="h-10 px-6 text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-white rounded shadow-cta gap-2 cursor-pointer shrink-0 active:translate-y-1"
-          asChild
-        >
-          <a
-            href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20deseo%20consultar%20por%20un%20proyecto%20personalizado."
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <WhatsAppIcon className="size-4" />
-            <span>Consultar Proyecto</span>
-          </a>
-        </Button>
+              {/* Scrim Oscuro Sutil en la Base */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent z-20 pointer-events-none" />
+
+              {/* Badge de Ubicación Superior */}
+              <div className="absolute top-3.5 left-3.5 z-30">
+                <div className="inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-0.8 text-[10px] font-mono font-bold text-white backdrop-blur-md border border-white/15">
+                  <MapPin className="size-2.5 text-[#00c9ff]" />
+                  <span>{proyecto.ubicacion}</span>
+                </div>
+              </div>
+
+              {/* Contenido Limpio y Acciones Rápidas en la Base */}
+              <div className="relative z-30 p-4 sm:p-5">
+                <h3 className="text-base sm:text-lg lg:text-xl font-black uppercase tracking-tight text-white leading-tight font-sans drop-shadow-md">
+                  {proyecto.titulo}
+                </h3>
+                <p className="text-xs text-slate-300 mt-1 line-clamp-1">
+                  {proyecto.subtitulo}
+                </p>
+
+                {/* Acciones en Hover */}
+                <div className="mt-3 flex items-center gap-2 max-h-0 opacity-0 group-hover:max-h-12 group-hover:opacity-100 transition-all duration-300 overflow-hidden">
+                  <a
+                    href={`https://wa.me/51958413806?text=${encodeURIComponent(proyecto.wa)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-md transition-all active:scale-95"
+                  >
+                    <WhatsAppIcon className="size-3.5 text-white" />
+                    <span>Cotizar</span>
+                  </a>
+
+                  <Link
+                    href="/obras"
+                    className="inline-flex items-center gap-1 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 px-3 py-1.5 text-[11px] font-bold text-white transition-colors"
+                  >
+                    <span>Ver Galería</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          );
+        })}
       </div>
 
     </section>
   );
 }
-
-
