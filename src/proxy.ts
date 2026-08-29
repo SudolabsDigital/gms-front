@@ -18,10 +18,9 @@ const RUTA_LOGIN = "/login";
 const RUTA_INICIO_ERP = "/inicio";
 const COOKIE_SESION = "gms_sesion";
 
-/** Zonas privadas del ERP. La landing pública queda fuera. */
+/** Zonas privadas del ERP. Las páginas públicas (landing, /catalogo, /blog) quedan fuera. */
 const PREFIJOS_PROTEGIDOS = [
   "/inicio",
-  "/catalogo",
   "/parametros",
   "/plantillas",
   "/cotizar",

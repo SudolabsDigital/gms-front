@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 /**
  * Ya NO se usan `rewrites` para /api/*.
@@ -11,6 +12,25 @@ import type { NextConfig } from "next";
  * hace de Backend-for-Frontend: lee la cookie, inyecta la cabecera y reenvía a Laravel.
  * Sigue sin haber CORS y `BACKEND_URL` sigue sin exponerse al navegador.
  */
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  outputFileTracingIncludes: {
+    "/blog": ["content/blog/**/*.mdx"],
+    "/blog/[slug]": ["content/blog/**/*.mdx"],
+    "/blog/etiqueta/[tag]": ["content/blog/**/*.mdx"],
+    "/sitemap.xml": ["content/blog/**/*.mdx"],
+  },
+  outputFileTracingExcludes: {
+    "/blog/**": [".next/cache/**/*"],
+  },
+};
 
-export default nextConfig;
+const withMDX = createMDX({
+  options: {
+    // Turbopack compatibility: plugins are declared by name strings
+    remarkPlugins: ["remark-frontmatter", "remark-gfm"],
+    rehypePlugins: ["rehype-slug"],
+  },
+});
+
+export default withMDX(nextConfig);
