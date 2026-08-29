@@ -4,17 +4,17 @@ export function JsonLd() {
     "@type": "HomeAndConstructionBusiness",
     "@id": "https://gmsintegra.com/#organization",
     "name": "GMS Integra",
-    "alternateName": "GMS Integra - Ventanas y Mamparas en Huancayo",
+    "alternateName": "GMS Integra E.I.R.L. — Ventanas y Mamparas en Huancayo",
     "url": "https://gmsintegra.com",
     "logo": "https://gmsintegra.com/gms-logo.webp",
-    "image": "https://gmsintegra.com/opengraph-image",
+    "image": "https://gmsintegra.com/og-image.png",
     "description": "Especialistas en diseño, fabricación e instalación de ventanas y mamparas de aluminio y vidrio templado. Fachadas integrales, puertas, barandas, techos de policarbonato y drywall en Huancayo y el Valle del Mantaro.",
     "telephone": "+51958413806",
-    "email": "gmsintegra21@gmail.com",
+    "email": "contacto@gmsintegra.com",
     "priceRange": "$$",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "JR. HUANUCO NRO. 1389",
+      "streetAddress": "Jr. Huánuco Nro. 1389",
       "addressLocality": "Huancayo",
       "addressRegion": "Junín",
       "postalCode": "12001",
@@ -36,8 +36,8 @@ export function JsonLd() {
           "Friday",
           "Saturday"
         ],
-        "opens": "09:00",
-        "closes": "18:00"
+        "opens": "08:00",
+        "closes": "19:00"
       }
     ],
     "areaServed": [
@@ -51,42 +51,43 @@ export function JsonLd() {
       { "@type": "City", "name": "Sicaya" },
       { "@type": "City", "name": "Pilcomayo" },
       { "@type": "AdministrativeArea", "name": "Valle del Mantaro" },
-      { "@type": "AdministrativeArea", "name": "Junín" }
+      { "@type": "AdministrativeArea", "name": "Junín" },
+      { "@type": "City", "name": "Lima" }
     ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "Catálogo de Soluciones en Aluminio y Vidrio Templado",
+      "name": "Catálogo de Soluciones en Carpintería de Aluminio y Vidrio Templado",
       "itemListElement": [
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Ventanas de Aluminio",
-            "description": "Fabricación e instalación de ventanas corredizas, proyectantes y fijas en perfiles de aluminio Serie 20, 25, 38, Nova."
+            "name": "Ventanas de Aluminio Herméticas",
+            "description": "Fabricación e instalación de ventanas corredizas, proyectantes y termoacústicas en perfiles Serie 20, 25, 38 y Serie 80."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Mamparas de Vidrio Templado",
-            "description": "Mamparas de baño y divisiones de ambientes en cristal templado de seguridad con acabado impecable."
+            "name": "Mamparas de Cristal Templado",
+            "description": "Mamparas panorámicas Serie 80 y Sistema Nova en cristal templado de seguridad de 8mm y 10mm."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Fachadas Integrales y Muro Cortina",
-            "description": "Diseño e instalación de fachadas integrales de vidrio y perfiles de aluminio estructurales."
+            "name": "Fachadas Integrales y Muros Cortina",
+            "description": "Diseño e instalación de muros cortina estructurales y paneles de aluminio compuesto (ACP)."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Puertas y Barandas",
-            "description": "Puertas de aluminio y vidrio templado, barandas para balcón y escaleras."
+            "name": "Barandas de Acero Inoxidable y Cristal",
+            "description": "Barandas de seguridad en acero AISI 304 y cristal templado para balcones, terrazas y escaleras."
           }
         },
         {
@@ -94,83 +95,32 @@ export function JsonLd() {
           "itemOffered": {
             "@type": "Service",
             "name": "Techos de Policarbonato",
-            "description": "Coberturas solares de policarbonato con estructuras metálicas."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Sistema Drywall y Remodelaciones",
-            "description": "Tabiquería seca en drywall, cielos rasos y acabados de remodelación integral."
+            "description": "Coberturas solares de policarbonato alveolar y estructuras metálicas para intemperie andina."
           }
         }
       ]
     }
   };
 
-  const faqSchema = {
+  const organizationSchema = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "¿En qué zonas del Valle del Mantaro realizan instalaciones de ventanas y mamparas?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Brindamos atención e instalación directa en Huancayo, El Tambo, Chilca, Concepción, Jauja, Chupaca, San Jerónimo, Sicaya, Pilcomayo y en todo el departamento de Junín."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Qué garantía ofrecen en sus mamparas de vidrio templado y ventanas de aluminio?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Todos nuestros proyectos de ventanas, mamparas y fachadas integrales cuentan con hasta 5 años de garantía respaldada por GMS Integra."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Fabrican ventanas y mamparas a medida?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sí, diseñamos y fabricamos soluciones 100% a medida para proyectos residenciales, comerciales e industriales según los requerimientos del cliente."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Qué perfiles de aluminio y cristales utilizan?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Utilizamos perfiles de aluminio de alta resistencia (Serie 20, 25, 38, Sistema Nova) y vidrios crudos, laminados o templados de seguridad de espesores desde 4mm hasta 10mm+."
-        }
-      }
-    ]
-  };
-
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Inicio",
-        "item": "https://gmsintegra.com"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Productos y Servicios",
-        "item": "https://gmsintegra.com/#productos"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": "Contacto y Cotizaciones Huancayo",
-        "item": "https://gmsintegra.com/#contacto"
-      }
-    ]
+    "@type": "Organization",
+    "@id": "https://gmsintegra.com/#corp",
+    "name": "GMS Integra E.I.R.L.",
+    "url": "https://gmsintegra.com",
+    "logo": "https://gmsintegra.com/gms-logo.webp",
+    "sameAs": [
+      "https://www.facebook.com/profile.php?id=100089261427668",
+      "https://www.instagram.com/gms_integra",
+      "https://www.tiktok.com/@GMS_INTEGRA"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+51958413806",
+      "contactType": "customer service",
+      "availableLanguage": "Spanish",
+      "areaServed": "PE"
+    }
   };
 
   return (
@@ -181,11 +131,7 @@ export function JsonLd() {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
     </>
   );

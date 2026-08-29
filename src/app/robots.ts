@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/(erp)/", "/login", "/cotizar/", "/plantillas/"],
+        disallow: ["/api/", "/login", "/inicio", "/plantillas"],
       },
     ],
     sitemap: "https://gmsintegra.com/sitemap.xml",

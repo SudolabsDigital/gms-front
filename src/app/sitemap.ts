@@ -17,22 +17,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 1.0,
-      images: [`${baseUrl}/opengraph-image`],
     },
-    // ── Catálogo ──
+    // ── Catálogo Arquitectónico ──
     {
       url: `${baseUrl}/catalogo`,
       lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.95,
-      images: [`${baseUrl}/og-image.png`],
     },
     ...categoriasCatalogo.map((cat) => ({
       url: `${baseUrl}/catalogo/${cat.slug}`,
       lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.9,
-      images: [`${baseUrl}${cat.portada}`],
     })),
     // ── Obras Ejecutadas ──
     {
@@ -40,9 +37,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.95,
-      images: [`${baseUrl}/og-image.png`],
     },
-    // ── Blog ──
+    // ── Blog Técnico ──
     {
       url: `${baseUrl}/blog`,
       lastModified: ultimoArticulo ? new Date(`${ultimoArticulo}T12:00:00`) : new Date(),
@@ -54,38 +50,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(`${articulo.actualizado ?? articulo.fecha}T12:00:00`),
       changeFrequency: "monthly" as const,
       priority: 0.8,
-      images: [`${baseUrl}${articulo.portada}`],
     })),
     ...etiquetasUsadas().map(({ etiqueta }) => ({
       url: `${baseUrl}/blog/etiqueta/${etiqueta}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
-      priority: 0.5,
+      priority: 0.6,
     })),
-    // ── Secciones de Inicio ──
+    // ── Páginas Legales & Institucionales ──
     {
-      url: `${baseUrl}/#productos`,
+      url: `${baseUrl}/terminos-y-condiciones`,
       lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.5,
     },
     {
-      url: `${baseUrl}/#series`,
+      url: `${baseUrl}/politica-de-privacidad`,
       lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#faq`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/#contacto`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.9,
+      priority: 0.5,
     },
   ];
 }
