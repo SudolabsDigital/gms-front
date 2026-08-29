@@ -7,133 +7,144 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "./social-icons";
 
-import imgTaller from "@/assets/techo_vidrio_terraza.jpg";
-
-const FAQS = [
+const FAQS_VENDIBLES = [
   {
     num: "01",
-    q: "¿Qué diferencia hay entre la Serie 20, 25, 38 y Serie 80?",
-    a: "La Serie 20 es corredizo estándar; Serie 25 con perfiles reforzados para vanos medianos; Serie 38 es batiente hermética con empaques EPDM; y la Serie 80 es la línea monumental para vanos piso a techo con rodamiento pesado.",
+    q: "¿Por qué elegir GMS Integra frente a un taller o vidriero informal?",
+    a: "Porque somos fabricantes directos con taller propio en Jr. Huánuco 1389. No tercerizamos: trabajamos con perfiles pesados de extrusión virgen (Miyasato/Alumex), corte milimétrico por matriz y te entregamos 1 Año de Garantía Escrita Formal respaldada con Factura legal.",
   },
   {
     num: "02",
-    q: "¿Qué espesor de cristal usan en mamparas de baño y terrazas?",
-    a: "Mamparas de baño Línea Spazio: cristal templado 8mm con herrajes en acero inoxidable 304. Para mamparas monumentales y terrazas: 8mm–10mm o Doble Vidrio Hermético (DVH) contra el frío andino.",
+    q: "¿La visita técnica y medición en mi obra tiene algún costo en Huancayo?",
+    a: "Es 100% gratuita y sin compromiso en Huancayo, El Tambo, Chilca y todo el Valle del Mantaro. Nuestro personal técnico acude con distanciómetros láser para verificar plomos, escuadras y entregarte una cotización transparente con precio cerrado sin costos ocultos.",
   },
   {
     num: "03",
-    q: "¿Cuánto demora la fabricación en taller e instalación?",
-    a: "Manufactura en Jr. Huánuco Nro. 1389: 5 a 8 días hábiles tras verificación de medidas. La instalación en obra se ejecuta en una sola jornada dejando vanos limpios, aplomados y sellados.",
+    q: "¿Cómo garantizan que las ventanas y mamparas bloqueen el frío andino?",
+    a: "Implementamos sistemas de empaques perimetrales EPDM de alta densidad, felpas hidrófugas con lámina central y sellado exterior con silicona estructural Sika. El resultado es un cierre hermético con tolerancia cero a corrientes de viento, polvo y filtraciones de lluvia.",
   },
   {
     num: "04",
-    q: "¿Qué cubre el 1 Año de Garantía Escrita Formal?",
-    a: "Cubre defectos de manufactura en perfiles de aluminio, funcionamiento mecánico de rodamientos y carretillas, estanqueidad del sellado perimetral contra lluvias y durabilidad de herrajes en acero inoxidable 304.",
+    q: "¿Cuánto tiempo demora la fabricación y cómo se ejecuta el montaje?",
+    a: "Fabricamos en nuestro taller en solo 5 a 8 días hábiles tras confirmar las medidas. La instalación en tu obra se ejecuta en una sola jornada limpia por técnicos especializados, dejando los vanos perfectamente nivelados, sellados y operativos al instante.",
   },
   {
     num: "05",
-    q: "¿Realizan medición técnica sin costo en Huancayo?",
-    a: "Sí. Visita técnica in-situ sin costo en Huancayo, El Tambo, Chilca y zonas aledañas del Valle del Mantaro para rectificar vanos, plomos y cotas.",
+    q: "¿Qué cubre exactamente el 1 Año de Garantía Escrita Formal?",
+    a: "Cubre cualquier desajuste mecánico de rodamientos o carretillas, estanqueidad del sellado contra lluvias, durabilidad de perfiles de aluminio y herrajes en acero inoxidable 304. Si requieres calibración o ajuste, nuestro equipo acude directamente a tu obra.",
   },
   {
     num: "06",
-    q: "¿Cómo es la forma de pago y facturación?",
-    a: "50% de anticipo al inicio de manufactura y 50% contra entrega e instalación conforme. Emitimos Factura electrónica, Boleta y Certificado de Garantía escrita formal.",
+    q: "¿Cuáles son las condiciones de pago y facturación del proyecto?",
+    a: "Iniciamos la manufactura con el 50% de anticipo para habilitado de materiales y el 50% saldo contra entrega e instalación conforme. Aceptamos transferencias bancarias, Yape/Plin, tarjetas y emitimos Factura o Boleta electrónica.",
   },
 ];
 
 export function Faq() {
   return (
-    <section id="faq" className="relative border-b border-border overflow-hidden">
+    <section id="faq" className="relative border-b border-border overflow-hidden bg-background">
 
-      {/* Layout de dos paneles full-height inspirado en dimedes.com zoom_box */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[640px]">
+      {/* Layout de dos paneles equilibrados */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
 
-        {/* ── Panel Izquierdo: Imagen de taller con overlay sutil (dimedes .photo + .desc) ── */}
-        <div className="relative min-h-[360px] lg:min-h-full overflow-hidden">
+        {/* ── Panel Izquierdo (5 columnas): Imagen de Taller Real & Valores de Confianza ── */}
+        <div className="lg:col-span-5 relative min-h-[380px] lg:min-h-full overflow-hidden bg-slate-950 flex flex-col justify-between p-6 sm:p-8 lg:p-10">
+          
+          {/* Imagen de Fondo del Taller */}
           <Image
-            src={imgTaller}
+            src="/catalogo/fachadas-muros-cortina/general-1.webp"
             alt="Taller de Manufactura GMS Integra Huancayo"
+            fill
             priority
-            className="absolute inset-0 size-full object-cover object-center brightness-90 scale-105"
+            className="absolute inset-0 size-full object-cover object-center brightness-[0.62] contrast-105"
+            sizes="(max-width: 1024px) 100vw, 40vw"
           />
-          {/* Overlay degradado solo en zonas de texto — imagen visible en el centro */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-transparent to-slate-950/85" />
 
-          {/* Contenido del Panel Izquierdo encima del overlay */}
-          <div className="relative z-10 h-full flex flex-col justify-between p-8 sm:p-10 lg:p-12">
+          {/* Degradado Oscuro Sutil para Legibilidad y Visibilidad del Taller */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-slate-950/20 z-0 pointer-events-none" />
 
-            <div>
-              <span className="text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-primary drop-shadow-sm">
-                GMS Integra · Taller Huancayo
-              </span>
-              <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black uppercase tracking-tight text-white mt-3 font-sans leading-[1.05] [text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">
-                Preguntas<br />Frecuentes
-              </h2>
-              <div className="mt-4 h-1 w-14 bg-primary rounded-full" />
-              <p className="mt-4 text-sm text-white/90 leading-relaxed max-w-xs [text-shadow:0_1px_6px_rgba(0,0,0,0.7)]">
-                Todo lo que necesitas saber sobre series de aluminio, espesores de cristal, plazos y nuestra garantía formal.
-              </p>
-            </div>
+          {/* Encabezado del Panel */}
+          <div className="relative z-10">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#00c9ff]">
+              Taller Propio · Jr. Huánuco 1389
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white mt-2 font-sans leading-tight">
+              Preguntas Frecuentes
+            </h2>
+            <div className="mt-3 h-1 w-12 bg-primary rounded-full" />
+            <p className="mt-3 text-xs sm:text-sm text-slate-300 leading-relaxed max-w-sm">
+              Conoce cómo trabajamos, plazos de entrega, calidades de perfiles y la garantía que protege tu inversión.
+            </p>
+          </div>
 
-            <div className="mt-10 flex flex-col gap-4">
-              {/* Stats con estilo sólido */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded border border-white/20 bg-slate-900/80 p-4 flex flex-col gap-1 shadow-card">
-                  <span className="text-2xl font-black text-white font-sans leading-none">1 AÑO</span>
-                  <span className="text-[10px] font-mono uppercase text-slate-300 tracking-wider mt-1">Garantía Escrita</span>
-                </div>
-                <div className="rounded border border-white/20 bg-slate-900/80 p-4 flex flex-col gap-1 shadow-card">
-                  <span className="text-2xl font-black text-white font-sans leading-none">Gratis</span>
-                  <span className="text-[10px] font-mono uppercase text-slate-300 tracking-wider mt-1">Medición In-Situ</span>
+          {/* Bloque Inferior con Stats y Botón */}
+          <div className="relative z-10 mt-8 flex flex-col gap-4">
+            
+            {/* 2 Indicadores de Confianza */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-white/15 bg-black/60 backdrop-blur-md p-3.5 flex items-center gap-2.5">
+                <ShieldCheck className="size-5 text-[#00c9ff] shrink-0" />
+                <div>
+                  <span className="text-sm font-black text-white font-sans block leading-none">1 AÑO</span>
+                  <span className="text-[10px] font-mono text-slate-300 block mt-0.5">Garantía Escrita</span>
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="h-12 px-6 text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground rounded shadow-cta gap-2.5 cursor-pointer w-full active:translate-y-1"
-                asChild
-              >
-                <a
-                  href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20tengo%20una%20consulta%20técnica%20sobre%20un%20proyecto."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <WhatsAppIcon className="size-4" />
-                  <span>Consultar por WhatsApp</span>
-                  <ChevronRight className="size-4" />
-                </a>
-              </Button>
+              <div className="rounded-xl border border-white/15 bg-black/60 backdrop-blur-md p-3.5 flex items-center gap-2.5">
+                <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
+                <div>
+                  <span className="text-sm font-black text-white font-sans block leading-none">GRATIS</span>
+                  <span className="text-[10px] font-mono text-slate-300 block mt-0.5">Medición In-Situ</span>
+                </div>
+              </div>
             </div>
 
+            {/* CTA Directo a Asesoría por WhatsApp */}
+            <Button
+              size="lg"
+              className="h-11 px-5 text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-cta gap-2 cursor-pointer w-full active:translate-y-0.5"
+              asChild
+            >
+              <a
+                href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20deseo%20hacer%20una%20consulta%20técnica%20para%20mi%20obra."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <WhatsAppIcon className="size-4" />
+                <span>Consultar por WhatsApp</span>
+                <ArrowRight className="size-3.5 ml-auto" />
+              </a>
+            </Button>
+
           </div>
+
         </div>
 
-        {/* ── Panel Derecho: Acordeón Técnico Numerado ── */}
-        <div className="bg-background flex flex-col justify-center py-10 px-6 sm:px-10 lg:px-12">
+        {/* ── Panel Derecho (7 columnas): Acordeón de Ventas & Respuestas Claras ── */}
+        <div className="lg:col-span-7 bg-background flex flex-col justify-center py-8 sm:py-10 px-5 sm:px-8 lg:px-10">
 
           <Accordion type="single" collapsible defaultValue="item-01" className="w-full">
-            {FAQS.map((faq) => (
+            {FAQS_VENDIBLES.map((faq) => (
               <AccordionItem
                 key={faq.num}
                 value={`item-${faq.num}`}
                 className="border-b border-border last:border-b-0 group"
               >
-                <AccordionTrigger className="text-left py-5 hover:no-underline gap-4 cursor-pointer">
-                  <div className="flex items-start gap-4 text-left">
-                    <span className="text-[11px] font-mono font-bold text-primary/50 group-hover:text-primary shrink-0 pt-0.5 transition-colors w-6">
-                      {faq.num}
+                <AccordionTrigger className="text-left py-4 hover:no-underline gap-3 cursor-pointer">
+                  <div className="flex items-start gap-3.5 text-left">
+                    <span className="text-xs font-mono font-black text-primary shrink-0 pt-0.5 w-6">
+                      {faq.num} //
                     </span>
                     <span className="text-sm sm:text-base font-bold text-foreground leading-snug group-data-[state=open]:text-primary transition-colors">
                       {faq.q}
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pb-5 pl-10 font-normal">
+                <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pb-4 pl-9.5 font-normal">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -146,4 +157,3 @@ export function Faq() {
     </section>
   );
 }
-
