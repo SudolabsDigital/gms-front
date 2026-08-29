@@ -291,3 +291,17 @@ export function obtenerZonas(): ZonaInfo[] {
     },
   ];
 }
+
+/**
+ * Obtiene una obra específica por su ID único.
+ */
+export function obtenerObraPorId(id: string): ObraItem | undefined {
+  return obtenerTodasLasObras().find((o) => o.id === id);
+}
+
+/**
+ * Obtiene la lista de IDs para generación de rutas estáticas.
+ */
+export function obtenerSlugsDeObras(): { id: string }[] {
+  return obtenerTodasLasObras().map((o) => ({ id: o.id }));
+}

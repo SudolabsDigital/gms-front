@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { leerPublicados, etiquetasUsadas } from "@/lib/blog/leer";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
 
+import { obtenerTodasLasObras } from "@/lib/obras/leer";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://gmsintegra.com";
   const currentDate = new Date().toISOString();
@@ -9,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const articulos = leerPublicados();
   const ultimoArticulo = articulos[0]?.actualizado ?? articulos[0]?.fecha;
   const categoriasCatalogo = obtenerCategorias();
+  const obras = obtenerTodasLasObras();
 
   return [
     // ── Páginas Principales ──
@@ -38,6 +41,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.95,
     },
+    ...obras.filter((o) => o.destacado).map((obra) => ({
+      url: `${baseUrl}/obras/${obra.id}`,
+      lastModified: currentDate,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     // ── Blog Técnico ──
     {
       url: `${baseUrl}/blog`,
