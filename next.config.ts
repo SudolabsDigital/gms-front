@@ -1,16 +1,87 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 /**
- * Ya NO se usan `rewrites` para /api/*.
- *
- * El rewrite reenviaba la petición al backend, pero no puede añadir cabeceras dinámicas
- * y por tanto no puede inyectar el `Authorization: Bearer` que Sanctum necesita. Ese
- * token vive en una cookie httpOnly a la que el navegador no tiene acceso desde JS.
- *
- * En su lugar hay un Route Handler catch-all en `src/app/api/[...slug]/route.ts` que
- * hace de Backend-for-Frontend: lee la cookie, inyecta la cabecera y reenvía a Laravel.
- * Sigue sin haber CORS y `BACKEND_URL` sigue sin exponerse al navegador.
+ * Configuración de Producción & Optimización para GMS Integra.
+ * Compatible tanto con Vercel Edge como con Firebase App Hosting.
  */
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
 
-export default nextConfig;
+  // Optimización de imágenes (AVIF + WebP con TTL de 1 año)
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 31536000,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+
+  // Inclusión explícita de archivos MDX para SSR / SSG
+  outputFileTracingIncludes: {
+    "/blog": ["content/blog/**/*.mdx"],
+    "/blog/[slug]": ["content/blog/**/*.mdx"],
+    "/blog/etiqueta/[tag]": ["content/blog/**/*.mdx"],
+    "/sitemap.xml": ["content/blog/**/*.mdx"],
+  },
+  outputFileTracingExcludes: {
+    "/blog/**": [".next/cache/**/*"],
+  },
+
+  // Cabeceras HTTP de Seguridad y Caché Inmutable CDN para Assets
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+      {
+        source: "/catalogo/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/assets/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
+};
+
+const withMDX = createMDX({
+  options: {
+    // Turbopack compatibility: plugins are declared by name strings
+    remarkPlugins: ["remark-frontmatter", "remark-gfm"],
+    rehypePlugins: ["rehype-slug"],
+  },
+});
+
+export default withMDX(nextConfig);
