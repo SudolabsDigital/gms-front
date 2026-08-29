@@ -1,192 +1,168 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
-
 import { Button } from "@/components/ui/button";
 
-import imgMampara from "@/assets/mampara_monumental_terraza.jpg";
-import imgBano from "@/assets/bano_spa_vidrio_templado.jpg";
-import imgFachada from "@/assets/fachada_muro_cortina.jpg";
-import imgVentana from "@/assets/cerramiento_terraza.jpg";
-
-const PRODUCTS = [
+const LINEAS_FABRICACION = [
   {
     id: "mamparas",
-    num: "01",
-    title: "Mamparas Serie 80",
-    category: "Gran Formato",
-    spec: "Templado 8-10mm · DVH",
-    desc: "Vanos monumentales piso a techo con rodamiento pesado de deslizamiento suave y hermeticidad.",
-    image: imgMampara,
-    waMessage:
-      "Hola GMS Integra, solicito cotización para Mamparas Monumentales Serie 80 en Huancayo.",
-  },
-  {
-    id: "banos",
-    num: "02",
-    title: "Línea Spazio Baños",
-    category: "Acero Inox 304",
-    spec: "Acero Quirúrgico · Templado 8mm",
-    desc: "Divisiones de ducha de alta seguridad con herrajes inoxidables y sellado hermético anti-filtraciones.",
-    image: imgBano,
-    waMessage:
-      "Hola GMS Integra, solicito cotización para Mamparas de Baño Línea Spazio en Huancayo.",
-  },
-  {
-    id: "fachadas",
-    num: "03",
-    title: "Muros Cortina",
-    category: "Estructural",
-    spec: "Laminado 4+4 / 5+5 · Control Solar",
-    desc: "Fachadas integrales de vidrio para proyectos comerciales y residenciales con silicona estructural.",
-    image: imgFachada,
-    waMessage:
-      "Hola GMS Integra, solicito cotización para Muros Cortina en Huancayo.",
+    titulo: "Mamparas Panorámicas Serie 80",
+    categoriaSlug: "mamparas",
+    descripcion: "Vanos monumentales piso a techo con cristal templado de 8mm a 10mm y riel pesado.",
+    image: "/catalogo/mamparas/m-arenado-1.webp",
+    span: "md:col-span-2 h-[320px] sm:h-[360px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Mamparas Monumentales Serie 80 en Huancayo.",
   },
   {
     id: "ventanas",
-    num: "04",
-    title: "Ventanas Herméticas",
-    category: "Aislamiento EPDM",
-    spec: "Series 20 · 25 · 38 Batiente",
-    desc: "Corte milimétrico por matriz con felpa perimetral y empaques EPDM con tolerancia cero al frío y viento.",
-    image: imgVentana,
-    waMessage:
-      "Hola GMS Integra, solicito cotización para Ventanas Herméticas en Huancayo.",
+    titulo: "Ventanas Herméticas & Acústicas",
+    categoriaSlug: "ventanas",
+    descripcion: "Series 20, 25, 38 Batiente y PVC con felpa perimetral y empaques EPDM anti-frío.",
+    image: "/catalogo/ventanas/serie80-3.webp",
+    span: "md:col-span-1 h-[320px] sm:h-[360px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Ventanas Herméticas en Huancayo.",
+  },
+  {
+    id: "puertas",
+    titulo: "Línea Spazio & Cabinas de Ducha",
+    categoriaSlug: "puertas",
+    descripcion: "Cristal templado con herrajes en acero inoxidable 304 y perfilería de aluminio compuesto.",
+    image: "/catalogo/puertas/p-aluminio-compuesto-3.webp",
+    span: "md:col-span-1 h-[320px] sm:h-[360px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Cabinas de Ducha y Puertas Spazio en Huancayo.",
+  },
+  {
+    id: "fachadas",
+    titulo: "Fachadas Integrales & Muros Cortina",
+    categoriaSlug: "fachadas-muros-cortina",
+    descripcion: "Vidrio laminado estructural y panel de aluminio compuesto para frentes comerciales.",
+    image: "/catalogo/fachadas-muros-cortina/general-3.webp",
+    span: "md:col-span-1 h-[300px] sm:h-[340px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Muros Cortina y Fachadas en Huancayo.",
+  },
+  {
+    id: "barandas",
+    titulo: "Barandas de Acero & Cristal",
+    categoriaSlug: "barandas",
+    descripcion: "Sistemas en acero inoxidable 304 y cristal templado para balcones, escaleras y terrazas.",
+    image: "/catalogo/barandas/b-acero-2.webp",
+    span: "md:col-span-1 h-[300px] sm:h-[340px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Barandas de Acero y Cristal en Huancayo.",
+  },
+  {
+    id: "techos",
+    titulo: "Techos & Coberturas en Policarbonato",
+    categoriaSlug: "techos-policarbonato",
+    descripcion: "Policarbonato alveolar y compacto con protección UV y techos corredizos a medida.",
+    image: "/catalogo/techos-policarbonato/techo-aluminio-2.webp",
+    span: "md:col-span-2 h-[300px] sm:h-[340px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Techos de Policarbonato en Huancayo.",
+  },
+  {
+    id: "divisiones",
+    titulo: "Divisiones de Oficina & Panelería",
+    categoriaSlug: "divisiones",
+    descripcion: "Mamparas divisorias vidriadas y tabiquería acústica para espacios corporativos.",
+    image: "/catalogo/divisiones/general-1.webp",
+    span: "md:col-span-2 h-[280px] sm:h-[320px]",
+    waMessage: "Hola GMS Integra, solicito cotización para Divisiones de Oficina en Huancayo.",
+  },
+  {
+    id: "materiales",
+    titulo: "Catálogo de Materiales & Perfiles",
+    categoriaSlug: "catalogo-materiales",
+    descripcion: "Perfiles pesados de aluminio en diversos acabados, cristales y herrajes certificados.",
+    image: "/catalogo/catalogo-materiales/a-compuesto-1.webp",
+    span: "md:col-span-2 h-[280px] sm:h-[320px]",
+    waMessage: "Hola GMS Integra, solicito información del Catálogo de Materiales y Perfiles.",
   },
 ];
 
 export function Products() {
-  const [hoveredId, setHoveredId] = useState<string | null>("mamparas");
-
   return (
     <section
       id="servicios"
-      className="relative bg-background text-foreground border-b border-border overflow-hidden"
+      className="relative bg-background text-foreground border-b border-border overflow-hidden py-12 sm:py-16"
     >
-      {/* 1. Cabecera Compacta */}
-      <div className="pt-8 pb-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground font-sans">
-          Líneas de Fabricación
-        </h2>
-        <div className="mt-2.5 mx-auto h-1 w-16 bg-primary rounded-full" />
-        <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Manufactura a medida con perfiles pesados, cristales templados y 1 año de garantía escrita en Huancayo.
-        </p>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Cabecera Limpia */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-4 border-b border-border">
+          <div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground font-sans">
+              Líneas de Fabricación
+            </h2>
+          </div>
+          <Button variant="outline" size="sm" asChild className="rounded-xl font-bold text-xs shrink-0">
+            <Link href="/catalogo">
+              <span>Ver Catálogo Completo</span>
+              <ArrowRight className="size-3.5 ml-1.5" />
+            </Link>
+          </Button>
+        </div>
 
-      {/* 2. Escaparate de Paneles Visuales con Soporte Hover y Táctil (Click / Tap para Móviles y Tablets) */}
-      <div className="w-full min-h-[560px] lg:h-[620px] flex flex-col lg:flex-row border-y border-border">
-        {PRODUCTS.map((prod) => {
-          const isHovered = hoveredId === prod.id;
-          return (
+        {/* ── Cuadrícula Fotográfica Limpia (Bento Grid Visual-First) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {LINEAS_FABRICACION.map((linea) => (
             <div
-              key={prod.id}
-              role="button"
-              tabIndex={0}
-              aria-expanded={isHovered}
-              onClick={() => setHoveredId(prod.id)}
-              onMouseEnter={() => setHoveredId(prod.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setHoveredId(prod.id);
-                }
-              }}
-              className={`relative overflow-hidden cursor-pointer transition-all duration-700 ease-out border-b lg:border-b-0 lg:border-r border-border flex flex-col justify-between p-6 sm:p-8 lg:p-10 select-none ${
-                isHovered
-                  ? "lg:flex-[2.4] min-h-[340px] lg:min-h-full"
-                  : "lg:flex-1 min-h-[160px] lg:min-h-full"
-              }`}
+              key={linea.id}
+              className={`group relative overflow-hidden rounded-2xl border border-border/80 bg-slate-950 shadow-xs transition-all duration-500 hover:shadow-2xl hover:border-primary/50 flex flex-col justify-end ${linea.span}`}
             >
-              {/* Imagen de Fondo de Alta Definición */}
-              <div className="absolute inset-0 size-full z-0 pointer-events-none">
-                <Image
-                  src={prod.image}
-                  alt={`${prod.title} - GMS Integra`}
-                  priority
-                  className={`size-full object-cover object-center transition-transform duration-1000 ease-out ${
-                    isHovered ? "scale-110 brightness-[0.88]" : "scale-100 brightness-[0.65]"
-                  }`}
-                />
-                {/* Degradados de Contraste Suave */}
-                <div
-                  className={`absolute inset-0 transition-opacity duration-700 ${
-                    isHovered
-                      ? "bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-black/20"
-                      : "bg-slate-950/60"
-                  }`}
-                />
-              </div>
+              {/* Fotografía en Alta Definición */}
+              <Image
+                src={linea.image}
+                alt={linea.titulo}
+                fill
+                className="absolute inset-0 size-full object-cover object-center transition-transform duration-700 group-hover:scale-106 brightness-95"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
 
-              {/* Parte Superior del Panel */}
-              <div className="relative z-10 flex items-center justify-between pointer-events-none">
-                <span className="text-xl sm:text-2xl font-mono font-black text-white/90">
-                  {prod.num}
-                </span>
-                <span className="rounded border border-white/40 bg-slate-950/50 px-3 py-1 text-[11px] font-mono font-bold uppercase text-white shadow-xs">
-                  {prod.category}
-                </span>
-              </div>
+              {/* Scrim Oscuro Sutil de Contraste */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/30 to-black/10 transition-opacity duration-300 group-hover:from-black/95" />
 
-              {/* Parte Inferior del Panel (Contenido y Acción) */}
-              <div className="relative z-10 text-left mt-auto">
-                <h3 className="text-xl sm:text-2xl lg:text-4xl font-black uppercase tracking-tight text-white leading-tight font-sans drop-shadow-[2px_2px_4px_rgba(0,0,0,0.5)]">
-                  {prod.title}
+              {/* Contenido Limpio en la Base de la Tarjeta */}
+              <div className="relative z-10 p-5 sm:p-6">
+                
+                <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-white leading-tight font-sans drop-shadow-md">
+                  {linea.titulo}
                 </h3>
 
-                {/* Contenido expandido en hover / click */}
-                <div
-                  className={`transition-all duration-500 overflow-hidden ${
-                    isHovered
-                      ? "max-h-64 opacity-100 mt-3 sm:mt-4"
-                      : "max-h-0 opacity-0"
-                  }`}
-                >
-                  <p className="text-xs sm:text-sm text-slate-200 font-normal leading-relaxed max-w-md drop-shadow-sm">
-                    {prod.desc}
-                  </p>
+                <p className="text-xs text-slate-300 mt-1.5 line-clamp-1">
+                  {linea.descripcion}
+                </p>
 
-                  <div className="mt-5 flex items-center gap-3">
-                    <Button
-                      size="sm"
-                      className="h-11 sm:h-12 px-6 sm:px-7 text-xs font-bold uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground rounded shadow-cta gap-2 transition-all hover:brightness-110 active:translate-y-1 cursor-pointer"
-                      asChild
-                    >
-                      <a
-                        href={`https://wa.me/51958413806?text=${encodeURIComponent(prod.waMessage)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <WhatsAppIcon className="size-4" />
-                        <span>Cotizar Proyecto</span>
-                        <ArrowRight className="size-3.5" />
-                      </a>
-                    </Button>
-                  </div>
+                {/* Acciones Rápidas en la Tarjeta */}
+                <div className="mt-4 flex items-center gap-2.5">
+                  <Link
+                    href={`/catalogo/${linea.categoriaSlug}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 px-3.5 py-1.5 text-xs font-bold text-white transition-colors"
+                  >
+                    <span>Ver Modelos</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+
+                  <a
+                    href={`https://wa.me/51958413806?text=${encodeURIComponent(linea.waMessage)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md active:scale-95"
+                    title="Cotizar por WhatsApp"
+                    aria-label={`Cotizar ${linea.titulo} por WhatsApp`}
+                  >
+                    <WhatsAppIcon className="size-4 text-white" />
+                  </a>
                 </div>
 
-                {/* Indicador sutil para paneles contraídos */}
-                {!isHovered && (
-                  <p className="text-[11px] font-mono text-slate-300 mt-2 tracking-wider uppercase flex items-center gap-1">
-                    <span>Toca para ver detalles</span>
-                    <span>→</span>
-                  </p>
-                )}
               </div>
 
             </div>
-          );
-        })}
+          ))}
+        </div>
+
       </div>
     </section>
   );
 }
-
-
-
-
