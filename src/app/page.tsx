@@ -7,10 +7,12 @@ import { AnatomySection } from "@/components/landing/anatomy-section";
 import { Faq } from "@/components/landing/faq";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
+import FaqJsonLd from "@/components/seo/faq-json-ld";
 
 export default function HomePage() {
   return (
     <>
+      <FaqJsonLd />
       <SiteHeader />
       <main className="flex flex-1 flex-col">
         <Hero />

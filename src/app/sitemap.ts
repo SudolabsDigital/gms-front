@@ -1,83 +1,100 @@
 import type { MetadataRoute } from "next";
 import { leerPublicados, etiquetasUsadas } from "@/lib/blog/leer";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
-
 import { obtenerTodasLasObras } from "@/lib/obras/leer";
+import { siteConfig } from "@/config/site-config";
 
+/**
+ * Generador de sitemap para GMS Integra.
+ *
+ * Directiva DreamDev / Sudolabs SEO:
+ * `lastModified` debe originarse SIEMPRE de una fecha real del contenido, nunca
+ * de `new Date()`. Emitir la fecha del build le anuncia falsamente a los motores
+ * que la página mutó en cada compilación, destruyendo la fiabilidad de la señal.
+ * En rutas estáticas cuyo contenido reside puramente en código, se omite el campo.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://gmsintegra.com";
-  const currentDate = new Date().toISOString();
-
+  const baseUrl = siteConfig.url;
   const articulos = leerPublicados();
-  const ultimoArticulo = articulos[0]?.actualizado ?? articulos[0]?.fecha;
   const categoriasCatalogo = obtenerCategorias();
   const obras = obtenerTodasLasObras();
+
+  const masReciente = (fechas: string[]) =>
+    fechas.length
+      ? new Date(`${fechas.reduce((a, b) => (a > b ? a : b))}T12:00:00`)
+      : undefined;
+
+  const fechaBlogMasReciente = masReciente(
+    articulos.map((a) => a.actualizado ?? a.fecha)
+  );
 
   return [
     // ── Páginas Principales ──
     {
       url: baseUrl,
-      lastModified: currentDate,
+      lastModified: fechaBlogMasReciente,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     // ── Catálogo Arquitectónico ──
     {
       url: `${baseUrl}/catalogo`,
-      lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.95,
     },
     ...categoriasCatalogo.map((cat) => ({
       url: `${baseUrl}/catalogo/${cat.slug}`,
-      lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.9,
     })),
     // ── Obras Ejecutadas ──
     {
       url: `${baseUrl}/obras`,
-      lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.95,
     },
-    ...obras.filter((o) => o.destacado).map((obra) => ({
-      url: `${baseUrl}/obras/${obra.id}`,
-      lastModified: currentDate,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
+    ...obras
+      .filter((o) => o.destacado)
+      .map((obra) => ({
+        url: `${baseUrl}/obras/${obra.id}`,
+        changeFrequency: "monthly" as const,
+        priority: 0.8,
+      })),
     // ── Blog Técnico ──
     {
       url: `${baseUrl}/blog`,
-      lastModified: ultimoArticulo ? new Date(`${ultimoArticulo}T12:00:00`) : new Date(),
+      lastModified: fechaBlogMasReciente,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     ...articulos.map((articulo) => ({
       url: `${baseUrl}/blog/${articulo.slug}`,
-      lastModified: new Date(`${articulo.actualizado ?? articulo.fecha}T12:00:00`),
+      lastModified: new Date(
+        `${articulo.actualizado ?? articulo.fecha}T12:00:00`
+      ),
       changeFrequency: "monthly" as const,
-      priority: 0.8,
+      priority: 0.85,
     })),
     ...etiquetasUsadas().map(({ etiqueta }) => ({
       url: `${baseUrl}/blog/etiqueta/${etiqueta}`,
-      lastModified: new Date(),
+      lastModified: masReciente(
+        articulos
+          .filter((a) => a.etiquetas.includes(etiqueta))
+          .map((a) => a.actualizado ?? a.fecha)
+      ),
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })),
     // ── Páginas Legales & Institucionales ──
     {
       url: `${baseUrl}/terminos-y-condiciones`,
-      lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/politica-de-privacidad`,
-      lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.3,
     },
   ];
 }
