@@ -128,6 +128,7 @@
 * [x] Task 69: `BreadcrumbSchema` y `ObraJsonLd` + sincronización asíncrona de hash en galería + limpieza de imports en Obras y Catálogo | `galeria-obras.tsx`, `obras/[id]/`, `catalogo/` | [MEDIO] | ✅
 * [x] Task 70: `BlogJsonLd` + saneamiento de `sitemap.ts` (fechas reales de contenido, sin falsos timestamps en build) | `sitemap.ts`, `blog/[slug]/` | [BAJO] | ✅
 * [x] Task 71: VALIDATE integral — `check-comments` (145 archivos limpios) + `lint` (0 errores) + `build` (97 rutas generadas con éxito) | `gms-front/` | [BAJO] | ✅
+* [x] Task 72: Montaje de Contacto en Landing (`page.tsx`) según directriz explícita del usuario + saneamiento completo de imports y tipos alcanzando 0 errores y 0 warnings en todo el proyecto | `app/page.tsx`, `scripts/`, `src/` | [MEDIO] | ✅
 
 ## <DECISIONES DE LA SESIÓN 10>
 * **Una sola fuente de verdad para FAQs:** Las preguntas y respuestas residen en `src/config/faq-data.ts`. La interfaz visual ([faq.tsx](file:///C:/Users/USUARIO/Documents/!GMSINTEGRA/gms-front/src/components/landing/faq.tsx)) y el microformato estructurado ([faq-json-ld.tsx](file:///C:/Users/USUARIO/Documents/!GMSINTEGRA/gms-front/src/components/seo/faq-json-ld.tsx)) consumen el mismo array exacto.
@@ -135,6 +136,8 @@
 * **Sitemap con señales reales:** Eliminado `new Date().toISOString()` indiscriminado en el build. Se calculan las fechas reales (`masReciente`) del contenido publicado y se omiten marcas de tiempo en páginas estáticas de código para no desvalorizar el rastreo.
 * **Efectos síncronos desacoplados en React 19:** La sincronización de hash en [galeria-obras.tsx](file:///C:/Users/USUARIO/Documents/!GMSINTEGRA/gms-front/src/components/obras/galeria-obras.tsx) se trasladó a suscripción de evento `hashchange` y timeout de microtarea, eliminando el antipatrón de renders en cascada.
 * **Puerta de comentarios en prebuild:** Siguiendo el Principio 14 de DreamDev ("Un estándar sin puerta es una preferencia"), cualquier comentario en el código fuente que filtre datos confidenciales rompe la compilación antes de generar artefactos.
+* **Directriz de Landing estricta:** Conforme a la instrucción del usuario, se descartó el simulador de cotización y componentes con deuda técnica en la home; únicamente se montó el formulario oficial `Contact` (`contact.tsx`) y su esquema JSON-LD.
+* **Cero deuda técnica en linter:** Se eliminaron 53 advertencias de imports en desuso y tipados en `catalogo`, `obras`, `politica-de-privacidad`, `terminos-y-condiciones` y scripts auxiliares. El proyecto opera con 0 errores y 0 warnings.
 
 ---
 

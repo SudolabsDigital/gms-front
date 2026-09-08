@@ -6,7 +6,7 @@ import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
 import { GaleriaObras } from "@/components/obras/galeria-obras";
 import { siteConfig } from "@/config/site-config";
 import { obtenerTodasLasObras, obtenerZonas } from "@/lib/obras/leer";
-import { ShieldCheck, MessageSquare, ArrowRight, Building, Award, Wrench } from "lucide-react";
+import { MessageSquare, ArrowRight, Wrench } from "lucide-react";
 
 export const revalidate = 86400;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowUp, Play, Pause, ChevronsDown } from "lucide-react";
+import { ArrowUp, Play, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   WhatsAppIcon,

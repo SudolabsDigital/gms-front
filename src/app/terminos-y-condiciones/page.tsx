@@ -1,17 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import {
-  ShieldCheck,
-  ArrowLeft,
-  FileText,
-  Scale,
-  MessageCircle,
-  Phone,
-  Building2,
-  Lock,
-  ExternalLink,
-  CheckCircle2,
-} from "lucide-react";
+import { ArrowLeft, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
 

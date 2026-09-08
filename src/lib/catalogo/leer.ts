@@ -3,8 +3,6 @@ import type {
   CatalogoData,
   CategoriaCatalogo,
   ItemCatalogo,
-  SlugCategoria,
-  SLUGS_CATEGORIAS,
 } from "./esquema";
 
 const catalogo: CatalogoData = catalogoRaw as CatalogoData;

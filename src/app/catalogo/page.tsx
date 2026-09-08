@@ -7,7 +7,7 @@ import { TarjetaCategoria } from "@/components/catalogo/tarjeta-categoria";
 import { siteConfig } from "@/config/site-config";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
 import { exigirCatalogoValido } from "@/lib/catalogo/validar";
-import { ArrowRight, MessageSquare, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowRight, MessageSquare, Shield } from "lucide-react";
 
 export const revalidate = 86400;
 

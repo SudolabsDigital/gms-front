@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Phone, MapPin, ArrowRight, ShieldCheck, Clock, FileText, Lock } from "lucide-react";
+import { Phone, MapPin, ArrowRight, ShieldCheck, Clock } from "lucide-react";
 
 import logo from "@/assets/gms-logo.webp";
 import { Button } from "@/components/ui/button";

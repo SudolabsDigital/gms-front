@@ -7,9 +7,6 @@ import {
   Share2,
   Check,
   Copy,
-  MessageSquare,
-  MoreVertical,
-  ExternalLink,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,7 +19,6 @@ import {
 import { WhatsAppIcon, FacebookIcon } from "@/components/landing/social-icons";
 import { siteConfig } from "@/config/site-config";
 import type { CategoriaCatalogo } from "@/lib/catalogo/esquema";
-import { cn } from "@/lib/utils";
 
 export function TarjetaCategoria({
   categoria,
