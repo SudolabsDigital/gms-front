@@ -5,14 +5,12 @@ import type { ObraItem, ZonaInfo, ZonaSlug } from "@/lib/obras/esquema";
 import { TarjetaObra } from "./tarjeta-obra";
 import { FiltroZonas } from "./filtro-zonas";
 import { siteConfig } from "@/config/site-config";
-import { WhatsAppIcon, FacebookIcon } from "@/components/landing/social-icons";
+import { WhatsAppIcon } from "@/components/landing/social-icons";
 import {
   X,
   ChevronLeft,
   ChevronRight,
-  MessageSquare,
   MapPin,
-  Building,
   RotateCcw,
   Info,
   ZoomIn,
@@ -20,8 +18,6 @@ import {
   Share2,
   Copy,
   Check,
-  Eye,
-  SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -123,13 +119,23 @@ export function GaleriaObras({
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash) {
-      const hashId = window.location.hash.replace("#", "");
-      const index = obras.findIndex((o) => o.id === hashId);
-      if (index !== -1) {
-        setSeleccionada(index);
+    const sincronizarHash = () => {
+      if (typeof window !== "undefined" && window.location.hash) {
+        const hashId = window.location.hash.replace("#", "");
+        const index = obras.findIndex((o) => o.id === hashId);
+        if (index !== -1) {
+          setSeleccionada(index);
+        }
       }
-    }
+    };
+
+    const timer = setTimeout(sincronizarHash, 0);
+    window.addEventListener("hashchange", sincronizarHash);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("hashchange", sincronizarHash);
+    };
   }, [obras]);
 
   const copiarEnlace = (url: string) => {

@@ -120,9 +120,28 @@
 * **La barra superior de escritorio desaparece:** gastaba 56px de alto a lo ancho de la pantalla para un nombre y un rol que no cambian nunca. Por debajo de `md` la sustituye `ErpBarraMovil`, que sí es navegación imprescindible.
 * **El cotizador no lleva `PageHeader`.** Inicio y Plantillas lo conservan: son páginas de navegación. El cotizador es de trabajo continuo y todo lo que aparezca sobre el modelo debe ganarse el sitio.
 
+## <SESIÓN 10 — Arquitectura, SEO y Schemas (Inspirado en Sudolabs)>
+* [x] Task 65: Hardening de `next.config.ts` (HSTS, DNS-Prefetch, `removeConsole`, `optimizePackageImports: ['lucide-react', 'motion']`) | `next.config.ts` | [MEDIO] | ✅
+* [x] Task 66: Puerta de calidad `check-comments.mjs` (prebuild gate para blindar comentarios) | `scripts/check-comments.mjs`, `package.json` | [BAJO] | ✅
+* [x] Task 67: Endpoint estático `/llms.txt` generado desde catálogo, obras y blog bajo convención llmstxt.org | `src/app/llms.txt/route.ts` | [BAJO] | ✅
+* [x] Task 68: Unificación de Knowledge Graph (@graph `#organization` + `#website`) + `FaqJsonLd` desde `faq-data.ts` + fix comentario JSX en FAQ | `src/components/seo/`, `faq.tsx` | [MEDIO] | ✅
+* [x] Task 69: `BreadcrumbSchema` y `ObraJsonLd` + sincronización asíncrona de hash en galería + limpieza de imports en Obras y Catálogo | `galeria-obras.tsx`, `obras/[id]/`, `catalogo/` | [MEDIO] | ✅
+* [x] Task 70: `BlogJsonLd` + saneamiento de `sitemap.ts` (fechas reales de contenido, sin falsos timestamps en build) | `sitemap.ts`, `blog/[slug]/` | [BAJO] | ✅
+* [x] Task 71: VALIDATE integral — `check-comments` (145 archivos limpios) + `lint` (0 errores) + `build` (97 rutas generadas con éxito) | `gms-front/` | [BAJO] | ✅
+
+## <DECISIONES DE LA SESIÓN 10>
+* **Una sola fuente de verdad para FAQs:** Las preguntas y respuestas residen en `src/config/faq-data.ts`. La interfaz visual ([faq.tsx](file:///C:/Users/USUARIO/Documents/!GMSINTEGRA/gms-front/src/components/landing/faq.tsx)) y el microformato estructurado ([faq-json-ld.tsx](file:///C:/Users/USUARIO/Documents/!GMSINTEGRA/gms-front/src/components/seo/faq-json-ld.tsx)) consumen el mismo array exacto.
+* **Knowledge Graph interconectado por `@id`:** En vez de duplicar fichas comerciales en scripts inconexos, se unificó en un único `@graph` donde `WebSite` declara `publisher: { @id: "#organization" }`, dotando de máxima consistencia a la entidad corporativa ante Google.
+* **Sitemap con señales reales:** Eliminado `new Date().toISOString()` indiscriminado en el build. Se calculan las fechas reales (`masReciente`) del contenido publicado y se omiten marcas de tiempo en páginas estáticas de código para no desvalorizar el rastreo.
+* **Efectos síncronos desacoplados en React 19:** La sincronización de hash en [galeria-obras.tsx](file:///C:/Users/USUARIO/Documents/!GMSINTEGRA/gms-front/src/components/obras/galeria-obras.tsx) se trasladó a suscripción de evento `hashchange` y timeout de microtarea, eliminando el antipatrón de renders en cascada.
+* **Puerta de comentarios en prebuild:** Siguiendo el Principio 14 de DreamDev ("Un estándar sin puerta es una preferencia"), cualquier comentario en el código fuente que filtre datos confidenciales rompe la compilación antes de generar artefactos.
+
+---
+
 ## <PENDIENTE PRÓXIMA SESIÓN>
 * **Selector de diseño en `/plantillas`:** hoy sigue mostrando solo `disenos[0]`. Con un segundo diseño, la página tapará uno sin avisar. Requiere decidir el criterio de clasificación con el taller.
 * **Catálogo de materiales (full-stack):** `GET /v1/insumos`, `PATCH /insumos/{id}/precio`, `GET /insumos/{id}/uso`. Desbloquea el costeo real — hoy todo material vale S/ 0,00.
 * Cotización persistida: los modelos `Cotizacion`/`CotizacionItem` y su Policy existen sin endpoints ni pantalla.
 * Server-state: instalar TanStack Query al construir la 1ª feature con mutaciones frecuentes.
-* Primer commit del ERP + remote GitHub (todo `(erp)/`, `features/`, `lib/session.ts` sigue sin versionar).
+* Commits pendientes del frontend listos para revisión y ejecución del usuario.
+

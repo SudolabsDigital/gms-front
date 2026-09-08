@@ -11,6 +11,8 @@ import { Compartir } from "@/components/blog/compartir";
 import { siteConfig } from "@/config/site-config";
 import { NOMBRE_DE_ETIQUETA } from "@/lib/blog/esquema";
 import { leerPorSlug, leerRutas, relacionados, serieDe } from "@/lib/blog/leer";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
+import BlogJsonLd from "@/components/seo/blog-json-ld";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -88,29 +90,17 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
   const serie = serieDe(articulo);
   const posicionEnSerie = serie.findIndex((a) => a.slug === articulo.slug);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: articulo.titulo,
-    description: articulo.descripcion,
-    image: `${siteConfig.url}${articulo.portada}`,
-    datePublished: articulo.fecha,
-    dateModified: articulo.actualizado ?? articulo.fecha,
-    author: { "@type": "Organization", name: siteConfig.name, url: siteConfig.url },
-    publisher: { "@type": "Organization", name: siteConfig.name, url: siteConfig.url },
-    mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    inLanguage: "es-PE",
-    wordCount: articulo.palabras,
-    keywords: articulo.etiquetas.map((e) => NOMBRE_DE_ETIQUETA[e]).join(", "),
-  };
+  const breadcrumbItems = [
+    { name: "Inicio", item: "/" },
+    { name: "Blog Técnico", item: "/blog" },
+    { name: articulo.titulo, item: `/blog/${articulo.slug}` },
+  ];
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <BreadcrumbSchema items={breadcrumbItems} />
+      <BlogJsonLd articulo={articulo} />
 
       <main className="flex-1">
         <CabeceraDePagina

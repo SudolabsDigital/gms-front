@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Maximize2, Building } from "lucide-react";
+import { Maximize2 } from "lucide-react";
 import type { ObraItem } from "@/lib/obras/esquema";
 import { cn } from "@/lib/utils";
 

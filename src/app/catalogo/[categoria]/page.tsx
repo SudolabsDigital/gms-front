@@ -14,7 +14,8 @@ import {
   obtenerSlugsCategorias,
   obtenerCategorias,
 } from "@/lib/catalogo/leer";
-import { MessageSquare, ArrowLeft, ArrowRight } from "lucide-react";
+import { MessageSquare, ArrowLeft } from "lucide-react";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -61,12 +62,20 @@ export default async function CategoriaPage({
   const items = obtenerItemsPorCategoria(slug);
   const todasCategorias = obtenerCategorias().filter((c) => c.slug !== slug);
 
+  const breadcrumbItems = [
+    { name: "Inicio", item: "/" },
+    { name: "Catálogo", item: "/catalogo" },
+    { name: cat.nombre, item: `/catalogo/${slug}` },
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
+    "@id": `${siteConfig.url}/catalogo/${slug}#webpage`,
     name: `${cat.nombre} — GMS Integra`,
     description: cat.descripcion,
     url: `${siteConfig.url}/catalogo/${slug}`,
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
     mainEntity: {
       "@type": "ItemList",
       itemListElement: items.slice(0, 30).map((item, index) => ({
@@ -81,6 +90,7 @@ export default async function CategoriaPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
+      <BreadcrumbSchema items={breadcrumbItems} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

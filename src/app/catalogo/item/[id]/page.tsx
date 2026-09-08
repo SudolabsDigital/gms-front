@@ -9,15 +9,9 @@ import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
 import { siteConfig } from "@/config/site-config";
 import { obtenerItemPorId, obtenerSlugsDeItems, obtenerCategoriaPorSlug } from "@/lib/catalogo/leer";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import {
-  ArrowLeft,
-  ShieldCheck,
-  Tag,
-  CheckCircle2,
-  Phone,
-  MessageSquare,
-} from "lucide-react";
+import { ArrowLeft, ShieldCheck, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 
 export const revalidate = 86400;
 
@@ -86,16 +80,24 @@ export default async function ItemCatalogoIndividualPage({
   const mensajeWhatsApp = `Hola GMS Integra, vi el modelo «${item.titulo}» (${item.subcategoriaNombre}) en el catálogo de ${catNombre} (${urlItem}) y deseo solicitar una cotización.`;
   const urlWhatsApp = `https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(mensajeWhatsApp)}`;
 
+  const breadcrumbItems = [
+    { name: "Inicio", item: "/" },
+    { name: "Catálogo", item: "/catalogo" },
+    { name: catNombre, item: `/catalogo/${item.categoria}` },
+    { name: item.titulo, item: `/catalogo/item/${item.id}` },
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${urlItem}#product`,
     name: `${item.titulo} — ${item.subcategoriaNombre}`,
-    description: `Modelo de carpintería de aluminio y vidrio templado en la categoría de ${catNombre}.`,
+    description: `Modelo de carpintería de aluminio y vidrio templado en la categoría de ${catNombre}. Fabricación a medida en Huancayo.`,
     image: `${siteConfig.url}${item.src}`,
     category: catNombre,
     brand: {
       "@type": "Brand",
-      name: "GMS Integra",
+      name: siteConfig.name,
     },
     offers: {
       "@type": "Offer",
@@ -104,7 +106,8 @@ export default async function ItemCatalogoIndividualPage({
       availability: "https://schema.org/InStock",
       seller: {
         "@type": "Organization",
-        name: "GMS Integra E.I.R.L.",
+        "@id": `${siteConfig.url}/#organization`,
+        name: siteConfig.name,
       },
     },
   };
@@ -112,6 +115,7 @@ export default async function ItemCatalogoIndividualPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
+      <BreadcrumbSchema items={breadcrumbItems} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
