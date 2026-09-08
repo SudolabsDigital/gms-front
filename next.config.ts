@@ -30,12 +30,30 @@ const nextConfig: NextConfig = {
     "/blog/**": [".next/cache/**/*"],
   },
 
+  // Limpieza de console en producción
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+
+  // Optimización de importaciones pesadas (árboles de iconos y animaciones)
+  experimental: {
+    optimizePackageImports: ["lucide-react", "motion"],
+  },
+
   // Cabeceras HTTP de Seguridad y Caché Inmutable CDN para Assets
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
