@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { JsonLd } from "@/components/seo/json-ld";
+import { siteConfig } from "@/config/site-config";
 
 const jost = Jost({
   variable: "--font-jost",
@@ -24,7 +25,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gmsintegra.com"),
+  // Deriva del config: el dominio se decide en UN sitio (ver siteConfig.url).
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: "GMS Integra — Ventanas y Mamparas de Aluminio en Huancayo y Valle del Mantaro",
     template: "%s | GMS Integra",
@@ -45,7 +47,7 @@ export const metadata: Metadata = {
     "Serie 20 Serie 25 Serie 38 Sistema Nova",
     "GMS Integra",
   ],
-  authors: [{ name: "GMS Integra", url: "https://gmsintegra.com" }],
+  authors: [{ name: "GMS Integra", url: siteConfig.url }],
   creator: "GMS Integra",
   publisher: "GMS Integra",
   formatDetection: {
@@ -70,7 +72,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_PE",
-    url: "https://gmsintegra.com",
+    url: siteConfig.url,
     siteName: "GMS Integra",
     title: "GMS Integra — Especialistas en Ventanas y Mamparas de Aluminio",
     description:
