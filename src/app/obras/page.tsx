@@ -78,18 +78,16 @@ export default function ObrasPage() {
         <CabeceraDePagina
           migas={[{ nombre: "Inicio", href: "/" }, { nombre: "Obras Ejecutadas" }]}
           titulo="Obras Ejecutadas & Proyectos Reales"
-          /* El número sale del dato, no de una cifra escrita a mano: el texto decía «más de 490»
-             mientras la píldora de al lado, que sí cuenta, mostraba 472. Dos cifras del mismo
-             hecho a diez centímetros una de otra, y la inventada era la grande. */
-          resumen={`Portafolio visual de ${obras.length} proyectos entregados: viviendas unifamiliares, estaciones comerciales, edificios multifamiliares y campus universitarios en Huancayo, El Tambo, Jauja y Lima.`}
+          /* SIN CIFRA, A PROPÓSITO (2026-09-12). `obras.length` cuenta FOTOS: 472, de las que 450
+             son distintas, repartidas en 31 carpetas que corresponden a menos obras. Pintarlo como
+             «472 proyectos» o «+472 obras registradas» afirmaba algo que el dato no dice. Antes el
+             texto decía «más de 490»: dos versiones del mismo número, y ninguna contaba obras. */
+          resumen="Portafolio fotográfico de proyectos entregados: viviendas unifamiliares, estaciones comerciales, edificios multifamiliares y campus universitarios en Huancayo, El Tambo, Jauja y Lima."
           imagen="/catalogo/fachadas-muros-cortina/general-1.webp"
           imagenAlt="Obras y proyectos arquitectónicos de GMS Integra"
           badge="Portafolio de Obras"
           meta={
             <>
-              <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                +{obras.length} Obras Registradas
-              </span>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
                 5 Zonas Geográficas
               </span>

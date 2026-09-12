@@ -189,7 +189,7 @@ export default async function ObraIndividualPage({
                 className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
               >
                 <ArrowLeft className="size-4" />
-                <span>Explorar todas las 472 obras en el Portafolio</span>
+                <span>Explorar todas las obras del portafolio</span>
               </Link>
             </div>
 

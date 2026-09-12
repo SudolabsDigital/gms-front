@@ -191,7 +191,7 @@ export function GaleriaObras({
 
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs font-bold text-slate-300">
-            {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "proyecto" : "proyectos"}
+            {obrasFiltradas.length} {obrasFiltradas.length === 1 ? "foto" : "fotos"}
           </span>
 
           {hayFiltrosActivos && (
@@ -224,9 +224,9 @@ export function GaleriaObras({
       ) : (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <MapPin className="mx-auto size-10 text-muted-foreground/40 mb-3" />
-          <h3 className="text-lg font-black text-foreground">No se encontraron proyectos</h3>
+          <h3 className="text-lg font-black text-foreground">No se encontraron obras</h3>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-            No hay proyectos con los filtros seleccionados. Intenta cambiar de ubicación o tipología.
+            No hay fotos con los filtros seleccionados. Intenta cambiar de ubicación o tipología.
           </p>
           <button
             type="button"

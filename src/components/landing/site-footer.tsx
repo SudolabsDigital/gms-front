@@ -100,7 +100,7 @@ export function SiteFooter() {
                 Portafolio & Marco Legal
               </h4>
               <ul className="flex flex-col gap-2.5 text-xs text-slate-400">
-                <li><Link href="/obras" className="hover:text-white transition-colors text-slate-200 font-semibold">Galeria de 472 Obras</Link></li>
+                <li><Link href="/obras" className="hover:text-white transition-colors text-slate-200 font-semibold">Galería de obras</Link></li>
                 <li><Link href="/blog" className="hover:text-white transition-colors font-semibold text-sky-400">→ Blog & Guías Técnicas</Link></li>
                 <li><Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">Términos & Condiciones</Link></li>
                 <li><Link href="/politica-de-privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link></li>

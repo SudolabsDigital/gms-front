@@ -112,7 +112,7 @@ export default async function CategoriaPage({
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                {items.length} Modelos Disponibles
+                {items.length} {items.length === 1 ? "foto" : "fotos"}
               </span>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
                 {cat.subcategorias?.length || 1} Series & Tipos

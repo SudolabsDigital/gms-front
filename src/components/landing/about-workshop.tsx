@@ -186,7 +186,7 @@ export function AboutWorkshop() {
             Proyectos Ejecutados
           </h2>
           <span className="text-xs text-slate-400 hidden sm:inline">
-            · 472 Obras en Huancayo, Junín & Lima
+            · Obras en Huancayo, Junín y Lima
           </span>
         </div>
 
@@ -214,7 +214,7 @@ export function AboutWorkshop() {
             className="rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 text-white h-8 px-3.5"
           >
             <Link href="/obras">
-              <span>Ver las 472 Obras</span>
+              <span>Ver todas las obras</span>
               <ArrowRight className="size-3 ml-1" />
             </Link>
           </Button>
