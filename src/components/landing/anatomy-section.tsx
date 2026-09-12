@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
 import { Button } from "@/components/ui/button";
 import { enlaceDeWhatsApp } from "@/config/site-config";
@@ -88,7 +88,7 @@ export function AnatomySection() {
               Garantía de Origen & Calidad de Insumos
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-foreground font-sans mt-1">
-              Materiales & Proveedores Oficiales
+              Materiales & Proveedores
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-md font-normal leading-relaxed">
@@ -108,7 +108,7 @@ export function AnatomySection() {
                 <div className="w-full h-[115px] sm:h-[125px] rounded-xl bg-slate-950 border border-slate-800/80 p-3.5 flex items-center justify-center mb-3.5 transition-all duration-300 group-hover:border-primary/50">
                   <Image
                     src={prov.logoSrc}
-                    alt={`Logotipo oficial de ${prov.nombre}`}
+                    alt={`Logotipo de ${prov.nombre}`}
                     width={200}
                     height={70}
                     className="max-h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-108 brightness-105 contrast-105"
@@ -133,14 +133,6 @@ export function AnatomySection() {
                 <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                   {prov.beneficio}
                 </p>
-              </div>
-
-              {/* Tag de Garantía Oficial */}
-              <div className="mt-3.5 pt-2.5 border-t border-border flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
-                <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 truncate">
-                  Proveedor Oficial Verificado
-                </span>
               </div>
             </div>
           ))}
