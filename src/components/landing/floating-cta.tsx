@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { enlaceDeLlamada, enlaceDeWhatsApp, siteConfig, telefonoVisible } from "@/config/site-config";
 import {
   WhatsAppIcon,
   FacebookIcon,
@@ -37,8 +37,8 @@ const ACTIONS = [
   {
     key: "fb",
     label: "Facebook",
-    hint: "@GMSIntegra",
-    href: "https://www.facebook.com/profile.php?id=100089261427668",
+    hint: siteConfig.redes.facebook.usuario,
+    href: siteConfig.redes.facebook.url,
     external: true,
     icon: <FacebookIcon className="size-5" />,
     bg: "bg-[#1877F2] hover:bg-[#166FE5]",
@@ -48,8 +48,8 @@ const ACTIONS = [
   {
     key: "ig",
     label: "Instagram",
-    hint: "@gms_integra",
-    href: "https://www.instagram.com/gms_integra",
+    hint: siteConfig.redes.instagram.usuario,
+    href: siteConfig.redes.instagram.url,
     external: true,
     icon: <InstagramIcon className="size-5" />,
     bg: "bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FD1D1D] hover:brightness-110",
@@ -59,8 +59,8 @@ const ACTIONS = [
   {
     key: "tt",
     label: "TikTok",
-    hint: "@GMS_INTEGRA",
-    href: "https://www.tiktok.com/@GMS_INTEGRA",
+    hint: siteConfig.redes.tiktok.usuario,
+    href: siteConfig.redes.tiktok.url,
     external: true,
     icon: <TikTokIcon className="size-5" />,
     bg: "bg-slate-900 hover:bg-slate-800",
@@ -70,8 +70,8 @@ const ACTIONS = [
   {
     key: "tel",
     label: "Llamar",
-    hint: "(51) 958 413 806",
-    href: "tel:+51958413806",
+    hint: telefonoVisible(),
+    href: enlaceDeLlamada(),
     external: false,
     icon: <PhoneIcon className="size-5" />,
     bg: "bg-slate-700 hover:bg-slate-600",

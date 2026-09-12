@@ -93,6 +93,20 @@ const INVARIANTES = [
     umbral: 6,
     salida: "Usa `next/image`. Si el caso exige control fino (visor, lightbox), decláralo aquí como exento con su motivo en vez de silenciar el linter con `eslint-disable`.",
   },
+  {
+    id: "INV-P07",
+    nombre: "datos de contacto por site-config",
+    // Teléfono, dirección, redes, correos y horas escritas a mano. El 2026-09-12 había 40 copias
+    // en 12 archivos y el horario tenía tres valores distintos en cuatro sitios.
+    patron: /958\s?413\s?806|51958413806|Hu[áa]nuco[\s+]+(?:Nro\.?[\s+]+)?1389|facebook\.com\/profile|instagram\.com\/gms_integra|tiktok\.com\/@GMS_INTEGRA|@GMSIntegra(?![.\w])|@gms_integra(?![.\w])|gmsintegra21@gmail\.com|contacto@gmsintegra\.com|\b\d{1,2}:\d{2}\s?(?:am|pm)\b|"(?:opens|closes)"\s*:\s*"\d/gi,
+    exentos: ["src/config/site-config.ts"],
+    // 54 -> 5 el 2026-09-12 (T12.2). Los 5 que quedan son CORREOS y no se migraron a proposito:
+    // el sitio declara dos, `contacto@gmsintegra.com` (JSON-LD, privacidad, terminos) y
+    // `gmsintegra21@gmail.com` (formulario de contacto). Cual es el real solo lo sabe el cliente;
+    // elegir uno aqui seria publicar una suposicion. Bajan a 0 el dia que se decida.
+    umbral: 5,
+    salida: "Lee el dato de `@/config/site-config`: `telefonoVisible()`, `enlaceDeLlamada()`, `direccionCompleta()`, `horarioVisible()`, `siteConfig.redes`… Es la única copia de los datos de la empresa.",
+  },
 ];
 
 /**

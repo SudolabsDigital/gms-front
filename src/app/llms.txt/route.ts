@@ -1,4 +1,4 @@
-import { siteConfig } from "@/config/site-config";
+import { direccionCompleta, horarioVisible, siteConfig } from "@/config/site-config";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
 import { obtenerTodasLasObras } from "@/lib/obras/leer";
 import { leerPublicados } from "@/lib/blog/leer";
@@ -25,7 +25,7 @@ export async function GET() {
     "",
     "> Especialistas en ingeniería, fabricación e instalación de ventanas herméticas, mamparas de cristal templado, fachadas integrales y carpintería de aluminio de alta prestación en Huancayo y la región centro del Perú.",
     "",
-    "Empresa industrial y taller de arquitectura en aluminio y vidrio con sede en Jr. Huánuco Nro. 1389, Huancayo, Junín, Perú.",
+    `Empresa industrial y taller de arquitectura en aluminio y vidrio con sede en ${direccionCompleta()}, Perú.`,
     "Cumplimiento de norma técnica peruana NTP 399.012, perfilería aleación AA6063-T5, cristal de seguridad templado de 6 a 12 mm y sistemas termoacústicos herméticos.",
     "",
     "## Páginas Principales",
@@ -67,7 +67,8 @@ export async function GET() {
     "",
     "## Contacto Directo",
     `- Teléfono / WhatsApp: +${siteConfig.whatsapp.numero}`,
-    `- Dirección: Jr. Huánuco Nro. 1389, Huancayo, Junín, Perú`,
+    `- Dirección: ${direccionCompleta()}, Perú`,
+    `- Horario: ${horarioVisible()}`,
     `- Web Oficial: ${siteConfig.url}`,
     "",
   ].join("\n");

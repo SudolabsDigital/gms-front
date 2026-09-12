@@ -6,7 +6,7 @@ import logo from "@/assets/gms-logo.webp";
 import { Button } from "@/components/ui/button";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "./social-icons";
 import { SdlFooter } from "@/components/layout/sdl-footer";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { direccionCompleta, enlaceDeWhatsApp, horarioCorto, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export function SiteFooter() {
   return (
@@ -39,7 +39,7 @@ export function SiteFooter() {
               {/* Redes Sociales Oficiales */}
               <div className="flex items-center gap-3 pt-2">
                 <a
-                  href="https://www.facebook.com/profile.php?id=100089261427668"
+                  href={siteConfig.redes.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-[#1877F2] text-white hover:bg-[#166FE5] shadow-[0_3px_0px_#1251A8] active:translate-y-0.5 active:shadow-none transition-all"
@@ -48,7 +48,7 @@ export function SiteFooter() {
                   <FacebookIcon className="size-4" />
                 </a>
                 <a
-                  href="https://www.instagram.com/gms_integra"
+                  href={siteConfig.redes.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FD1D1D] text-white hover:brightness-110 shadow-[0_3px_0px_#9B27AF] active:translate-y-0.5 active:shadow-none transition-all"
@@ -57,7 +57,7 @@ export function SiteFooter() {
                   <InstagramIcon className="size-4" />
                 </a>
                 <a
-                  href="https://www.tiktok.com/@GMS_INTEGRA"
+                  href={siteConfig.redes.tiktok.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-slate-900 border border-slate-700 text-white hover:bg-black shadow-[0_3px_0px_#000] active:translate-y-0.5 active:shadow-none transition-all"
@@ -117,15 +117,15 @@ export function SiteFooter() {
               <div className="flex flex-col gap-2.5 text-xs text-slate-400">
                 <span className="flex items-start gap-2 text-slate-300">
                   <MapPin className="size-4 text-primary shrink-0 mt-0.5" />
-                  <span>Jr. Huánuco Nro. 1389, Huancayo, Junín</span>
+                  <span>{direccionCompleta()}</span>
                 </span>
                 <span className="flex items-center gap-2 text-slate-300">
                   <Phone className="size-4 text-emerald-400 shrink-0" />
-                  <span>+51 958 413 806</span>
+                  <span>{telefonoVisible()}</span>
                 </span>
                 <span className="flex items-center gap-2 text-slate-300">
                   <Clock className="size-4 text-slate-400 shrink-0" />
-                  <span>Lun–Sáb: 8:00 AM – 7:00 PM</span>
+                  <span>{horarioCorto()}</span>
                 </span>
               </div>
 

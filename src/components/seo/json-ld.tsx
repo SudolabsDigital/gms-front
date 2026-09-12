@@ -30,11 +30,11 @@ export function JsonLd() {
         ],
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Jr. Huánuco Nro. 1389",
-          "addressLocality": "Huancayo",
-          "addressRegion": "Junín",
-          "postalCode": "12001",
-          "addressCountry": "PE",
+          "streetAddress": siteConfig.direccion.calle,
+          "addressLocality": siteConfig.direccion.ciudad,
+          "addressRegion": siteConfig.direccion.region,
+          "postalCode": siteConfig.direccion.codigoPostal,
+          "addressCountry": siteConfig.direccion.pais,
         },
         "geo": {
           "@type": "GeoCoordinates",
@@ -44,16 +44,9 @@ export function JsonLd() {
         "openingHoursSpecification": [
           {
             "@type": "OpeningHoursSpecification",
-            "dayOfWeek": [
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-            ],
-            "opens": "08:00",
-            "closes": "19:00",
+            "dayOfWeek": siteConfig.horario.diasSchema,
+            "opens": siteConfig.horario.abre,
+            "closes": siteConfig.horario.cierra,
           },
         ],
         "areaServed": [
@@ -70,11 +63,7 @@ export function JsonLd() {
           { "@type": "AdministrativeArea", "name": "Junín" },
           { "@type": "City", "name": "Lima" },
         ],
-        "sameAs": [
-          "https://www.facebook.com/profile.php?id=100089261427668",
-          "https://www.instagram.com/gms_integra",
-          "https://www.tiktok.com/@GMS_INTEGRA",
-        ],
+        "sameAs": Object.values(siteConfig.redes).map((red) => red.url),
         "contactPoint": {
           "@type": "ContactPoint",
           "telephone": `+${siteConfig.whatsapp.numero}`,

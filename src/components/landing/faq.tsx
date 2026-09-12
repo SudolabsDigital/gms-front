@@ -11,7 +11,7 @@ import { ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "./social-icons";
 import { FAQS_VENDIBLES } from "@/config/faq-data";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { enlaceDeWhatsApp, siteConfig } from "@/config/site-config";
 
 export function Faq() {
   return (
@@ -39,7 +39,7 @@ export function Faq() {
           {/* Encabezado del Panel */}
           <div className="relative z-10">
             <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-brand">
-              Taller Propio · Jr. Huánuco 1389
+              Taller Propio · {siteConfig.direccion.corta}
             </span>
             <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white mt-2 font-sans leading-tight">
               Preguntas Frecuentes

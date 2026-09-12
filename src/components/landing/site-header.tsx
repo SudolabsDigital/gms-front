@@ -24,7 +24,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "./social-icons";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { enlaceDeLlamada, enlaceDeWhatsApp, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export interface NavItem {
   label: string;
@@ -163,7 +163,7 @@ export function SiteHeader() {
             {/* Redes Sociales Verificadas con Colores Oficiales */}
             <div className="hidden xl:flex items-center gap-1.5 border-r border-border pr-3">
               <a
-                href="https://www.facebook.com/profile.php?id=100089261427668"
+                href={siteConfig.redes.facebook.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#1877F2] bg-blue-50/80 hover:bg-[#1877F2] hover:text-white size-8 rounded flex items-center justify-center transition-all"
@@ -172,7 +172,7 @@ export function SiteHeader() {
                 <FacebookIcon className="size-4" />
               </a>
               <a
-                href="https://www.instagram.com/gms_integra"
+                href={siteConfig.redes.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#E1306C] bg-pink-50/80 hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E1306C] hover:to-[#FD1D1D] hover:text-white size-8 rounded flex items-center justify-center transition-all"
@@ -181,7 +181,7 @@ export function SiteHeader() {
                 <InstagramIcon className="size-4" />
               </a>
               <a
-                href="https://www.tiktok.com/@GMS_INTEGRA"
+                href={siteConfig.redes.tiktok.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-900 bg-slate-100 hover:bg-black hover:text-white size-8 rounded flex items-center justify-center transition-all"
@@ -213,7 +213,7 @@ export function SiteHeader() {
                 rel="noopener noreferrer"
               >
                 <WhatsAppIcon className="size-4" />
-                <span>(51) 958 413 806</span>
+                <span>{telefonoVisible()}</span>
                 <ArrowRight className="size-3.5" />
               </a>
             </Button>
@@ -292,23 +292,23 @@ export function SiteHeader() {
                       rel="noopener noreferrer"
                     >
                       <WhatsAppIcon className="size-5" />
-                      <span>WhatsApp: 958 413 806</span>
+                      <span>WhatsApp: {telefonoVisible()}</span>
                     </a>
                   </Button>
 
                   <a
-                    href="tel:+51958413806"
+                    href={enlaceDeLlamada()}
                     className="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 hover:text-primary py-2 bg-slate-100 rounded transition-colors"
                   >
                     <Phone className="size-4 text-emerald-600" />
-                    <span>Llamar al (51) 958 413 806</span>
+                    <span>Llamar al {telefonoVisible()}</span>
                   </a>
 
                   {/* Redes y Acceso ERP */}
                   <div className="flex items-center justify-between text-slate-500 pt-2 border-t border-slate-100">
                     <div className="flex items-center gap-2">
                       <a
-                        href="https://www.facebook.com/profile.php?id=100089261427668"
+                        href={siteConfig.redes.facebook.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="size-8 rounded flex items-center justify-center text-[#1877F2] bg-blue-50 hover:bg-[#1877F2] hover:text-white transition-all"
@@ -317,7 +317,7 @@ export function SiteHeader() {
                         <FacebookIcon className="size-4" />
                       </a>
                       <a
-                        href="https://www.instagram.com/gms_integra"
+                        href={siteConfig.redes.instagram.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="size-8 rounded flex items-center justify-center text-[#E1306C] bg-pink-50 hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E1306C] hover:to-[#FD1D1D] hover:text-white transition-all"
@@ -326,7 +326,7 @@ export function SiteHeader() {
                         <InstagramIcon className="size-4" />
                       </a>
                       <a
-                        href="https://www.tiktok.com/@GMS_INTEGRA"
+                        href={siteConfig.redes.tiktok.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="size-8 rounded flex items-center justify-center text-slate-900 bg-slate-100 hover:bg-black hover:text-white transition-all"

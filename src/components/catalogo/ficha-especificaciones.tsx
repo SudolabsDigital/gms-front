@@ -1,4 +1,5 @@
 import { Shield, CheckCircle2, Wrench } from "lucide-react";
+import { siteConfig } from "@/config/site-config";
 
 interface FichaProps {
   slug: string;
@@ -96,7 +97,7 @@ export function FichaEspecificaciones({ slug }: FichaProps) {
             Especificaciones Técnicas & Calidad de Manufactura
           </h3>
           <p className="text-xs text-muted-foreground">
-            Estándares aplicados en taller de Jr. Huánuco 1389, Huancayo
+            Estándares aplicados en taller de {siteConfig.direccion.corta}, {siteConfig.direccion.ciudad}
           </p>
         </div>
       </div>

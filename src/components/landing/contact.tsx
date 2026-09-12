@@ -9,7 +9,15 @@ import { MapPin, Phone, Mail, Clock, MessageCircle, CheckCircle2, ArrowRight } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import {
+  direccionCompleta,
+  enlaceDeLlamada,
+  enlaceDeMapa,
+  enlaceDeMapaIncrustado,
+  enlaceDeWhatsApp,
+  horarioVisible,
+  telefonoVisible,
+} from "@/config/site-config";
 import {
   Form,
   FormField,
@@ -41,14 +49,14 @@ const contactInfo = [
   {
     icon: MapPin,
     label: "Sede y Taller Principal",
-    value: "Jr. Huánuco Nro. 1389, Huancayo, Junín",
-    href: "https://maps.google.com/?q=JR.+HUANUCO+NRO.+1389,+Huancayo,+Junin,+Peru",
+    value: direccionCompleta(),
+    href: enlaceDeMapa(),
   },
   {
     icon: Phone,
     label: "Atención Telefónica & Taller",
-    value: "(51) 958 413 806",
-    href: "tel:+51958413806",
+    value: telefonoVisible(),
+    href: enlaceDeLlamada(),
   },
   {
     icon: Mail,
@@ -59,7 +67,7 @@ const contactInfo = [
   {
     icon: Clock,
     label: "Horario de Atención en Taller",
-    value: "Lunes a Sábado · 8:00 am – 6:30 pm",
+    value: horarioVisible(),
   },
 ];
 
@@ -167,7 +175,7 @@ Hola GMS Integra, he completado el formulario web y deseo coordinar una cotizaci
                 <span className="text-[10px] text-slate-500 font-medium">Huancayo, Junín</span>
               </div>
               <iframe
-                src="https://maps.google.com/maps?q=JR.+HUANUCO+NRO.+1389,+Huancayo,+Junin,+Peru&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                src={enlaceDeMapaIncrustado()}
                 width="100%"
                 height="220"
                 style={{ border: 0 }}
@@ -217,7 +225,7 @@ Hola GMS Integra, he completado el formulario web y deseo coordinar una cotizaci
                       <FormItem>
                         <FormLabel className="text-xs font-bold text-slate-700">Teléfono / WhatsApp</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ej. 958 413 806" className="h-11 rounded-xl" {...field} />
+                          <Input placeholder="Ej. 9XX XXX XXX" className="h-11 rounded-xl" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
