@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Jost, Geist_Mono } from "next/font/google";
+import { Montserrat, Fredoka, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -10,11 +10,33 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { JsonLd } from "@/components/seo/json-ld";
 import { siteConfig } from "@/config/site-config";
 
-const jost = Jost({
-  variable: "--font-jost",
+/**
+ * Montserrat es la tipografia de interfaz: titulares, cuerpo y etiquetas.
+ *
+ * El peso 900 va cargado a proposito: `font-black` aparece 89 veces en el portal y sin el
+ * archivo real el navegador lo sintetiza engordando el 800, que en titulares grandes se nota
+ * como un borde sucio.
+ */
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
   preload: true,
+});
+
+/**
+ * Fredoka es SOLO de marca: el nombre «GMS Integra» y los nombres de producto en el hero.
+ *
+ * Decision del 2026-09-12, acotada a proposito. Su redondez funciona como firma cuando aparece
+ * poco; en interfaz o en datos de taller resta la precision que el resto del sistema busca, y ahi
+ * manda Montserrat (texto) o Geist Mono (cotas).
+ */
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -110,7 +132,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${jost.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${fredoka.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col relative overflow-x-hidden">
         <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light">

@@ -6,7 +6,7 @@
  */
 
 :root {
-  --sdlf-bg:          #111c2d;             /* Fondo — igual al footer principal del sitio */
+  --sdlf-bg:          #111c2d;             /* Fondo propio. NO es el del footer del sitio, que es #1A2B45 (--superficie-profunda): este componente es portable y no depende de los tokens de GMS */
   --sdlf-blue:        #00c9ff;             /* Azul/Cian de marca */
   --sdlf-purple:      #004aad;             /* Azul GMS */
   --sdlf-soft:        #c8d6e8;             /* Texto claro principal */

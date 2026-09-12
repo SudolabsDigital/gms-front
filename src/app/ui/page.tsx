@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 const dots = [
   ["primary", "bg-primary"],
   ["brand", "bg-brand"],
-  ["brand-soft", "bg-brand-soft"],
+  ["brand-linea-soft", "bg-brand-linea-soft"],
   ["success", "bg-success"],
   ["warning", "bg-warning"],
   ["destructive", "bg-destructive"],

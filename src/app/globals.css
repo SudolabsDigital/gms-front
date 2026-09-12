@@ -13,7 +13,8 @@
   --radius: 0.25rem;
 
   /* Gradiente de marca — "luz atravesando el cristal" */
-  --gradient-brand: linear-gradient(135deg, #004aad 0%, #00c9ff 100%);
+  /* Sin cian: el degradado va de azul a azul, del contorno al primario. */
+  --gradient-brand: linear-gradient(135deg, #00477d 0%, #004aad 100%);
   --gradient-luminous: linear-gradient(135deg, #004aad 0%, #00d2ff 60%, #10b981 100%);
 
   /* Base / superficies — dirección "Aluminio Estructural" */
@@ -42,13 +43,21 @@
   --warning: #f59e0b;
 
   /* MARCA extra — cian radiante y azul eléctrico */
-  --brand: #00c9ff;
+  /* ACENTO DEL PORTAL PUBLICO. Era #00c9ff hasta el 2026-09-12.
+     El cian daba 1,94:1 sobre blanco -ni el minimo de elementos graficos, que es 3:1- y no
+     aparece en el logo: sus tonos dominantes son #105080 y #105090, el 25 % de los pixeles.
+     Este azul da 9,56:1 y es practicamente el de la marca. El cian conserva un papel, abajo. */
+  --brand: #00477d;
   /* LINEA, no relleno. El cian tiene 1,94:1 sobre blanco: no cumple ni el minimo de
      elementos graficos. Vale como trazo decorativo y, sobre fondo oscuro (#0A1118 en los
      planos de `process-steps`), llega a 9,76:1 y es el lenguaje CAD de la marca.
      Nunca como texto, fondo de bloque ni indicador de estado. Ver 03-sistema-de-diseno/identidad-y-paleta.md */
   --brand-linea: #00c9ff;
-  --brand-soft: #38bdf8;
+  /* AZUL NOCHE. Es el fondo del footer y de la columna de texto del hero.
+     Estaba escrito a mano como `bg-[#1A2B45]` en site-footer.tsx y en ningun sitio mas; ahora
+     los dos sitios lo leen de aqui. Blanco encima da 14,23:1. */
+  --superficie-profunda: #1A2B45;
+  --brand-linea-soft: #38bdf8;
 
   /* Bordes / marco de aluminio anodizado pulido */
   --border: oklch(0.92 0.008 250);
@@ -96,9 +105,11 @@
    Exponer tokens como utilidades (bg-primary, text-muted-foreground...)
    ============================================================ */
 @theme inline {
-  --font-sans: var(--font-jost);
+  --font-sans: var(--font-montserrat);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-jost);
+  --font-heading: var(--font-montserrat);
+  /* Solo marca y nombres de producto. Ver layout.tsx. */
+  --font-marca: var(--font-fredoka);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -121,7 +132,8 @@
   --color-warning: var(--warning);
   --color-brand: var(--brand);
   --color-brand-linea: var(--brand-linea);
-  --color-brand-soft: var(--brand-soft);
+  --color-superficie-profunda: var(--superficie-profunda);
+  --color-brand-linea-soft: var(--brand-linea-soft);
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -160,6 +172,38 @@
 /* ============================================================
    Utilidades de marca (gradiente / vidrio / grilla)
    ============================================================ */
+/**
+ * Titular de relleno blanco con contorno, para texto sobre fondo oscuro o sobre fotografia.
+ *
+ * EL CONTORNO ES `--primary`, Y SE LLEGO AHI BAJANDO DE TONO TRES VECES. Medido sobre el azul
+ * noche del 25 % (#1A2B45), contorno contra FONDO y contra el RELLENO blanco:
+ *
+ *   #00c9ff  --brand-linea       7,32 / 1,94   filo muy visible, pero en titular grande es neon
+ *   #38bdf8  --brand-linea-soft  6,64 / 2,14   igual de legible, algo menos electrico
+ *   #004aad  --primary           1,75 / 8,13   ELEGIDO
+ *
+ * Los dos primeros destacan el trazo; `--primary` hace lo contrario y por eso funciona aqui: se
+ * funde casi con el fondo y separa con fuerza del relleno, asi que no se lee como un filo de luz
+ * sino como un borde que recorta la letra. Es el registro que corresponde a una carpinteria de
+ * aluminio, no a un cartel luminoso.
+ *
+ * SOBRE FOTOGRAFIA ESTA ELECCION NO VALE: ahi el fondo cambia en cada pixel y hace falta un tono
+ * claro. Si este recurso vuelve a usarse sobre foto, el contorno tiene que volver a medirse.
+ *
+ * `paint-order: stroke fill` NO es opcional: sin el, `-webkit-text-stroke` pinta el trazo
+ * CENTRADO sobre el borde de la letra y se come el interior. En Montserrat 900 eso cierra las
+ * contraformas de la «a» y la «e» y el titular se vuelve una mancha. Con `paint-order` el trazo
+ * va por detras del relleno y solo engorda hacia fuera.
+ *
+ * El grosor escala con el viewport: a 36 px en movil un trazo de 3 px ahoga la letra.
+ */
+@utility titular-contorno {
+  color: #ffffff;
+  -webkit-text-stroke-width: clamp(1.2px, 0.32vw, 3px);
+  -webkit-text-stroke-color: var(--primary);
+  paint-order: stroke fill;
+}
+
 @utility bg-gradient-brand {
   background-image: var(--gradient-brand);
 }

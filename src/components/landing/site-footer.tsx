@@ -11,7 +11,7 @@ import { enlaceDeWhatsApp } from "@/config/site-config";
 export function SiteFooter() {
   return (
     <>
-      <footer className="bg-[#1A2B45] text-slate-300 border-t border-slate-700">
+      <footer className="bg-superficie-profunda text-slate-300 border-t border-slate-700">
         {/* Línea superior de acento de marca */}
         <div className="h-1 w-full bg-primary" />
 
