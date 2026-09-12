@@ -78,6 +78,9 @@ const INVARIANTES = [
     exentos: [],
     // 7 -> 6: `tarjeta-obra` deja de pintar con <img> crudo. Las 6 que quedan estan en los dos
     // visores y en la galeria del blog, que se unifican al extraer el lightbox.
+    // Sigue en 6. El 2026-09-12 bajo a 3 al borrar `blog/galeria.tsx` y volvio a 6 al restaurarlo:
+    // el archivo NO estaba muerto, lo importa `mdx-components.tsx` desde la raiz del proyecto.
+    // Las 3 infracciones que aporta son reales y se ven en el blog; se pagan, no se descuentan.
     umbral: 6,
     salida: "Usa `next/image`. Si el caso exige control fino (visor, lightbox), decláralo aquí como exento con su motivo en vez de silenciar el linter con `eslint-disable`.",
   },
@@ -116,6 +119,88 @@ function revisarCarpetasInternas() {
       .map((s) => `${c.slug}/${s.slug}`),
   );
   return halladas;
+}
+
+/**
+ * INV-P06 — código que no importa nadie.
+ *
+ * Tercera aparición del mismo defecto y primera vez que se le pone puerta. T6.4 borró 1.913 líneas
+ * sin importador; T7 descubrió que 38 de las 143 infracciones de color vivían en esos mismos
+ * archivos muertos —el umbral llevaba semanas midiendo deuda inexistente—; y la migración de T3,
+ * que arregló aquello, dejó otros tres: dos shims de retrocompatibilidad («mientras se completa la
+ * migración gradual», ya completada) y una galería de 202 líneas.
+ *
+ * El patrón no es despiste: migrar deja el archivo viejo en pie y NADA lo comprueba. El linter no
+ * lo ve —un módulo sin importar es válido—, y el build tampoco: si no entra en el grafo, no se
+ * compila y no falla. Solo se nota cuando alguien mide, y medir no estaba en ninguna puerta.
+ *
+ * `src/components/ui/` queda exento: es shadcn instalado por CLI y se espera que sobre.
+ */
+// 2 -> 0 el 2026-09-12: borrados los dos shims de retrocompatibilidad del blog
+// (`cabecera-blog`, `migas`), que anunciaban una "migracion gradual" ya terminada.
+// `blog/galeria.tsx` NO entra: parecia huerfano y lo importa `mdx-components.tsx` desde la raiz.
+const MODULOS_HUERFANOS_CONOCIDOS = 0;
+const RAICES_VIGILADAS = ["src/components/", "src/features/"];
+const HUERFANOS_EXENTOS = ["src/components/ui/"];
+const PATRON_IMPORT = /(?:from|import)\s*\(?\s*["']([^"']+)["']/g;
+
+/** `@/x/y` y `./y` a ruta del repo sin extensión. `null` para paquetes externos. */
+function resolverEspecificador(especificador, desde) {
+  if (especificador.startsWith("@/")) return `src/${especificador.slice(2)}`;
+  if (!especificador.startsWith(".")) return null;
+  const partes = desde.split("/").slice(0, -1);
+  for (const parte of especificador.split("/")) {
+    if (parte === "." || parte === "") continue;
+    else if (parte === "..") partes.pop();
+    else partes.push(parte);
+  }
+  return partes.join("/");
+}
+
+/**
+ * Los importadores NO viven solo en `src/`.
+ *
+ * Esto lo enseñó un build roto el 2026-09-12: `blog/galeria.tsx` parecía huérfano en las dos
+ * mediciones —la de fuera y la de esta misma puerta— y lo importa `mdx-components.tsx`, que vive
+ * en la RAÍZ del proyecto porque `@next/mdx` lo exige ahí. Se borró, el build cayó, se restauró.
+ *
+ * Una puerta que solo mira `src/` da luz verde a un borrado que rompe la compilación. Por eso este
+ * recorrido es propio y parte de la raíz, en vez de reutilizar el de los otros invariantes.
+ */
+function recolectarImportadores() {
+  const IGNORADOS = new Set(["node_modules", ".next", ".git", "public", "dist"]);
+  const EXT_IMPORTADORAS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".mdx"];
+  const encontrados = [];
+  const recorrerRaiz = (ruta) => {
+    const st = statSync(ruta);
+    if (st.isDirectory()) {
+      for (const e of readdirSync(ruta)) {
+        if (IGNORADOS.has(e)) continue;
+        recorrerRaiz(join(ruta, e));
+      }
+    } else if (EXT_IMPORTADORAS.some((x) => ruta.endsWith(x))) {
+      encontrados.push(ruta);
+    }
+  };
+  recorrerRaiz(RAIZ);
+  return encontrados;
+}
+
+function revisarModulosSinImportador(archivos, rutaRelativa) {
+  const importados = new Set();
+  for (const archivo of recolectarImportadores()) {
+    const rel = rutaRelativa(archivo);
+    for (const [, especificador] of readFileSync(archivo, "utf8").matchAll(PATRON_IMPORT)) {
+      const destino = resolverEspecificador(especificador, rel);
+      if (destino) importados.add(destino.replace(/\/index$/, ""));
+    }
+  }
+  return archivos
+    .map(rutaRelativa)
+    .filter((rel) => /\.tsx?$/.test(rel))
+    .filter((rel) => RAICES_VIGILADAS.some((raiz) => rel.startsWith(raiz)))
+    .filter((rel) => !HUERFANOS_EXENTOS.some((raiz) => rel.startsWith(raiz)))
+    .filter((rel) => !importados.has(rel.replace(/\.tsx?$/, "")));
 }
 
 const archivos = [];
@@ -183,7 +268,14 @@ if (internas !== null) {
   );
 }
 
-if (regresiones.length === 0 && mejoras.length === 0 && !internasFuera) {
+const huerfanos = revisarModulosSinImportador(archivos, rutaRelativa);
+const huerfanosFuera = huerfanos.length !== MODULOS_HUERFANOS_CONOCIDOS;
+
+console.log(
+  `[check-tokens] INV-P06  ${String(huerfanos.length).padStart(4)} / ${String(MODULOS_HUERFANOS_CONOCIDOS).padEnd(4)} ${huerfanos.length === MODULOS_HUERFANOS_CONOCIDOS ? "=" : huerfanos.length > MODULOS_HUERFANOS_CONOCIDOS ? "+" : "-"}  componentes que no importa nadie`,
+);
+
+if (regresiones.length === 0 && mejoras.length === 0 && !internasFuera && !huerfanosFuera) {
   console.log(`[check-tokens] OK: ${archivos.length} archivos revisados, ningún invariante empeora.`);
   process.exit(0);
 }
@@ -217,6 +309,16 @@ if (internasFuera) {
   );
   console.error("  ajusta SUBCATEGORIAS_INTERNAS_CONOCIDAS aquí en el mismo commit.");
   for (const s of internas) console.error(`    ${s}`);
+  console.error("");
+}
+
+if (huerfanosFuera) {
+  console.error(
+    `[check-tokens] INV-P06: ${huerfanos.length} módulo(s) bajo src/components o src/features que no importa nadie; la lista conocida tiene ${MODULOS_HUERFANOS_CONOCIDOS}.`,
+  );
+  console.error("  Si acabas de migrar algo, el archivo viejo se quedó en pie: bórralo en el MISMO commit.");
+  console.error("  Si es un componente nuevo sin montar, móntalo o déjalo fuera del árbol hasta que lo uses.");
+  for (const h of huerfanos) console.error(`    ${h}`);
   console.error("");
 }
 
