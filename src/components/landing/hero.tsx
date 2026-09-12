@@ -15,46 +15,54 @@ const SLIDE_DURATION_MS = 12000;
 
 const SLIDES = [
   {
-    id: "mamparas",
-    title: "Mamparas Panorámicas Serie 80",
-    subtitle:
-      "Vanos monumentales piso a techo con cristal templado de 8mm a 10mm, perfiles pesados de aluminio y rodaje de alta resistencia.",
-    image: "/catalogo/mamparas/m-vaiven-templado-80.webp",
-    waMessage:
-      "Hola GMS Integra, solicito cotización para Mamparas Monumentales Serie 80 en Huancayo.",
-  },
-  {
-    id: "banos",
-    title: "Línea Spazio & Puertas de Ducha",
-    subtitle:
-      "Divisiones y puertas de cristal templado de 8mm con herrajes en acero inoxidable 304 de seguridad, sellado hermético contra filtraciones.",
-    image: "/catalogo/puertas/p-vidrio-templado-153.webp",
-    waMessage:
-      "Hola GMS Integra, solicito cotización para Mamparas de Baño Línea Spazio en Huancayo.",
-  },
-  {
     id: "fachadas",
-    title: "Muros Cortina & Fachadas Integrales",
+    title: "Muros cortina y panel ACM",
     subtitle:
-      "Ingeniería estructural en vidrio laminado y templado con silicona estructural para edificios comerciales y residenciales.",
-    image: "/catalogo/obras-ejecutadas/obras-hyo-edif-la-cantuta-130.webp",
+      "Fachada integral en panel compuesto de aluminio con paños de cristal fijados por silicona estructural. Ingenieria de junta y anclaje calculada por vano.",
+    image: "/hero/muro-cortina-acm.webp",
+    alt: "Edificio de fachada en panel compuesto de aluminio blanco con muro cortina de cristal azul",
+    ancho: 961,
+    alto: 1920,
     waMessage:
-      "Hola GMS Integra, solicito cotización para Muros Cortina en Huancayo.",
+      "Hola GMS Integra, solicito cotizacion para Muro Cortina y fachada en panel ACM en Huancayo.",
   },
   {
-    id: "ventanas",
-    title: "Ventanas Herméticas Serie 20 / 25 / 38",
+    id: "curvas",
+    title: "Ventanas curvas y mamparas de esquina",
     subtitle:
-      "Corte milimétrico por matriz con felpa perimetral y empaque EPDM para tolerancia cero al frío, viento y ruido exterior.",
-    image: "/catalogo/obras-ejecutadas/obras-hyo-uncp-sistemas-ventanas-273.webp",
+      "Perfil curvado en obra para vanos continuos de esquina, con cristal templado y rodaje de alta resistencia. El vano manda: no hay medida de catalogo.",
+    image: "/hero/ventanas-curvas-esquina.webp",
+    alt: "Edificio con ventanas curvas panoramicas de aluminio en la esquina, cuatro niveles",
+    ancho: 1080,
+    alto: 805,
     waMessage:
-      "Hola GMS Integra, solicito cotización para Ventanas Herméticas en Huancayo.",
+      "Hola GMS Integra, solicito cotizacion para Ventanas Curvas y mamparas de esquina en Huancayo.",
+  },
+  {
+    id: "barandas",
+    title: "Barandas y balcones en cristal templado",
+    subtitle:
+      "Cierre de balcon en cristal templado con perfileria vista de aluminio, medido piso a piso sobre la obra terminada.",
+    image: "/hero/fachada-balcones-vidrio.webp",
+    alt: "Edificio residencial blanco de siete niveles con barandas de cristal templado en los balcones",
+    ancho: 1433,
+    alto: 1080,
+    waMessage:
+      "Hola GMS Integra, solicito cotizacion para Barandas y cierres de balcon en cristal templado en Huancayo.",
   },
 ];
 
 export function Hero() {
   const [activeIdx, setActiveIdx] = useState(0);
   const current = SLIDES[activeIdx];
+  /*
+   * AQUI HUBO UN `orientacionDe()` Y SE RETIRO EL MISMO DIA.
+   *
+   * La idea era deducir la forma de la foto para decidir el encuadre, reutilizando el mecanismo
+   * de las tarjetas. Al meter la imagen en su marco con `object-contain` dejo de decidir nada:
+   * `contain` ya resuelve TODAS las proporciones sin clasificarlas. Se quita en vez de dejarlo
+   * calculando un valor que nadie lee.
+   */
 
   const nextSlide = useCallback(() => {
     setActiveIdx((prev) => (prev === SLIDES.length - 1 ? 0 : prev + 1));
@@ -89,133 +97,106 @@ export function Hero() {
         }
       `}</style>
 
-      {/* Escenario Slider Principal Panorámico con Textos Abajo a la Izquierda */}
-      <div className="relative min-h-[580px] lg:min-h-[660px] w-full flex items-end justify-start">
-        
-        {/* Fotografía de Fondo con Máxima Amplitud y Claridad */}
-        <div className="absolute inset-0 size-full z-0">
-          <Image
-            src={current.image}
-            alt={`${current.title} - GMS Integra`}
-            fill
-            priority
-            className="size-full object-cover object-center transition-all duration-700 brightness-[0.97]"
-            sizes="100vw"
-          />
-          {/* Degradado tenue de base y lateral inferior para legibilidad sin opacar la foto */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/10" />
-        </div>
+      {/*
+        DOS COLUMNAS, Y EL ORDEN SE INVIERTE CON EL ANCHO.
 
-        {/* Contenido Anclado en la Esquina Inferior Izquierda */}
-        <div className="relative z-20 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-14 pt-32">
-          <div className="max-w-2xl text-left">
-            
-            <h1 className="text-3xl sm:text-5xl lg:text-[4rem] font-black uppercase tracking-tight text-white leading-[1.02] font-sans [text-shadow:0_3px_16px_rgba(0,0,0,0.85)]">
-              {current.title}
-            </h1>
+        Escritorio: 30 % de texto a la izquierda sobre azul noche, 70 % de imagen a la derecha.
+        Movil: se apilan y la imagen va PRIMERO — es la obra la que vende, el texto la explica.
 
-            <p className="mt-3.5 text-sm sm:text-base lg:text-lg text-slate-100 font-normal leading-relaxed max-w-xl [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
-              {current.subtitle}
-            </p>
+        La galeria de miniaturas que habia debajo se retiro el 2026-09-12: repetia las tres fotos
+        que ya estan en el carrusel y se comia ~110 px de altura. Ese espacio es ahora del hero.
+        La navegacion vive en las flechas y en el contador, que no ocupan fila propia.
+      */}
+      <div className="grid md:grid-cols-[3fr_7fr] md:min-h-[clamp(560px,78vh,820px)]">
 
-            <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
-              <Button
-                size="lg"
-                className="h-12 px-8 text-xs font-black uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-cta gap-2.5 transition-all cursor-pointer active:translate-y-0.5"
-                asChild
+        {/* ── 30 % · el texto, sobre el azul del footer ───────────────────── */}
+        <div className="order-2 md:order-1 flex flex-col justify-center gap-5 bg-superficie-profunda px-5 sm:px-7 lg:px-9 py-10 md:py-12">
+          <p className="flex items-baseline gap-2.5">
+            <span className="font-marca text-xl font-semibold titular-contorno">GMS Integra</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">
+              Huancayo
+            </span>
+          </p>
+
+          <h1 className="text-[clamp(1.75rem,2.6vw,2.6rem)] font-black uppercase tracking-tight leading-[1.05] font-sans titular-contorno text-balance">
+            {current.title}
+          </h1>
+
+          <p className="text-sm lg:text-[0.95rem] text-slate-300 leading-relaxed">
+            {current.subtitle}
+          </p>
+
+          <Button
+            size="lg"
+            className="h-12 px-6 text-xs font-black uppercase tracking-wider bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-cta gap-2.5 transition-all cursor-pointer active:translate-y-0.5 self-stretch sm:self-start md:self-stretch"
+            asChild
+          >
+            <a
+              href={enlaceDeWhatsApp(current.waMessage)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <WhatsAppIcon className="size-4.5" />
+              <span>Cotizar esta Línea</span>
+              <ArrowRight className="size-3.5" />
+            </a>
+          </Button>
+
+          {/* Contador y flechas: la navegacion que antes ocupaba una fila entera */}
+          <div className="flex items-center gap-4 pt-1">
+            <span className="font-mono text-[11px] tracking-[0.2em] text-slate-400 tabular-nums">
+              {String(activeIdx + 1).padStart(2, "0")}
+              <span className="text-brand-linea"> / </span>
+              {String(SLIDES.length).padStart(2, "0")}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={prevSlide}
+                aria-label="Obra anterior"
+                className="size-9 rounded-full border border-white/25 text-white hover:bg-white hover:text-superficie-profunda flex items-center justify-center transition-colors cursor-pointer"
               >
-                <a
-                  href={enlaceDeWhatsApp(current.waMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <WhatsAppIcon className="size-4.5" />
-                  <span>Cotizar esta Línea</span>
-                  <ArrowRight className="size-3.5" />
-                </a>
-              </Button>
+                <ChevronLeft className="size-4.5" />
+              </button>
+              <button
+                onClick={nextSlide}
+                aria-label="Obra siguiente"
+                className="size-9 rounded-full border border-white/25 text-white hover:bg-white hover:text-superficie-profunda flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <ChevronRight className="size-4.5" />
+              </button>
             </div>
-
           </div>
         </div>
 
-        {/* Flechas de Navegación Esquinadas a la Derecha */}
-        <div className="hidden sm:flex absolute right-6 bottom-14 z-30 items-center gap-2">
-          <button
-            onClick={prevSlide}
-            aria-label="Slide anterior"
-            className="size-10 rounded-full border border-white/30 bg-black/50 hover:bg-primary text-white flex items-center justify-center transition-colors cursor-pointer backdrop-blur-md"
-          >
-            <ChevronLeft className="size-5" />
-          </button>
-          <button
-            onClick={nextSlide}
-            aria-label="Slide siguiente"
-            className="size-10 rounded-full border border-white/30 bg-black/50 hover:bg-primary text-white flex items-center justify-center transition-colors cursor-pointer backdrop-blur-md"
-          >
-            <ChevronRight className="size-5" />
-          </button>
+        {/* ── 70 % · la imagen, a sangre sobre lienzo oscuro ─────────────── */}
+        <div className="order-1 md:order-2 relative h-[46vh] min-h-[300px] md:h-auto bg-superficie-profunda">
+          {/*
+            PORTADA, NO CUADRO.
+
+            El marco con escuadras se retiro el 2026-09-12: la ceremonia no aportaba y se comia
+            espacio. Ahora la obra ocupa toda la altura del hero sobre el mismo azul del texto, de
+            modo que las dos columnas son una sola pieza y no dos bloques pegados.
+
+            Sigue en `object-contain`: la foto se ve ENTERA, toque el ancho o el alto. Lo que antes
+            era aire blanco alrededor es ahora ese azul, asi que el espacio sobrante deja de leerse
+            como hueco y pasa a ser fondo.
+          */}
+          <Image
+            src={current.image}
+            alt={current.alt}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 75vw"
+            className="object-contain object-center p-3 md:p-4 transition-all duration-700"
+          />
         </div>
       </div>
 
-      {/* Línea de Progreso */}
+      {/* Progreso del pase automatico */}
       <div className="relative z-30 w-full h-[3px] bg-border/40 overflow-hidden">
-        <div
-          key={activeIdx}
-          className="h-full bg-primary animate-gms-progress"
-        />
+        <div key={activeIdx} className="h-full bg-primary animate-gms-progress" />
       </div>
 
-      {/* Galería Inferior de Miniaturas */}
-      <div className="relative z-30 bg-background/95 px-4 sm:px-6 lg:px-8 py-3">
-        <div className="mx-auto max-w-7xl grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {SLIDES.map((slide, idx) => {
-            const isActive = idx === activeIdx;
-            return (
-              <button
-                key={slide.id}
-                onClick={() => setActiveIdx(idx)}
-                className={`relative overflow-hidden p-2.5 rounded-xl border text-left transition-all flex items-center gap-3 cursor-pointer ${
-                  isActive
-                    ? "border-primary bg-accent shadow-xs"
-                    : "border-border bg-secondary/50 hover:bg-secondary hover:border-border"
-                }`}
-              >
-                <div className="relative size-11 rounded-lg overflow-hidden bg-muted shrink-0">
-                  <Image
-                    src={slide.image}
-                    alt={slide.title}
-                    fill
-                    className="size-full object-cover"
-                    sizes="44px"
-                  />
-                  {isActive && (
-                    <div className="absolute inset-0 bg-primary/10 border-2 border-primary rounded-lg" />
-                  )}
-                </div>
-                <div className="overflow-hidden">
-                  <span className="text-[10px] font-mono text-primary font-bold block">
-                    {`0${idx + 1} //`}
-                  </span>
-                  <span className="text-xs font-bold text-foreground uppercase truncate block">
-                    {slide.title.split(" ")[0]} {slide.title.split(" ")[1] || ""}
-                  </span>
-                </div>
-
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary/20 overflow-hidden">
-                    <div
-                      key={activeIdx}
-                      className="h-full bg-primary animate-gms-progress"
-                    />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
     </section>
   );
 }
