@@ -53,13 +53,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.95,
     },
-    ...obras
-      .filter((o) => o.destacado)
-      .map((obra) => ({
-        url: `${baseUrl}/obras/${obra.id}`,
-        changeFrequency: "monthly" as const,
-        priority: 0.8,
-      })),
+    /**
+     * LAS 472 OBRAS, no las destacadas.
+     *
+     * Este bloque filtraba por `destacado`, y en el dato real hay **3 obras destacadas de 472**: el
+     * sitemap publicaba 3 URLs de obra. Las 469 restantes existían, se generaban y estaban
+     * enlazadas desde `tarjeta-obra`, pero el sitio nunca se las declaró a Google.
+     *
+     * Se emiten todas: `/obras/[id]` no fija `dynamicParams = false`, así que las que no entran en
+     * el prerender del build se sirven por ISR a demanda. `destacado` sigue decidiendo la
+     * prioridad, que es para lo que sirve.
+     *
+     * Sin `lastModified`: el dato de obra no trae fecha real y emitir la del build le miente al
+     * rastreador sobre la frescura del contenido (misma directiva que la cabecera de este archivo).
+     */
+    ...obras.map((obra) => ({
+      url: `${baseUrl}/obras/${obra.id}`,
+      changeFrequency: "monthly" as const,
+      priority: obra.destacado ? 0.8 : 0.6,
+    })),
     // ── Blog Técnico ──
     {
       url: `${baseUrl}/blog`,

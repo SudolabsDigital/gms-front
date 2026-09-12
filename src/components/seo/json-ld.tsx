@@ -144,14 +144,16 @@ export function JsonLd() {
         "publisher": {
           "@id": `${siteConfig.url}/#organization`,
         },
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": `${siteConfig.url}/catalogo?q={search_term_string}`,
-          },
-          "query-input": "required name=search_term_string",
-        },
+        /**
+         * NO hay `potentialAction`/`SearchAction` aquí a propósito.
+         *
+         * Declaraba `urlTemplate: /catalogo?q={search_term_string}`, y `/catalogo` no lee ningún
+         * parámetro `q`: el buscador interno no existe. Un `SearchAction` que apunta a una búsqueda
+         * inexistente es una afirmación falsa en los datos estructurados, y es de las que Google
+         * puede comprobar.
+         *
+         * Se vuelve a poner el día que exista el buscador, no antes.
+         */
       },
     ],
   };
