@@ -11,6 +11,7 @@ import { ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "./social-icons";
 import { FAQS_VENDIBLES } from "@/config/faq-data";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 export function Faq() {
   return (
@@ -78,7 +79,7 @@ export function Faq() {
               asChild
             >
               <a
-                href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20deseo%20hacer%20una%20consulta%20técnica%20para%20mi%20obra."
+                href={enlaceDeWhatsApp("Hola GMS Integra, deseo hacer una consulta técnica para mi obra.")}
                 target="_blank"
                 rel="noopener noreferrer"
               >

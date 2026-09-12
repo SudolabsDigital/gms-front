@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
 import { Button } from "@/components/ui/button";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 const TODAS_LAS_MARCAS = [
   {
@@ -167,7 +168,7 @@ export function AnatomySection() {
             asChild
           >
             <a
-              href={`https://wa.me/51958413806?text=${encodeURIComponent("Hola GMS Integra, deseo cotizar ventanas y mamparas con materiales certificados para mi obra.")}`}
+              href={enlaceDeWhatsApp("Hola GMS Integra, deseo cotizar ventanas y mamparas con materiales certificados para mi obra.")}
               target="_blank"
               rel="noopener noreferrer"
             >

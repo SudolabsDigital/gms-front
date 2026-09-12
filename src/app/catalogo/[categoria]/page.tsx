@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { FichaEspecificaciones } from "@/components/catalogo/ficha-especificaciones";
 import { VistaCategoriaCliente } from "@/components/catalogo/vista-categoria-cliente";
-import { siteConfig } from "@/config/site-config";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
 import {
   obtenerCategoriaPorSlug,
   obtenerItemsPorCategoria,
@@ -124,9 +124,7 @@ export default async function CategoriaPage({
           }
           acciones={
             <a
-              href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                `Hola GMS Integra, deseo solicitar una cotización técnica para la línea de ${cat.nombre}.`
-              )}`}
+              href={enlaceDeWhatsApp(`Hola GMS Integra, deseo solicitar una cotización técnica para la línea de ${cat.nombre}.`)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all"
@@ -150,9 +148,7 @@ export default async function CategoriaPage({
             </Link>
 
             <a
-              href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                `Hola GMS Integra, deseo solicitar una cotización para la línea de ${cat.nombre}.`
-              )}`}
+              href={enlaceDeWhatsApp(`Hola GMS Integra, deseo solicitar una cotización para la línea de ${cat.nombre}.`)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 transition-colors shadow-xs"

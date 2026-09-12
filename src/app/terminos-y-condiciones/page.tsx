@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 export const metadata: Metadata = {
   title: "Términos y Condiciones de Uso del Sitio Web | GMS Integra",
@@ -64,7 +65,7 @@ export default function TerminosCondicionesPage() {
             </div>
             <Button asChild className="rounded-xl font-bold text-xs h-10 px-5 shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm">
               <a
-                href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20deseo%20coordinar%20directamente%20con%20un%20asesor%20técnico%20para%20un%20proyecto."
+                href={enlaceDeWhatsApp("Hola GMS Integra, deseo coordinar directamente con un asesor técnico para un proyecto.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
@@ -191,7 +192,7 @@ export default function TerminosCondicionesPage() {
           </div>
           <Button asChild className="rounded-xl font-bold text-xs shrink-0 bg-primary text-white hover:bg-primary/90">
             <a
-              href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20solicito%20atención%20personalizada%20para%20un%20proyecto."
+              href={enlaceDeWhatsApp("Hola GMS Integra, solicito atención personalizada para un proyecto.")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2"

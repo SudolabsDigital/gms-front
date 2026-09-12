@@ -5,8 +5,8 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
-import { siteConfig } from "@/config/site-config";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
 import { obtenerObraPorId, obtenerTodasLasObras } from "@/lib/obras/leer";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
 import { MapPin, ArrowLeft, ShieldCheck } from "lucide-react";
@@ -79,7 +79,7 @@ export default async function ObraIndividualPage({
 
   const urlObra = `${siteConfig.url}/obras/${obra.id}`;
   const mensajeWhatsApp = `Hola GMS Integra, vi el proyecto «${obra.titulo}» en ${obra.ubicacionDetalle} (${urlObra}) y deseo solicitar una cotización para un acabado similar.`;
-  const urlWhatsApp = `https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+  const urlWhatsApp = enlaceDeWhatsApp(mensajeWhatsApp);
 
   const breadcrumbItems = [
     { name: "Inicio", item: "/" },

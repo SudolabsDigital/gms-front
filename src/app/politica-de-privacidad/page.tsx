@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad y Tratamiento de Datos | GMS Integra",
@@ -64,7 +65,7 @@ export default function PoliticaPrivacidadPage() {
             </div>
             <Button asChild className="rounded-xl font-bold text-xs h-10 px-5 shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm">
               <a
-                href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20tengo%20una%20consulta%20sobre%20la%20privacidad%20y%20el%20tratamiento%20de%20mis%20datos%20personales."
+                href={enlaceDeWhatsApp("Hola GMS Integra, tengo una consulta sobre la privacidad y el tratamiento de mis datos personales.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
@@ -173,7 +174,7 @@ export default function PoliticaPrivacidadPage() {
           </div>
           <Button asChild className="rounded-xl font-bold text-xs shrink-0 bg-primary text-white hover:bg-primary/90">
             <a
-              href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20tengo%20una%20consulta%20para%20el%20equipo%20de%20atención."
+              href={enlaceDeWhatsApp("Hola GMS Integra, tengo una consulta para el equipo de atención.")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2"

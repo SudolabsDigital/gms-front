@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
 import { Button } from "@/components/ui/button";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 const SLIDE_DURATION_MS = 12000;
 
@@ -125,7 +126,7 @@ export function Hero() {
                 asChild
               >
                 <a
-                  href={`https://wa.me/51958413806?text=${encodeURIComponent(current.waMessage)}`}
+                  href={enlaceDeWhatsApp(current.waMessage)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

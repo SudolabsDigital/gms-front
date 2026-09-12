@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
 import { Button } from "@/components/ui/button";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 const INTERVALO_CARRUSEL_MS = 5000;
 
@@ -273,7 +274,7 @@ export function AboutWorkshop() {
                 {/* Acciones en Hover */}
                 <div className="mt-3 flex items-center gap-2 max-h-0 opacity-0 group-hover:max-h-12 group-hover:opacity-100 transition-all duration-300 overflow-hidden">
                   <a
-                    href={`https://wa.me/51958413806?text=${encodeURIComponent(proyecto.wa)}`}
+                    href={enlaceDeWhatsApp(proyecto.wa)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-md transition-all active:scale-95"

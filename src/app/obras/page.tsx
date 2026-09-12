@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { GaleriaObras } from "@/components/obras/galeria-obras";
-import { siteConfig } from "@/config/site-config";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import { obtenerTodasLasObras, obtenerZonas } from "@/lib/obras/leer";
 import { MessageSquare, ArrowRight, Wrench } from "lucide-react";
 
@@ -36,10 +37,16 @@ export default function ObrasPage() {
     name: "Obras y Proyectos Ejecutados — GMS Integra",
     description: DESCRIPCION,
     url: `${siteConfig.url}/obras`,
+    /**
+     * `publisher` por `@id`, no una Organization suelta.
+     *
+     * Repetir `{"@type":"Organization", name, url}` aquí crea a ojos de Google una SEGUNDA entidad
+     * homónima, sin relación con la del grafo que emite `JsonLd` en el layout. Referenciar el `@id`
+     * hace que esta página cuelgue de la organización que ya existe, con su dirección, su geo y sus
+     * redes, en vez de competir con ella.
+     */
     publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url,
+      "@id": `${siteConfig.url}/#organization`,
     },
     mainEntity: {
       "@type": "ItemList",
@@ -55,6 +62,12 @@ export default function ObrasPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
+      <BreadcrumbSchema
+        items={[
+          { name: "Inicio", item: "/" },
+          { name: "Obras Ejecutadas", item: "/obras" },
+        ]}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -65,7 +78,10 @@ export default function ObrasPage() {
         <CabeceraDePagina
           migas={[{ nombre: "Inicio", href: "/" }, { nombre: "Obras Ejecutadas" }]}
           titulo="Obras Ejecutadas & Proyectos Reales"
-          resumen="Portafolio visual de más de 490 proyectos entregados: viviendas unifamiliares, estaciones comerciales, edificios multifamiliares y campus universitarios en Huancayo, El Tambo, Jauja y Lima."
+          /* El número sale del dato, no de una cifra escrita a mano: el texto decía «más de 490»
+             mientras la píldora de al lado, que sí cuenta, mostraba 472. Dos cifras del mismo
+             hecho a diez centímetros una de otra, y la inventada era la grande. */
+          resumen={`Portafolio visual de ${obras.length} proyectos entregados: viviendas unifamiliares, estaciones comerciales, edificios multifamiliares y campus universitarios en Huancayo, El Tambo, Jauja y Lima.`}
           imagen="/catalogo/fachadas-muros-cortina/general-1.webp"
           imagenAlt="Obras y proyectos arquitectónicos de GMS Integra"
           badge="Portafolio de Obras"
@@ -84,9 +100,7 @@ export default function ObrasPage() {
           }
           acciones={
             <a
-              href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                "Hola GMS Integra, vi el portafolio de obras ejecutadas y deseo cotizar un proyecto arquitectónico."
-              )}`}
+              href={enlaceDeWhatsApp("Hola GMS Integra, vi el portafolio de obras ejecutadas y deseo cotizar un proyecto arquitectónico.")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all"
@@ -117,9 +131,7 @@ export default function ObrasPage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <a
-                href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                  "Hola GMS Integra, vi las obras ejecutadas en la web y deseo cotizar la carpintería de aluminio y vidrio para mi proyecto."
-                )}`}
+                href={enlaceDeWhatsApp("Hola GMS Integra, vi las obras ejecutadas en la web y deseo cotizar la carpintería de aluminio y vidrio para mi proyecto.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-7 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all active:scale-98"

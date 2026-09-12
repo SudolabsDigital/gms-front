@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { WhatsAppIcon } from "./social-icons";
 import { Button } from "@/components/ui/button";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 const LINEAS_FABRICACION = [
   {
@@ -145,7 +146,7 @@ export function Products() {
                   </Link>
 
                   <a
-                    href={`https://wa.me/51958413806?text=${encodeURIComponent(linea.waMessage)}`}
+                    href={enlaceDeWhatsApp(linea.waMessage)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md active:scale-95"

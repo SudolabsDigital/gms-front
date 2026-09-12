@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowUp, Play, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 import {
   WhatsAppIcon,
   FacebookIcon,
@@ -14,17 +15,15 @@ import {
 } from "./social-icons";
 
 /* ─── Datos de acciones ──────────────────────────────────────────── */
-const WA_NUMBER = "51958413806";
-const WA_MSG = encodeURIComponent(
-  "Hola GMS Integra, quisiera solicitar una cotización para mi proyecto de aluminio y vidrio."
-);
 
 const ACTIONS = [
   {
     key: "wa",
     label: "WhatsApp",
     hint: "Respuesta en < 15 min",
-    href: `https://wa.me/${WA_NUMBER}?text=${WA_MSG}`,
+    href: enlaceDeWhatsApp(
+      "Hola GMS Integra, quisiera solicitar una cotización para mi proyecto de aluminio y vidrio."
+    ),
     external: true,
     scroll: null,
     icon: <WhatsAppIcon className="size-5" />,

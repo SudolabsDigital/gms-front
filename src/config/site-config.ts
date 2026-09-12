@@ -23,6 +23,30 @@ export const siteConfig = {
   },
 } as const;
 
-export function enlaceDeWhatsApp(numero: string, mensaje?: string): string {
-  return `https://wa.me/${numero}${mensaje ? `?text=${encodeURIComponent(mensaje)}` : ""}`;
+/**
+ * Enlace para ESCRIBIRLE a GMS Integra (cotizar, consultar, coordinar).
+ *
+ * El número no se pasa como argumento a propósito: es un dato de la empresa, no de quien llama.
+ * Antes de esta fábrica había 35 enlaces construidos a mano y **18 de ellos llevaban el número
+ * escrito dentro de la URL**, así que cambiar el WhatsApp de la empresa eran 18 ediciones repartidas
+ * por el código. Ahora es una línea, aquí arriba.
+ *
+ * El mensaje se pasa en TEXTO PLANO. Codificarlo es responsabilidad de esta función: los enlaces
+ * viejos traían `%20` escritos a mano, y un texto ya codificado que vuelve a pasar por
+ * `encodeURIComponent` llega al chat con los `%20` a la vista.
+ */
+export function enlaceDeWhatsApp(mensaje?: string): string {
+  const base = `https://wa.me/${siteConfig.whatsapp.numero}`;
+  return mensaje ? `${base}?text=${encodeURIComponent(mensaje)}` : base;
+}
+
+/**
+ * Enlace para COMPARTIR con cualquier contacto — sin destinatario, lo elige quien comparte.
+ *
+ * Es otra función y no un parámetro opcional de la anterior porque son dos intenciones distintas:
+ * una lleva al visitante a hablar con la empresa, la otra reparte el contenido. Un booleano en la
+ * firma obligaría a leer la llamada para saber cuál de las dos está ocurriendo.
+ */
+export function enlaceParaCompartirEnWhatsApp(texto: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(texto)}`;
 }

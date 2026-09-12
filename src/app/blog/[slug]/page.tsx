@@ -5,10 +5,10 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { IndiceDeArticulo } from "@/components/blog/indice-articulo";
-import { Compartir } from "@/components/blog/compartir";
-import { siteConfig } from "@/config/site-config";
+import { AccionesDeContenido } from "@/components/comunes/acciones-contenido";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
 import { NOMBRE_DE_ETIQUETA } from "@/lib/blog/esquema";
 import { leerPorSlug, leerRutas, relacionados, serieDe } from "@/lib/blog/leer";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
@@ -134,7 +134,12 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
           <aside className="hidden xl:block">
             <div className="sticky top-28 flex flex-col gap-9">
               <IndiceDeArticulo encabezados={articulo.encabezados} />
-              <Compartir url={url} titulo={articulo.titulo} />
+              <AccionesDeContenido
+                url={url}
+                titulo={articulo.titulo}
+                variante="fila"
+                cotizar={false}
+              />
             </div>
           </aside>
 
@@ -202,7 +207,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
                 Escríbenos y te asesoramos con las medidas y el presupuesto de tu proyecto. Sin compromisos — te respondemos en menos de 4 horas.
               </p>
               <a
-                href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(`Hola, leí «${articulo.titulo}» en el blog de GMS Integra y quiero asesoría para mi proyecto.`)}`}
+                href={enlaceDeWhatsApp(`Hola, leí «${articulo.titulo}» en el blog de GMS Integra y quiero asesoría para mi proyecto.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-7 inline-block rounded-full border-2 border-foreground bg-foreground px-8 py-3.5 text-sm font-black uppercase tracking-wider text-background transition-all duration-300 hover:border-primary hover:bg-primary hover:text-white"
@@ -211,9 +216,11 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
               </a>
             </div>
 
-            <Compartir
+            <AccionesDeContenido
               url={url}
               titulo={articulo.titulo}
+              variante="fila"
+              cotizar={false}
               orientacion="horizontal"
               className="mt-12 border-t border-border pt-8 xl:hidden"
             />
