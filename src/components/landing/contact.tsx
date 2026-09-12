@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   direccionCompleta,
+  enlaceDeCorreo,
   enlaceDeLlamada,
   enlaceDeMapa,
   enlaceDeMapaIncrustado,
   enlaceDeWhatsApp,
   horarioVisible,
+  siteConfig,
   telefonoVisible,
 } from "@/config/site-config";
 import {
@@ -61,8 +63,8 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Correo Electrónico Corporativo",
-    value: "gmsintegra21@gmail.com",
-    href: "mailto:gmsintegra21@gmail.com",
+    value: siteConfig.correo,
+    href: enlaceDeCorreo(),
   },
   {
     icon: Clock,

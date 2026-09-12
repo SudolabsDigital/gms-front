@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import { direccionCompleta, enlaceDeWhatsApp, horarioCorto, telefonoVisible } from "@/config/site-config";
+import { direccionCompleta, enlaceDeWhatsApp, horarioCorto, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad y Tratamiento de Datos | GMS Integra",
@@ -134,7 +134,7 @@ export default function PoliticaPrivacidadPage() {
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Correo Electrónico</span>
-                <strong>contacto@gmsintegra.com</strong>
+                <strong>{siteConfig.correo}</strong>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Atención Presencial</span>

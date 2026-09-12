@@ -15,7 +15,7 @@ export function JsonLd() {
         "description":
           "Especialistas en diseño, fabricación e instalación de ventanas y mamparas de aluminio y vidrio templado. Fachadas integrales, puertas, barandas, techos de policarbonato y carpintería arquitectónica en Huancayo y el Valle del Mantaro.",
         "telephone": `+${siteConfig.whatsapp.numero}`,
-        "email": "contacto@gmsintegra.com",
+        "email": siteConfig.correo,
         "priceRange": "$$",
         "knowsAbout": [
           "Ventanas de aluminio herméticas",

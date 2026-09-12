@@ -32,6 +32,12 @@ export const siteConfig = {
    * decía 6:30 pm en el formulario, 7:00 pm en el footer y en privacidad, y 19:00 en el JSON-LD.
    * INV-P07 en `scripts/check-tokens.mjs` impide que vuelvan a escribirse a mano.
    */
+  /**
+   * Decidido por el usuario el 2026-09-12 (D13). Convivían dos: este, en el formulario de contacto,
+   * y `contacto@gmsintegra.com` en el JSON-LD, términos, privacidad y el post de privacidad del blog.
+   */
+  correo: "gmsintegra21@gmail.com",
+
   direccion: {
     calle: "Jr. Huánuco Nro. 1389",
     corta: "Jr. Huánuco 1389",
@@ -67,6 +73,10 @@ export function telefonoVisible(): string {
 
 export function enlaceDeLlamada(): string {
   return `tel:+${siteConfig.whatsapp.numero}`;
+}
+
+export function enlaceDeCorreo(): string {
+  return `mailto:${siteConfig.correo}`;
 }
 
 /** `Jr. Huánuco Nro. 1389, Huancayo, Junín` */

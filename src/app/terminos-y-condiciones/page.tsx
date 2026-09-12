@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import { direccionCompleta, enlaceDeWhatsApp, telefonoVisible } from "@/config/site-config";
+import { direccionCompleta, enlaceDeWhatsApp, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export const metadata: Metadata = {
   title: "Términos y Condiciones de Uso del Sitio Web | GMS Integra",
@@ -169,7 +169,7 @@ export default function TerminosCondicionesPage() {
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Correo Electrónico</span>
-                <span>contacto@gmsintegra.com</span>
+                <span>{siteConfig.correo}</span>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Libro de Reclamaciones</span>
