@@ -24,6 +24,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "./social-icons";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 export interface NavItem {
   label: string;
@@ -207,7 +208,7 @@ export function SiteHeader() {
               asChild
             >
               <a
-                href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20quisiera%20solicitar%20información%20para%20un%20proyecto."
+                href={enlaceDeWhatsApp("Hola GMS Integra, quisiera solicitar información para un proyecto.")}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -286,7 +287,7 @@ export function SiteHeader() {
                     asChild
                   >
                     <a
-                      href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20deseo%20cotizar%20un%20proyecto."
+                      href={enlaceDeWhatsApp("Hola GMS Integra, deseo cotizar un proyecto.")}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

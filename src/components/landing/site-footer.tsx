@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Phone, MapPin, ArrowRight, ShieldCheck, Clock, FileText, Lock } from "lucide-react";
+import { Phone, MapPin, ArrowRight, ShieldCheck, Clock } from "lucide-react";
 
 import logo from "@/assets/gms-logo.webp";
 import { Button } from "@/components/ui/button";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "./social-icons";
 import { SdlFooter } from "@/components/layout/sdl-footer";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 
 export function SiteFooter() {
   return (
@@ -65,7 +66,7 @@ export function SiteFooter() {
                   <TikTokIcon className="size-4" />
                 </a>
                 <a
-                  href="https://wa.me/51958413806?text=Hola%20GMS%20Integra,%20quisiera%20solicitar%20información%20para%20un%20proyecto."
+                  href={enlaceDeWhatsApp("Hola GMS Integra, quisiera solicitar información para un proyecto.")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-emerald-600 border border-emerald-500/50 text-white hover:bg-emerald-700 shadow-[0_3px_0px_#15803d] active:translate-y-0.5 active:shadow-none transition-all"

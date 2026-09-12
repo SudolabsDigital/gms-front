@@ -4,17 +4,18 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { FichaEspecificaciones } from "@/components/catalogo/ficha-especificaciones";
 import { VistaCategoriaCliente } from "@/components/catalogo/vista-categoria-cliente";
-import { siteConfig } from "@/config/site-config";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
 import {
   obtenerCategoriaPorSlug,
   obtenerItemsPorCategoria,
   obtenerSlugsCategorias,
   obtenerCategorias,
 } from "@/lib/catalogo/leer";
-import { MessageSquare, ArrowLeft, ArrowRight } from "lucide-react";
+import { MessageSquare, ArrowLeft } from "lucide-react";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -61,12 +62,20 @@ export default async function CategoriaPage({
   const items = obtenerItemsPorCategoria(slug);
   const todasCategorias = obtenerCategorias().filter((c) => c.slug !== slug);
 
+  const breadcrumbItems = [
+    { name: "Inicio", item: "/" },
+    { name: "Catálogo", item: "/catalogo" },
+    { name: cat.nombre, item: `/catalogo/${slug}` },
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
+    "@id": `${siteConfig.url}/catalogo/${slug}#webpage`,
     name: `${cat.nombre} — GMS Integra`,
     description: cat.descripcion,
     url: `${siteConfig.url}/catalogo/${slug}`,
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
     mainEntity: {
       "@type": "ItemList",
       itemListElement: items.slice(0, 30).map((item, index) => ({
@@ -81,6 +90,7 @@ export default async function CategoriaPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
+      <BreadcrumbSchema items={breadcrumbItems} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -114,9 +124,7 @@ export default async function CategoriaPage({
           }
           acciones={
             <a
-              href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                `Hola GMS Integra, deseo solicitar una cotización técnica para la línea de ${cat.nombre}.`
-              )}`}
+              href={enlaceDeWhatsApp(`Hola GMS Integra, deseo solicitar una cotización técnica para la línea de ${cat.nombre}.`)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all"
@@ -140,9 +148,7 @@ export default async function CategoriaPage({
             </Link>
 
             <a
-              href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                `Hola GMS Integra, deseo solicitar una cotización para la línea de ${cat.nombre}.`
-              )}`}
+              href={enlaceDeWhatsApp(`Hola GMS Integra, deseo solicitar una cotización para la línea de ${cat.nombre}.`)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 transition-colors shadow-xs"

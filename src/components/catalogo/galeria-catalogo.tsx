@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   ZoomIn,
-  MessageSquare,
   Play,
   X,
   ChevronLeft,
   ChevronRight,
-  ArrowRight,
   Share2,
   Copy,
   Check,
@@ -17,7 +14,6 @@ import {
 import type { ItemCatalogo } from "@/lib/catalogo/esquema";
 import { siteConfig } from "@/config/site-config";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import { cn } from "@/lib/utils";
 
 export function GaleriaCatalogo({
   items,

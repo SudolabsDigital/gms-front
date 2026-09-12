@@ -30,12 +30,30 @@ const nextConfig: NextConfig = {
     "/blog/**": [".next/cache/**/*"],
   },
 
+  // Limpieza de console en producción
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+
+  // Optimización de importaciones pesadas (árboles de iconos y animaciones)
+  experimental: {
+    optimizePackageImports: ["lucide-react", "motion"],
+  },
+
   // Cabeceras HTTP de Seguridad y Caché Inmutable CDN para Assets
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
@@ -55,7 +73,16 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/catalogo/:path*",
+        /**
+         * Solo los ARCHIVOS de `public/catalogo/`, nunca las páginas.
+         *
+         * La regla anterior era `/catalogo/:path*`, y Next casa por ruta: alcanzaba también al
+         * HTML de `/catalogo`, `/catalogo/[categoria]` y `/catalogo/item/[id]`, que quedaban
+         * `immutable` un año en navegador y CDN. Con `export const revalidate = 86400` en esas
+         * mismas páginas, la revalidación diaria no llegaba nunca al visitante: cualquier
+         * corrección de foto o texto era invisible para quien ya había entrado.
+         */
+        source: "/catalogo/:ruta*.:ext(webp|avif|png|jpe?g|gif|svg)",
         headers: [
           {
             key: "Cache-Control",

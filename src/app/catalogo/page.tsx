@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { TarjetaCategoria } from "@/components/catalogo/tarjeta-categoria";
-import { siteConfig } from "@/config/site-config";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
 import { exigirCatalogoValido } from "@/lib/catalogo/validar";
-import { ArrowRight, MessageSquare, Shield, CheckCircle2 } from "lucide-react";
+import { ArrowRight, MessageSquare, Shield } from "lucide-react";
 
 export const revalidate = 86400;
 
@@ -39,10 +40,16 @@ export default function CatalogoPage() {
     name: "Catálogo de Productos y Obras GMS Integra",
     description: DESCRIPCION,
     url: `${siteConfig.url}/catalogo`,
+    /**
+     * `publisher` por `@id`, no una Organization suelta.
+     *
+     * Repetir `{"@type":"Organization", name, url}` aquí crea a ojos de Google una SEGUNDA entidad
+     * homónima, sin relación con la del grafo que emite `JsonLd` en el layout. Referenciar el `@id`
+     * hace que esta página cuelgue de la organización que ya existe, con su dirección, su geo y sus
+     * redes, en vez de competir con ella.
+     */
     publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url,
+      "@id": `${siteConfig.url}/#organization`,
     },
     hasPart: categorias.map((c) => ({
       "@type": "ItemList",
@@ -55,6 +62,12 @@ export default function CatalogoPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
+      <BreadcrumbSchema
+        items={[
+          { name: "Inicio", item: "/" },
+          { name: "Catálogo", item: "/catalogo" },
+        ]}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -122,9 +135,7 @@ export default function CatalogoPage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <a
-                href={`https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(
-                  "Hola GMS Integra, tengo un proyecto en mente y deseo enviar medidas/planos para una cotización."
-                )}`}
+                href={enlaceDeWhatsApp("Hola GMS Integra, tengo un proyecto en mente y deseo enviar medidas/planos para una cotización.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-7 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all active:scale-98"

@@ -1,3 +1,6 @@
+import type { Metadata } from "next";
+
+import { siteConfig } from "@/config/site-config";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,6 +13,24 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+
+/**
+ * Muestrario interno del sistema de diseño. No es contenido del portal.
+ *
+ * Sin `metadata` propia heredaba la del layout raíz, así que se servía con el MISMO título de la
+ * home y `canonical` apuntando a `/`: le decía a Google que esta página ES la portada. Y sin estar
+ * en `robots.ts` ni en el sitemap, quedaba indexable compitiendo con el contenido real.
+ * `noindex` lo saca del índice; el canonical propio evita que reclame la identidad de otra ruta.
+ * NO se añade a `robots.ts`: una ruta bloqueada por `robots.txt` no se rastrea, y sin rastreo
+ * Google nunca llega a leer el `noindex`.
+ */
+export const metadata: Metadata = {
+  title: "UI Kit — Sistema de Diseño",
+  description:
+    "Muestrario interno de tokens, colores y componentes del sistema de diseño de GMS Integra.",
+  alternates: { canonical: `${siteConfig.url}/ui` },
+  robots: { index: false, follow: false },
+};
 
 const dots = [
   ["primary", "bg-primary"],

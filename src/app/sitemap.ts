@@ -1,83 +1,112 @@
 import type { MetadataRoute } from "next";
 import { leerPublicados, etiquetasUsadas } from "@/lib/blog/leer";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
-
 import { obtenerTodasLasObras } from "@/lib/obras/leer";
+import { siteConfig } from "@/config/site-config";
 
+/**
+ * Generador de sitemap para GMS Integra.
+ *
+ * Directiva DreamDev / Sudolabs SEO:
+ * `lastModified` debe originarse SIEMPRE de una fecha real del contenido, nunca
+ * de `new Date()`. Emitir la fecha del build le anuncia falsamente a los motores
+ * que la página mutó en cada compilación, destruyendo la fiabilidad de la señal.
+ * En rutas estáticas cuyo contenido reside puramente en código, se omite el campo.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://gmsintegra.com";
-  const currentDate = new Date().toISOString();
-
+  const baseUrl = siteConfig.url;
   const articulos = leerPublicados();
-  const ultimoArticulo = articulos[0]?.actualizado ?? articulos[0]?.fecha;
   const categoriasCatalogo = obtenerCategorias();
   const obras = obtenerTodasLasObras();
+
+  const masReciente = (fechas: string[]) =>
+    fechas.length
+      ? new Date(`${fechas.reduce((a, b) => (a > b ? a : b))}T12:00:00`)
+      : undefined;
+
+  const fechaBlogMasReciente = masReciente(
+    articulos.map((a) => a.actualizado ?? a.fecha)
+  );
 
   return [
     // ── Páginas Principales ──
     {
       url: baseUrl,
-      lastModified: currentDate,
+      lastModified: fechaBlogMasReciente,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     // ── Catálogo Arquitectónico ──
     {
       url: `${baseUrl}/catalogo`,
-      lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.95,
     },
     ...categoriasCatalogo.map((cat) => ({
       url: `${baseUrl}/catalogo/${cat.slug}`,
-      lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.9,
     })),
     // ── Obras Ejecutadas ──
     {
       url: `${baseUrl}/obras`,
-      lastModified: currentDate,
       changeFrequency: "weekly",
       priority: 0.95,
     },
-    ...obras.filter((o) => o.destacado).map((obra) => ({
+    /**
+     * LAS 472 OBRAS, no las destacadas.
+     *
+     * Este bloque filtraba por `destacado`, y en el dato real hay **3 obras destacadas de 472**: el
+     * sitemap publicaba 3 URLs de obra. Las 469 restantes existían, se generaban y estaban
+     * enlazadas desde `tarjeta-obra`, pero el sitio nunca se las declaró a Google.
+     *
+     * Se emiten todas: `/obras/[id]` no fija `dynamicParams = false`, así que las que no entran en
+     * el prerender del build se sirven por ISR a demanda. `destacado` sigue decidiendo la
+     * prioridad, que es para lo que sirve.
+     *
+     * Sin `lastModified`: el dato de obra no trae fecha real y emitir la del build le miente al
+     * rastreador sobre la frescura del contenido (misma directiva que la cabecera de este archivo).
+     */
+    ...obras.map((obra) => ({
       url: `${baseUrl}/obras/${obra.id}`,
-      lastModified: currentDate,
       changeFrequency: "monthly" as const,
-      priority: 0.7,
+      priority: obra.destacado ? 0.8 : 0.6,
     })),
     // ── Blog Técnico ──
     {
       url: `${baseUrl}/blog`,
-      lastModified: ultimoArticulo ? new Date(`${ultimoArticulo}T12:00:00`) : new Date(),
+      lastModified: fechaBlogMasReciente,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     ...articulos.map((articulo) => ({
       url: `${baseUrl}/blog/${articulo.slug}`,
-      lastModified: new Date(`${articulo.actualizado ?? articulo.fecha}T12:00:00`),
+      lastModified: new Date(
+        `${articulo.actualizado ?? articulo.fecha}T12:00:00`
+      ),
       changeFrequency: "monthly" as const,
-      priority: 0.8,
+      priority: 0.85,
     })),
     ...etiquetasUsadas().map(({ etiqueta }) => ({
       url: `${baseUrl}/blog/etiqueta/${etiqueta}`,
-      lastModified: new Date(),
+      lastModified: masReciente(
+        articulos
+          .filter((a) => a.etiquetas.includes(etiqueta))
+          .map((a) => a.actualizado ?? a.fecha)
+      ),
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })),
     // ── Páginas Legales & Institucionales ──
     {
       url: `${baseUrl}/terminos-y-condiciones`,
-      lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/politica-de-privacidad`,
-      lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.3,
     },
   ];
 }

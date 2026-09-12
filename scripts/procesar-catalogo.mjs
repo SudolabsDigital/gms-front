@@ -170,7 +170,6 @@ function limpiarTitulo(nombreArchivo, subcarpeta) {
 }
 
 const EXT_IMAGENES = new Set([".jpg", ".jpeg", ".png", ".webp", ".JPG", ".JPEG", ".PNG", ".WEBP"]);
-const EXT_VIDEOS = new Set([".mp4", ".mov", ".MP4", ".MOV"]);
 
 async function procesar() {
   console.log("🚀 Iniciando procesamiento de catálogo desde:", ORIGEN);
@@ -212,7 +211,6 @@ async function procesar() {
     for (const arch of todosLosArchivos) {
       const ext = path.extname(arch.rutaAbsoluta).toLowerCase();
       const esImg = EXT_IMAGENES.has(ext);
-      const esVid = EXT_VIDEOS.has(ext);
 
       if (!esImg) continue; // Solo procesamos fotos reales 100% verificadas
 
@@ -273,7 +271,7 @@ async function procesar() {
   }
 
   // Estructurar el objeto final
-  const categoriasArray = Object.entries(MAPEO_CATEGORIAS).map(([_, cat]) => {
+  const categoriasArray = Object.values(MAPEO_CATEGORIAS).map((cat) => {
     const itemsDeCat = itemsCatalogo.filter((i) => i.categoria === cat.slug);
     const subcats = [...new Set(itemsDeCat.map((i) => i.subcategoria))].map((slug) => {
       const primerItem = itemsDeCat.find((i) => i.subcategoria === slug);

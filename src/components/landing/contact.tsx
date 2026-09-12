@@ -9,6 +9,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle, CheckCircle2, ArrowRight } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { enlaceDeWhatsApp } from "@/config/site-config";
 import {
   Form,
   FormField,
@@ -86,7 +87,7 @@ export function Contact() {
 
 Hola GMS Integra, he completado el formulario web y deseo coordinar una cotización formal.`;
 
-    const waUrl = `https://wa.me/51958413806?text=${encodeURIComponent(message)}`;
+    const waUrl = enlaceDeWhatsApp(message);
     window.open(waUrl, "_blank");
 
     toast.success("¡Solicitud enviada a WhatsApp!", {

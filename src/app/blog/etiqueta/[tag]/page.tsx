@@ -6,8 +6,9 @@ import { Clock } from "lucide-react";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { siteConfig } from "@/config/site-config";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import { ETIQUETAS, NOMBRE_DE_ETIQUETA, type Etiqueta } from "@/lib/blog/esquema";
 import { etiquetasUsadas, leerPorEtiqueta } from "@/lib/blog/leer";
 
@@ -58,6 +59,13 @@ export default async function EtiquetaPage({ params }: { params: Promise<{ tag: 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <BreadcrumbSchema
+        items={[
+          { name: "Inicio", item: "/" },
+          { name: "Blog", item: "/blog" },
+          { name: NOMBRE_DE_ETIQUETA[tag], item: `/blog/etiqueta/${tag}` },
+        ]}
+      />
 
       <main className="flex-1">
         <CabeceraDePagina

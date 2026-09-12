@@ -1,4 +1,4 @@
-import { Shield, Sparkles, CheckCircle2, Wrench } from "lucide-react";
+import { Shield, CheckCircle2, Wrench } from "lucide-react";
 
 interface FichaProps {
   slug: string;

@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { BaldosaDeArticulo } from "@/components/blog/baldosa-articulo";
 import { BuscadorDeBlog, type EntradaDeBusqueda } from "@/components/blog/buscador-blog";
 import { siteConfig } from "@/config/site-config";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import { etiquetasUsadas, leerPublicados } from "@/lib/blog/leer";
 import { exigirBlogValido } from "@/lib/blog/validar";
 import { NOMBRE_DE_ETIQUETA } from "@/lib/blog/esquema";
@@ -51,6 +52,12 @@ export default function BlogPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
+      <BreadcrumbSchema
+        items={[
+          { name: "Inicio", item: "/" },
+          { name: "Blog", item: "/blog" },
+        ]}
+      />
 
       <main className="flex-1">
         <CabeceraDePagina

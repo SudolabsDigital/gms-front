@@ -5,22 +5,14 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
-import { CabeceraDePagina } from "@/components/blog/cabecera-blog";
-import { siteConfig } from "@/config/site-config";
-import { obtenerObraPorId, obtenerSlugsDeObras, obtenerTodasLasObras } from "@/lib/obras/leer";
+import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
+import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
+import { obtenerObraPorId, obtenerTodasLasObras } from "@/lib/obras/leer";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import {
-  MapPin,
-  Building,
-  ArrowLeft,
-  Share2,
-  CheckCircle2,
-  Sparkles,
-  Phone,
-  ShieldCheck,
-  Maximize2,
-} from "lucide-react";
+import { MapPin, ArrowLeft, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
+import ObraJsonLd from "@/components/seo/obra-json-ld";
 
 export const revalidate = 86400;
 
@@ -87,32 +79,19 @@ export default async function ObraIndividualPage({
 
   const urlObra = `${siteConfig.url}/obras/${obra.id}`;
   const mensajeWhatsApp = `Hola GMS Integra, vi el proyecto «${obra.titulo}» en ${obra.ubicacionDetalle} (${urlObra}) y deseo solicitar una cotización para un acabado similar.`;
-  const urlWhatsApp = `https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+  const urlWhatsApp = enlaceDeWhatsApp(mensajeWhatsApp);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "VisualArtwork",
-    name: obra.titulo,
-    description: `Proyecto ejecutado por GMS Integra en ${obra.ubicacionDetalle}, ${obra.zonaNombre}.`,
-    image: `${siteConfig.url}${obra.src}`,
-    creator: {
-      "@type": "Organization",
-      name: "GMS Integra E.I.R.L.",
-      url: siteConfig.url,
-    },
-    locationCreated: {
-      "@type": "Place",
-      name: `${obra.ubicacionDetalle}, Huancayo, Junín, Perú`,
-    },
-  };
+  const breadcrumbItems = [
+    { name: "Inicio", item: "/" },
+    { name: "Obras Ejecutadas", item: "/obras" },
+    { name: obra.titulo, item: `/obras/${obra.id}` },
+  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <BreadcrumbSchema items={breadcrumbItems} />
+      <ObraJsonLd obra={obra} />
 
       <main className="flex-1">
         {/* ── Subhero del Proyecto ── */}

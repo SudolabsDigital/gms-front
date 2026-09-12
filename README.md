@@ -36,10 +36,23 @@ Frontend del ERP **GMS Integra**, construido con Next.js 16 (App Router) + TypeS
 ## Backend
 
 El backend (API) se desarrolla por separado en **Laravel** y se consume vía URLs relativas
-(`/api/...`) usando rewrites de Next para desarrollo local. Este repo es solo el frontend.
+(`/api/...`). El reenvío al servidor lo hace `src/app/api/[...slug]/route.ts`, y `src/proxy.ts`
+—lo que hasta Next 15 era el middleware— resuelve la redirección de sesión. Este repo es solo el
+frontend.
 
-## Metodología
+## Metodología y documentación
 
 Este proyecto sigue **dreamdev** (`../dreamdev/`): ciclo
-`DISCOVERY → PLAN → GATE → EXECUTE → VALIDATE`, ediciones quirúrgicas y trazabilidad de
-tareas en `DEV_TASKS.md`.
+`DISCOVERY → PLAN → GATE → EXECUTE → REVIEW → VALIDATE`, ediciones quirúrgicas y riesgo declarado.
+
+**La documentación y el plan de trabajo NO viven en este repositorio, sino en `../gms-docs/`:**
+
+| Qué necesitas | Dónde |
+|---|---|
+| Decisiones vigentes, stack, deuda técnica | `gms-docs/PROJECT_CONTEXT.md` |
+| Qué existe de verdad hoy | `gms-docs/ESTADO_DE_IMPLEMENTACION.md` |
+| Plan de trabajo activo | `gms-docs/05-roadmap-y-tareas/task_plan.md` |
+| Contexto compilado para agentes | `gms-docs/AGENT_CONTEXT.md` *(generado — no editar a mano)* |
+
+> `DEV_TASKS.md` vivía aquí y se retiró el 2026-09-10: dos planes vivos son dos verdades. Su
+> historial y sus decisiones están en `gms-docs/05-roadmap-y-tareas/historial-front-sesiones-1-11.md`.

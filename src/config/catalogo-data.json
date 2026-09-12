@@ -1,6 +1,6 @@
 {
   "generadoEn": "2026-08-29T18:51:33.148Z",
-  "totalGeneral": 1591,
+  "totalGeneral": 1533,
   "categorias": [
     {
       "slug": "ventanas",
@@ -110,7 +110,7 @@
         {
           "slug": "m-arenado",
           "nombre": "M  ARENADO",
-          "total": 10
+          "total": 2
         },
         {
           "slug": "m-estructurada",
@@ -176,7 +176,7 @@
         {
           "slug": "p-serie",
           "nombre": "P SERIE",
-          "total": 6
+          "total": 5
         },
         {
           "slug": "p-ventana",
@@ -202,7 +202,7 @@
         {
           "slug": "general",
           "nombre": "General",
-          "total": 38
+          "total": 36
         }
       ]
     },
@@ -218,7 +218,7 @@
         {
           "slug": "b-acero",
           "nombre": "B ACERO",
-          "total": 74
+          "total": 66
         },
         {
           "slug": "b-acero-barandas2",
@@ -543,11 +543,6 @@
           "total": 5
         },
         {
-          "slug": "m-diversos-melamine-publicidad-melamine",
-          "nombre": "M DIVERSOS MELAMINE / PUBLICIDAD MELAMINE",
-          "total": 4
-        },
-        {
           "slug": "m-recepcion",
           "nombre": "M RECEPCION",
           "total": 1
@@ -603,7 +598,7 @@
         {
           "slug": "general",
           "nombre": "General",
-          "total": 7
+          "total": 6
         }
       ]
     },
@@ -666,7 +661,7 @@
       "icono": "BookOpen",
       "destacado": false,
       "portada": "/catalogo/catalogo-materiales/a-compuesto-1.webp",
-      "totalItems": 209,
+      "totalItems": 184,
       "subcategorias": [
         {
           "slug": "a-compuesto",
@@ -707,16 +702,6 @@
           "slug": "chapas",
           "nombre": "CHAPAS",
           "total": 22
-        },
-        {
-          "slug": "defectos-servicios-defectos-puertas",
-          "nombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-          "total": 7
-        },
-        {
-          "slug": "defectos-servicios-defectos-ventanas-proyectantes",
-          "nombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-          "total": 6
         },
         {
           "slug": "muestra-serie",
@@ -761,32 +746,12 @@
         {
           "slug": "vidrios-cristal-laminado",
           "nombre": "VIDRIOS / CRISTAL LAMINADO",
-          "total": 2
-        },
-        {
-          "slug": "vidrios-precio-templado-costo-templado",
-          "nombre": "VIDRIOS / PRECIO TEMPLADO / COSTO TEMPLADO",
-          "total": 2
-        },
-        {
-          "slug": "vidrios-precio-templado",
-          "nombre": "VIDRIOS / PRECIO TEMPLADO",
           "total": 1
-        },
-        {
-          "slug": "vidrios-precio-templado-templado",
-          "nombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-          "total": 7
         },
         {
           "slug": "vidrios-vidrios-modelos-colores",
           "nombre": "VIDRIOS / VIDRIOS MODELOS COLORES",
-          "total": 19
-        },
-        {
-          "slug": "vidrios-vidrios-rotos",
-          "nombre": "VIDRIOS / VIDRIOS ROTOS",
-          "total": 2
+          "total": 15
         }
       ]
     }
@@ -4045,162 +4010,6 @@
       "destacado": false
     },
     {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-97",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-97.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-97.webp",
-      "ancho": 4160,
-      "alto": 3120,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-98",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-98.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-98.webp",
-      "ancho": 3120,
-      "alto": 4160,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-99",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-99.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-99.webp",
-      "ancho": 3120,
-      "alto": 4160,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-100",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-100.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-100.webp",
-      "ancho": 3120,
-      "alto": 4160,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-101",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-101.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-101.webp",
-      "ancho": 4160,
-      "alto": 3120,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-102",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-102.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-102.webp",
-      "ancho": 3120,
-      "alto": 4160,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-puertas-103",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-puertas",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS PUERTAS",
-      "titulo": "DEFECTOS-SERVICIOS / DEFECTOS PUERTAS",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-puertas-103.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-puertas-103.webp",
-      "ancho": 3120,
-      "alto": 4160,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-ventanas-proyectantes-104",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-ventanas-proyectantes",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-      "titulo": "20210104 152745",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-ventanas-proyectantes-104.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-ventanas-proyectantes-104.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-ventanas-proyectantes-105",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-ventanas-proyectantes",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-      "titulo": "20210104 152747",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-ventanas-proyectantes-105.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-ventanas-proyectantes-105.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-ventanas-proyectantes-106",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-ventanas-proyectantes",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-      "titulo": "20210104 152754",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-ventanas-proyectantes-106.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-ventanas-proyectantes-106.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-ventanas-proyectantes-107",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-ventanas-proyectantes",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-      "titulo": "20210104 152758",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-ventanas-proyectantes-107.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-ventanas-proyectantes-107.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-ventanas-proyectantes-108",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-ventanas-proyectantes",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-      "titulo": "20210104 152805",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-ventanas-proyectantes-108.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-ventanas-proyectantes-108.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-defectos-servicios-defectos-ventanas-proyectantes-109",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "defectos-servicios-defectos-ventanas-proyectantes",
-      "subcategoriaNombre": "DEFECTOS SERVICIOS / DEFECTOS VENTANAS PROYECTANTES",
-      "titulo": "20210104 154407",
-      "src": "/catalogo/catalogo-materiales/defectos-servicios-defectos-ventanas-proyectantes-109.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/defectos-servicios-defectos-ventanas-proyectantes-109.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
       "id": "catalogo-materiales-muestra-serie-110",
       "categoria": "catalogo-materiales",
       "subcategoria": "muestra-serie",
@@ -5077,126 +4886,6 @@
       "destacado": false
     },
     {
-      "id": "catalogo-materiales-vidrios-precio-templado-costo-templado-184",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-costo-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / COSTO TEMPLADO",
-      "titulo": "IMG 20200624 WA0002",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-costo-templado-184.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-costo-templado-184.webp",
-      "ancho": 584,
-      "alto": 1040,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-costo-templado-185",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-costo-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / COSTO TEMPLADO",
-      "titulo": "IMG 20200624 WA0003",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-costo-templado-185.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-costo-templado-185.webp",
-      "ancho": 296,
-      "alto": 460,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-186",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO",
-      "titulo": "VIDRIOS / PRECIO TEMPLADO",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-186.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-186.webp",
-      "ancho": 296,
-      "alto": 460,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-187",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "Escáner 20140224 (2)",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-187.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-187.webp",
-      "ancho": 1170,
-      "alto": 850,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-188",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "Escáner 20140224 (3)",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-188.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-188.webp",
-      "ancho": 850,
-      "alto": 1170,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-189",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "Escáner 20140224 (4)",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-189.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-189.webp",
-      "ancho": 850,
-      "alto": 1170,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-190",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "Escáner 20140224",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-190.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-190.webp",
-      "ancho": 850,
-      "alto": 1170,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-191",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "IMG 20190521 WA0001",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-191.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-191.webp",
-      "ancho": 780,
-      "alto": 1040,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-192",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "IMG 20190521 WA0003",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-192.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-192.webp",
-      "ancho": 1040,
-      "alto": 780,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-precio-templado-templado-193",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-precio-templado-templado",
-      "subcategoriaNombre": "VIDRIOS / PRECIO TEMPLADO / TEMPLADO",
-      "titulo": "IMG 20190521 WA0004",
-      "src": "/catalogo/catalogo-materiales/vidrios-precio-templado-templado-193.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-precio-templado-templado-193.webp",
-      "ancho": 584,
-      "alto": 1040,
-      "destacado": false
-    },
-    {
       "id": "catalogo-materiales-vidrios-vidrios-modelos-colores-194",
       "categoria": "catalogo-materiales",
       "subcategoria": "vidrios-vidrios-modelos-colores",
@@ -5374,30 +5063,6 @@
       "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-vidrios-modelos-colores-208.webp",
       "ancho": 1080,
       "alto": 1037,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-vidrios-rotos-213",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-vidrios-rotos",
-      "subcategoriaNombre": "VIDRIOS / VIDRIOS ROTOS",
-      "titulo": "20210106 130452",
-      "src": "/catalogo/catalogo-materiales/vidrios-vidrios-rotos-213.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-vidrios-rotos-213.webp",
-      "ancho": 4000,
-      "alto": 1844,
-      "destacado": false
-    },
-    {
-      "id": "catalogo-materiales-vidrios-vidrios-rotos-214",
-      "categoria": "catalogo-materiales",
-      "subcategoria": "vidrios-vidrios-rotos",
-      "subcategoriaNombre": "VIDRIOS / VIDRIOS ROTOS",
-      "titulo": "20210106 130455",
-      "src": "/catalogo/catalogo-materiales/vidrios-vidrios-rotos-214.webp",
-      "thumb": "/catalogo/catalogo-materiales/thumbs/vidrios-vidrios-rotos-214.webp",
-      "ancho": 4000,
-      "alto": 1844,
       "destacado": false
     },
     {
