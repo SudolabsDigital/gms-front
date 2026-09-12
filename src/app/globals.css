@@ -43,6 +43,11 @@
 
   /* MARCA extra — cian radiante y azul eléctrico */
   --brand: #00c9ff;
+  /* LINEA, no relleno. El cian tiene 1,94:1 sobre blanco: no cumple ni el minimo de
+     elementos graficos. Vale como trazo decorativo y, sobre fondo oscuro (#0A1118 en los
+     planos de `process-steps`), llega a 9,76:1 y es el lenguaje CAD de la marca.
+     Nunca como texto, fondo de bloque ni indicador de estado. Ver 03-sistema-de-diseno/identidad-y-paleta.md */
+  --brand-linea: #00c9ff;
   --brand-soft: #38bdf8;
 
   /* Bordes / marco de aluminio anodizado pulido */
@@ -115,6 +120,7 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-brand: var(--brand);
+  --color-brand-linea: var(--brand-linea);
   --color-brand-soft: var(--brand-soft);
 
   --color-border: var(--border);

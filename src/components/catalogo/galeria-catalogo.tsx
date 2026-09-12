@@ -176,7 +176,7 @@ export function GaleriaCatalogo({
             {/* Barra de Información y Acción del Modal */}
             <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full rounded-2xl bg-slate-900/95 border border-white/15 p-4 sm:p-5 text-white backdrop-blur-md shadow-2xl">
               <div className="text-center sm:text-left min-w-0 flex-1">
-                <span className="text-[11px] font-bold text-[#00c9ff] uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-brand uppercase tracking-wider block">
                   {categoriaNombre} · {itemActual.subcategoriaNombre}
                 </span>
                 <h3 className="text-sm sm:text-base font-bold text-white leading-snug truncate">

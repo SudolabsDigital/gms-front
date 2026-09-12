@@ -24,7 +24,7 @@ export function SiteFooter() {
                 <Image src={logo} alt="GMS Integra - Ventanas y Mamparas" className="size-11 object-contain" />
                 <div className="flex flex-col">
                   <span className="text-lg font-black text-white leading-none font-sans">
-                    GMS <span className="text-[#00c9ff]">INTEGRA</span>
+                    GMS <span className="text-brand">INTEGRA</span>
                   </span>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
                     Carpintería de Aluminio & Vidrio
@@ -83,7 +83,7 @@ export function SiteFooter() {
                 Líneas de Fabricación
               </h4>
               <ul className="flex flex-col gap-2.5 text-xs text-slate-400">
-                <li><Link href="/catalogo" className="hover:text-white transition-colors text-[#00c9ff] font-bold">→ Ver Catálogo Completo (18 Líneas)</Link></li>
+                <li><Link href="/catalogo" className="hover:text-white transition-colors text-brand font-bold">→ Ver Catálogo Completo (18 Líneas)</Link></li>
                 <li><Link href="/catalogo/mamparas" className="hover:text-white transition-colors">Mamparas Panorámicas Serie 80</Link></li>
                 <li><Link href="/catalogo/ventanas" className="hover:text-white transition-colors">Ventanas Herméticas S-20/25/38</Link></li>
                 <li><Link href="/catalogo/puertas" className="hover:text-white transition-colors">Línea Spazio & Cabinas de Ducha</Link></li>

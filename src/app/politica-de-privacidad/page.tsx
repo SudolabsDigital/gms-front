@@ -22,15 +22,15 @@ export default function PoliticaPrivacidadPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-mono text-[#00c9ff] hover:underline mb-6"
+            className="inline-flex items-center gap-2 text-xs font-mono text-brand hover:underline mb-6"
           >
             <ArrowLeft className="size-3.5" />
             <span>Volver al Portal Principal</span>
           </Link>
 
           <div className="flex items-center gap-2 mb-3">
-            <Lock className="size-4 text-[#00c9ff]" />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#00c9ff]">
+            <Lock className="size-4 text-brand" />
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-brand">
               Privacidad Web & Ley N° 29733 (Perú)
             </span>
           </div>

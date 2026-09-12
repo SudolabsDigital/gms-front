@@ -145,7 +145,7 @@ export default async function ItemCatalogoIndividualPage({
           meta={
             <>
               <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                <Tag className="size-3.5 text-[#00c9ff]" />
+                <Tag className="size-3.5 text-brand" />
                 <span>{item.subcategoriaNombre}</span>
               </span>
               <span className="flex items-center gap-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 backdrop-blur-xs border border-emerald-500/30">

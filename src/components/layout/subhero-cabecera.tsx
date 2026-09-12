@@ -114,8 +114,8 @@ export function SubheroCabecera({
             <MigasVisual items={migas} variante="oscura" />
 
             {badge && (
-              <span className="inline-flex items-center gap-2 rounded-xl border border-[#00C9FF]/40 bg-black/60 px-4 py-2 text-xs font-black uppercase tracking-wider text-[#00C9FF] backdrop-blur-md shadow-md">
-                <span className="size-2 rounded-full bg-[#00C9FF] animate-ping" />
+              <span className="inline-flex items-center gap-2 rounded-xl border border-brand-linea/40 bg-black/60 px-4 py-2 text-xs font-black uppercase tracking-wider text-brand backdrop-blur-md shadow-md">
+                <span className="size-2 rounded-full bg-brand animate-ping" />
                 {badge}
               </span>
             )}
@@ -128,8 +128,8 @@ export function SubheroCabecera({
             <div className="flex min-w-0 flex-col gap-4">
               {antetitulo && (
                 <div className="inline-flex items-center gap-2.5">
-                  <span className="h-0.5 w-8 bg-[#00C9FF] rounded-full" />
-                  <span className="text-xs font-black uppercase tracking-[0.25em] text-[#00C9FF] drop-shadow-sm">
+                  <span className="h-0.5 w-8 bg-brand rounded-full" />
+                  <span className="text-xs font-black uppercase tracking-[0.25em] text-brand drop-shadow-sm">
                     {antetitulo}
                   </span>
                 </div>

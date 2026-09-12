@@ -43,11 +43,20 @@ const INVARIANTES = [
     id: "INV-P02",
     nombre: "color de marca por token, no por literal",
     patron: /#(?:00c9ff|004aad)\b/gi,
-    exentos: ["src/app/globals.css"],
+    // `manifest.ts` lo lee el SO al instalar la PWA: ahi `var()` no se resuelve y el literal
+    // es inevitable. Queda declarado en el propio archivo.
+    // `sdl-footer.css` es la firma portable de Sudolabs: declara "sin dependencias, funciona en
+    // cualquier proyecto" y trae su propio sistema `--sdlf-*`. Atarlo a `--brand` de GMS romperia
+    // exactamente lo que lo hace reutilizable. Es identidad del estudio, no del cliente.
+    exentos: ["src/app/globals.css", "src/app/manifest.ts", "src/components/layout/sdl-footer.css"],
     // 148 -> 143 al migrar las tres tarjetas al organismo unico (T3.2), que usa el token.
     // 143 -> 105 al borrar los 10 componentes sin importador (T6.4): 38 de las 143 infracciones
     // vivian en codigo que nadie renderizaba. El numero llevaba meses midiendo deuda inexistente.
-    umbral: 105,
+    // 105 -> 0 el 2026-09-12 (T9.4). Ni un pixel cambio: `text-brand` resuelve al mismo
+    // #00c9ff que el literal. Lo que cambia es que ahora el color se decide en UN sitio.
+    // 47 de los 105 estaban en los SVG de `process-steps`, dibujos CAD sobre #0A1118 donde
+    // el cian da 9,76:1 y es correcto: esos pasaron a `var(--brand-linea)`, mismo valor.
+    umbral: 0,
     salida: "Usa las utilidades del token: `text-brand` / `bg-brand` / `border-brand` para el cian, y `text-primary` / `bg-primary` para el azul. Los valores se declaran una sola vez en `globals.css`.",
   },
   {

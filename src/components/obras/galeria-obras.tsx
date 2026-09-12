@@ -169,10 +169,10 @@ export function GaleriaObras({
       {/* ── Recordatorio Flotante / Barra de Estado de lo Seleccionado ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#0A1118] px-5 py-3.5 text-white shadow-md border border-white/10">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="size-2.5 rounded-full bg-[#00c9ff] animate-pulse shrink-0" />
+          <span className="size-2.5 rounded-full bg-brand animate-pulse shrink-0" />
           <div className="flex items-center gap-1.5 text-xs font-black truncate">
             <span className="text-slate-400">Viendo:</span>
-            <span className="text-[#00c9ff]">
+            <span className="text-brand">
               {zonaActual?.nombre || "Todas las Zonas"}
             </span>
             {subzonaActiva !== "todas" && subzonaActual && (
@@ -274,7 +274,7 @@ export function GaleriaObras({
                 className={cn(
                   "flex size-10 items-center justify-center rounded-full backdrop-blur-md border transition-all cursor-pointer",
                   zoomActivado
-                    ? "bg-[#00c9ff] text-slate-950 border-[#00c9ff]"
+                    ? "bg-brand text-slate-950 border-brand-linea"
                     : "bg-white/10 text-white border-white/15 hover:bg-white/20"
                 )}
                 title={zoomActivado ? "Reducir zoom (Z)" : "Ampliar imagen (Z)"}
@@ -290,7 +290,7 @@ export function GaleriaObras({
                 className={cn(
                   "flex size-10 items-center justify-center rounded-full backdrop-blur-md border transition-all cursor-pointer",
                   mostrarInfo
-                    ? "bg-white/20 text-[#00c9ff] border-white/30"
+                    ? "bg-white/20 text-brand border-white/30"
                     : "bg-white/10 text-white/60 border-white/10 hover:text-white"
                 )}
                 title={mostrarInfo ? "Ocultar información (I)" : "Mostrar información (I)"}
@@ -379,7 +379,7 @@ export function GaleriaObras({
               
               {/* Información del Proyecto */}
               <div className="text-center md:text-left min-w-0 flex-1">
-                <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-bold text-[#00c9ff] uppercase tracking-wider mb-1">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-bold text-brand uppercase tracking-wider mb-1">
                   <MapPin className="size-3.5" />
                   <span>{obraActual.ubicacionDetalle}</span>
                   <span className="text-white/30">·</span>

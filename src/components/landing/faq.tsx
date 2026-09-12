@@ -38,7 +38,7 @@ export function Faq() {
 
           {/* Encabezado del Panel */}
           <div className="relative z-10">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#00c9ff]">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-brand">
               Taller Propio · Jr. Huánuco 1389
             </span>
             <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white mt-2 font-sans leading-tight">
@@ -56,7 +56,7 @@ export function Faq() {
             {/* 2 Indicadores de Confianza */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-white/15 bg-black/60 backdrop-blur-md p-3.5 flex items-center gap-2.5">
-                <ShieldCheck className="size-5 text-[#00c9ff] shrink-0" />
+                <ShieldCheck className="size-5 text-brand shrink-0" />
                 <div>
                   <span className="text-sm font-black text-white font-sans block leading-none">1 AÑO</span>
                   <span className="text-[10px] font-mono text-slate-300 block mt-0.5">Garantía Escrita</span>

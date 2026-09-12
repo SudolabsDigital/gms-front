@@ -110,7 +110,7 @@ export default async function ObraIndividualPage({
           meta={
             <>
               <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                <MapPin className="size-3.5 text-[#00c9ff]" />
+                <MapPin className="size-3.5 text-brand" />
                 <span>{obra.ubicacionDetalle}</span>
               </span>
               <span className="flex items-center gap-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 backdrop-blur-xs border border-emerald-500/30">

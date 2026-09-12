@@ -75,7 +75,7 @@ const ACTIONS = [
     external: false,
     scroll: "cotizador",
     icon: <CalculatorIcon className="size-5" />,
-    bg: "bg-[#004AAD] hover:bg-[#003282]",
+    bg: "bg-primary hover:bg-[#003282]",
     shadow: "shadow-[0_4px_0px_#003282]",
     ring: "ring-blue-600",
   },
@@ -260,7 +260,7 @@ export function FloatingCta() {
             "flex size-11 sm:size-12 items-center justify-center rounded-xl transition-all duration-300 cursor-pointer",
             "border shadow-lg shadow-black/25 active:scale-95",
             isAutoScrolling
-              ? "bg-[#004AAD] text-[#00c9ff] border-[#00c9ff]/70 ring-2 ring-[#00c9ff]/40 animate-pulse"
+              ? "bg-primary text-brand border-brand-linea/70 ring-2 ring-brand-linea/40 animate-pulse"
               : "bg-[#1A2B45] text-slate-300 hover:text-white hover:bg-slate-800 border-white/20 hover:border-white/40"
           )}
           aria-label={isAutoScrolling ? "Pausar scroll automático" : "Iniciar scroll automático"}

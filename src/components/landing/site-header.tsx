@@ -112,7 +112,7 @@ export function SiteHeader() {
             />
             <div className="flex flex-col text-left">
               <span className="text-lg sm:text-xl font-black tracking-tight text-primary leading-none uppercase">
-                GMS <span className="text-[#004aad]">INTEGRA</span>
+                GMS <span className="text-primary">INTEGRA</span>
               </span>
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
                 Ventanas & Mamparas · Huancayo

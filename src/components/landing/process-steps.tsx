@@ -19,8 +19,8 @@ function SvgMedicionDetallada() {
           <stop offset="100%" stopColor="#152033" />
         </linearGradient>
         <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#00C9FF" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#00C9FF" stopOpacity="0.1" />
+          <stop offset="0%" stopColor="var(--brand-linea)" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="var(--brand-linea)" stopOpacity="0.1" />
         </linearGradient>
       </defs>
 
@@ -33,9 +33,9 @@ function SvgMedicionDetallada() {
       {/* Edificio en Construcción */}
       <g transform="translate(245, 30)">
         <rect x="0" y="15" width="180" height="185" fill="#1E293B" stroke="#334155" strokeWidth="2" rx="2" />
-        <rect x="15" y="30" width="65" height="55" fill="#0A1118" stroke="#00C9FF" strokeWidth="1.5" strokeDasharray="3 3" />
-        <rect x="95" y="30" width="70" height="55" fill="#0A1118" stroke="#00C9FF" strokeWidth="1.5" strokeDasharray="3 3" />
-        <rect x="15" y="105" width="70" height="90" fill="#0A1118" stroke="#00C9FF" strokeWidth="1.5" strokeDasharray="3 3" />
+        <rect x="15" y="30" width="65" height="55" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1.5" strokeDasharray="3 3" />
+        <rect x="95" y="30" width="70" height="55" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1.5" strokeDasharray="3 3" />
+        <rect x="15" y="105" width="70" height="90" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1.5" strokeDasharray="3 3" />
         <rect x="95" y="105" width="70" height="90" fill="#7C2D12" opacity="0.6" stroke="#9A3412" strokeWidth="1" />
         {[120, 135, 150, 165, 180].map((y, i) => (
           <line key={i} x1="95" y1={y} x2="165" y2={y} stroke="#451A03" strokeWidth="1.2" />
@@ -50,12 +50,12 @@ function SvgMedicionDetallada() {
 
       {/* Camioneta GMS */}
       <g transform="translate(25, 135)">
-        <path d="M 8 50 L 25 20 L 95 20 L 135 32 L 155 50 L 160 70 L 8 70 Z" fill="#0A1118" stroke="#00C9FF" strokeWidth="1.8" />
+        <path d="M 8 50 L 25 20 L 95 20 L 135 32 L 155 50 L 160 70 L 8 70 Z" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1.8" />
         <rect x="10" y="50" width="148" height="20" fill="#0F172A" />
-        <path d="M 98 25 L 130 35 L 130 48 L 98 48 Z" fill="#00C9FF" fillOpacity="0.25" stroke="#00C9FF" strokeWidth="1" />
-        <rect x="42" y="26" width="50" height="22" rx="2" fill="#00C9FF" fillOpacity="0.15" stroke="#00C9FF" strokeWidth="1" />
-        <rect x="25" y="53" width="70" height="13" rx="2" fill="#0A1118" stroke="#00C9FF" strokeWidth="0.8" />
-        <text x="60" y="62.5" fill="#00C9FF" fontSize="7.5" fontFamily="sans-serif" fontWeight="900" textAnchor="middle" dominantBaseline="middle">
+        <path d="M 98 25 L 130 35 L 130 48 L 98 48 Z" fill="var(--brand-linea)" fillOpacity="0.25" stroke="var(--brand-linea)" strokeWidth="1" />
+        <rect x="42" y="26" width="50" height="22" rx="2" fill="var(--brand-linea)" fillOpacity="0.15" stroke="var(--brand-linea)" strokeWidth="1" />
+        <rect x="25" y="53" width="70" height="13" rx="2" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="0.8" />
+        <text x="60" y="62.5" fill="var(--brand-linea)" fontSize="7.5" fontFamily="sans-serif" fontWeight="900" textAnchor="middle" dominantBaseline="middle">
           GMS INTEGRA
         </text>
         <line x1="20" y1="10" x2="125" y2="10" stroke="#F59E0B" strokeWidth="3" />
@@ -63,9 +63,9 @@ function SvgMedicionDetallada() {
           <line key={i} x1={x} y1="7" x2={x} y2="13" stroke="#1E293B" strokeWidth="2" />
         ))}
         <circle cx="40" cy="72" r="15" fill="#0A1118" stroke="#64748B" strokeWidth="3" />
-        <circle cx="40" cy="72" r="6" fill="#00C9FF" />
+        <circle cx="40" cy="72" r="6" fill="var(--brand-linea)" />
         <circle cx="128" cy="72" r="15" fill="#0A1118" stroke="#64748B" strokeWidth="3" />
-        <circle cx="128" cy="72" r="6" fill="#00C9FF" />
+        <circle cx="128" cy="72" r="6" fill="var(--brand-linea)" />
       </g>
 
       {/* Técnico con Trípode Láser */}
@@ -73,13 +73,13 @@ function SvgMedicionDetallada() {
         <line x1="35" y1="60" x2="45" y2="83" stroke="#64748B" strokeWidth="2" />
         <line x1="45" y1="60" x2="45" y2="83" stroke="#64748B" strokeWidth="2" />
         <line x1="55" y1="60" x2="45" y2="83" stroke="#64748B" strokeWidth="2" />
-        <rect x="38" y="52" width="14" height="10" rx="2" fill="#0A1118" stroke="#00C9FF" strokeWidth="1.5" />
-        <line x1="52" y1="57" x2="120" y2="57" stroke="#00C9FF" strokeWidth="2" />
+        <rect x="38" y="52" width="14" height="10" rx="2" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1.5" />
+        <line x1="52" y1="57" x2="120" y2="57" stroke="var(--brand-linea)" strokeWidth="2" />
         <line x1="52" y1="57" x2="120" y2="57" stroke="url(#beamGrad)" strokeWidth="6" />
-        <circle cx="120" cy="57" r="4" fill="#00C9FF" />
+        <circle cx="120" cy="57" r="4" fill="var(--brand-linea)" />
         <circle cx="15" cy="20" r="7" fill="#F6D0B1" />
         <path d="M 6 18 C 6 10 24 10 24 18 Z" fill="#F8FAFC" />
-        <ellipse cx="15" cy="45" rx="10" ry="16" fill="#0F172A" stroke="#00C9FF" strokeWidth="1.2" />
+        <ellipse cx="15" cy="45" rx="10" ry="16" fill="#0F172A" stroke="var(--brand-linea)" strokeWidth="1.2" />
         <line x1="12" y1="60" x2="10" y2="83" stroke="#F8FAFC" strokeWidth="3" strokeLinecap="round" />
         <line x1="18" y1="60" x2="20" y2="83" stroke="#F8FAFC" strokeWidth="3" strokeLinecap="round" />
         <line x1="18" y1="36" x2="38" y2="52" stroke="#F8FAFC" strokeWidth="2.5" strokeLinecap="round" />
@@ -116,8 +116,8 @@ function SvgDisenoDetallado() {
       {/* Pizarra Técnica */}
       <g transform="translate(295, 25)">
         <rect x="0" y="0" width="120" height="100" rx="3" fill="#0A1118" stroke="#334155" strokeWidth="1.5" />
-        <text x="10" y="18" fill="#00C9FF" fontSize="8" fontFamily="monospace" fontWeight="bold">CORTE SERIE 80</text>
-        <rect x="15" y="28" width="40" height="55" fill="none" stroke="#00C9FF" strokeWidth="1.2" strokeDasharray="3 2" />
+        <text x="10" y="18" fill="var(--brand-linea)" fontSize="8" fontFamily="monospace" fontWeight="bold">CORTE SERIE 80</text>
+        <rect x="15" y="28" width="40" height="55" fill="none" stroke="var(--brand-linea)" strokeWidth="1.2" strokeDasharray="3 2" />
         <rect x="60" y="28" width="45" height="55" fill="none" stroke="#38BDF8" strokeWidth="1.2" strokeDasharray="3 2" />
       </g>
 
@@ -128,18 +128,18 @@ function SvgDisenoDetallado() {
 
       {/* Monitor 3D */}
       <g transform="translate(130, 60)">
-        <rect x="0" y="0" width="150" height="95" rx="4" fill="#0A1118" stroke="#00C9FF" strokeWidth="2" />
+        <rect x="0" y="0" width="150" height="95" rx="4" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="2" />
         <rect x="65" y="95" width="20" height="25" fill="#1E293B" />
         <rect x="50" y="118" width="50" height="5" rx="2" fill="#334155" />
-        <polygon points="25,75 70,30 125,40 80,85" stroke="#00C9FF" strokeWidth="1.8" fill="#00C9FF" fillOpacity="0.1" />
-        <polygon points="80,85 125,40 125,70 80,92" stroke="#00C9FF" strokeWidth="1.8" fill="#00C9FF" fillOpacity="0.2" />
+        <polygon points="25,75 70,30 125,40 80,85" stroke="var(--brand-linea)" strokeWidth="1.8" fill="var(--brand-linea)" fillOpacity="0.1" />
+        <polygon points="80,85 125,40 125,70 80,92" stroke="var(--brand-linea)" strokeWidth="1.8" fill="var(--brand-linea)" fillOpacity="0.2" />
       </g>
 
       {/* Ingeniero Diseñando */}
       <g transform="translate(245, 95)">
         <circle cx="25" cy="22" r="8" fill="#F6D0B1" />
-        <path d="M 16 18 C 16 11 34 11 34 18 Z" fill="#00C9FF" />
-        <ellipse cx="25" cy="50" rx="13" ry="20" fill="#0F172A" stroke="#00C9FF" strokeWidth="1.2" />
+        <path d="M 16 18 C 16 11 34 11 34 18 Z" fill="var(--brand-linea)" />
+        <ellipse cx="25" cy="50" rx="13" ry="20" fill="#0F172A" stroke="var(--brand-linea)" strokeWidth="1.2" />
         <line x1="16" y1="42" x2="-10" y2="30" stroke="#F8FAFC" strokeWidth="3" strokeLinecap="round" />
         <circle cx="-12" cy="29" r="2.5" fill="#F6D0B1" />
         <line x1="-13" y1="29" x2="-22" y2="25" stroke="#F59E0B" strokeWidth="1.8" strokeLinecap="round" />
@@ -147,7 +147,7 @@ function SvgDisenoDetallado() {
 
       {/* Plano y Cotización */}
       <g transform="translate(325, 105)">
-        <polygon points="5,5 65,0 75,35 15,40" fill="#0A1118" stroke="#00C9FF" strokeWidth="1.5" />
+        <polygon points="5,5 65,0 75,35 15,40" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1.5" />
         <line x1="18" y1="12" x2="55" y2="8" stroke="#94A3B8" strokeWidth="1.2" />
         <circle cx="48" cy="26" r="7" fill="#10B981" fillOpacity="0.2" stroke="#10B981" strokeWidth="1.2" />
         <path d="M 45 26 L 47 28 L 51 24" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" />
@@ -184,7 +184,7 @@ function SvgManufacturaDetallada() {
       {/* Rack de Perfiles */}
       <g transform="translate(20, 50)">
         <rect x="0" y="0" width="75" height="135" fill="#0A1118" stroke="#334155" strokeWidth="1.5" rx="3" />
-        <rect x="8" y="10" width="8" height="115" fill="#00C9FF" />
+        <rect x="8" y="10" width="8" height="115" fill="var(--brand-linea)" />
         <rect x="22" y="10" width="8" height="115" fill="#0F172A" stroke="#334155" strokeWidth="0.8" />
         <rect x="36" y="10" width="8" height="115" fill="#F59E0B" />
         <rect x="50" y="10" width="8" height="115" fill="#94A3B8" />
@@ -197,29 +197,29 @@ function SvgManufacturaDetallada() {
         <rect x="0" y="25" width="220" height="45" rx="3" fill="#1E293B" stroke="#334155" strokeWidth="2" />
         <line x1="25" y1="70" x2="25" y2="105" stroke="#0A1118" strokeWidth="6" />
         <line x1="195" y1="70" x2="195" y2="105" stroke="#0A1118" strokeWidth="6" />
-        <rect x="15" y="-18" width="190" height="55" rx="2" fill="#00C9FF" fillOpacity="0.12" stroke="#00C9FF" strokeWidth="2" />
-        <circle cx="70" cy="8" r="9" fill="#00C9FF" />
-        <circle cx="150" cy="8" r="9" fill="#00C9FF" />
+        <rect x="15" y="-18" width="190" height="55" rx="2" fill="var(--brand-linea)" fillOpacity="0.12" stroke="var(--brand-linea)" strokeWidth="2" />
+        <circle cx="70" cy="8" r="9" fill="var(--brand-linea)" />
+        <circle cx="150" cy="8" r="9" fill="var(--brand-linea)" />
       </g>
 
       {/* Operario Cortando */}
       <g transform="translate(100, 95)">
         <circle cx="45" cy="45" r="32" fill="#0A1118" stroke="#334155" strokeWidth="2" />
-        <circle cx="45" cy="45" r="10" fill="#00C9FF" />
-        <path d="M 0 78 L 45 78 L 35 95 L 0 95 Z" fill="#00C9FF" fillOpacity="0.3" stroke="#00C9FF" strokeWidth="1.5" />
-        <path d="M 50 78 L 95 78 L 95 95 L 40 95 Z" fill="#00C9FF" fillOpacity="0.5" stroke="#00C9FF" strokeWidth="1.5" />
-        <circle cx="45" cy="80" r="2.5" fill="#00C9FF" />
-        <line x1="45" y1="80" x2="58" y2="68" stroke="#00C9FF" strokeWidth="1.5" />
+        <circle cx="45" cy="45" r="10" fill="var(--brand-linea)" />
+        <path d="M 0 78 L 45 78 L 35 95 L 0 95 Z" fill="var(--brand-linea)" fillOpacity="0.3" stroke="var(--brand-linea)" strokeWidth="1.5" />
+        <path d="M 50 78 L 95 78 L 95 95 L 40 95 Z" fill="var(--brand-linea)" fillOpacity="0.5" stroke="var(--brand-linea)" strokeWidth="1.5" />
+        <circle cx="45" cy="80" r="2.5" fill="var(--brand-linea)" />
+        <line x1="45" y1="80" x2="58" y2="68" stroke="var(--brand-linea)" strokeWidth="1.5" />
         <circle cx="68" cy="20" r="7" fill="#F6D0B1" />
         <path d="M 59 18 C 59 11 77 11 77 18 Z" fill="#F8FAFC" />
-        <ellipse cx="68" cy="45" rx="11" ry="18" fill="#0F172A" stroke="#00C9FF" strokeWidth="1.2" />
+        <ellipse cx="68" cy="45" rx="11" ry="18" fill="#0F172A" stroke="var(--brand-linea)" strokeWidth="1.2" />
       </g>
 
       {/* Operario Ensamblando */}
       <g transform="translate(325, 95)">
         <circle cx="20" cy="20" r="7" fill="#F6D0B1" />
-        <path d="M 11 18 C 11 11 29 11 29 18 Z" fill="#00C9FF" />
-        <ellipse cx="20" cy="45" rx="11" ry="18" fill="#0F172A" stroke="#00C9FF" strokeWidth="1.2" />
+        <path d="M 11 18 C 11 11 29 11 29 18 Z" fill="var(--brand-linea)" />
+        <ellipse cx="20" cy="45" rx="11" ry="18" fill="#0F172A" stroke="var(--brand-linea)" strokeWidth="1.2" />
       </g>
     </svg>
   );
@@ -249,14 +249,14 @@ function SvgInstalacionDetallada() {
       <g transform="translate(25, 20)">
         <rect x="0" y="10" width="390" height="190" fill="#1E293B" stroke="#334155" strokeWidth="2" rx="4" />
         <rect x="0" y="0" width="390" height="16" fill="#0A1118" />
-        <rect x="35" y="30" width="320" height="155" fill="#0A1118" stroke="#00C9FF" strokeWidth="2.5" rx="3" />
-        <rect x="42" y="38" width="100" height="142" fill="#00C9FF" fillOpacity="0.1" stroke="#38BDF8" strokeWidth="1.5" />
-        <rect x="145" y="38" width="100" height="142" fill="#00C9FF" fillOpacity="0.15" stroke="#38BDF8" strokeWidth="1.5" />
-        <rect x="248" y="38" width="100" height="142" fill="#00C9FF" fillOpacity="0.1" stroke="#38BDF8" strokeWidth="1.5" />
+        <rect x="35" y="30" width="320" height="155" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="2.5" rx="3" />
+        <rect x="42" y="38" width="100" height="142" fill="var(--brand-linea)" fillOpacity="0.1" stroke="#38BDF8" strokeWidth="1.5" />
+        <rect x="145" y="38" width="100" height="142" fill="var(--brand-linea)" fillOpacity="0.15" stroke="#38BDF8" strokeWidth="1.5" />
+        <rect x="248" y="38" width="100" height="142" fill="var(--brand-linea)" fillOpacity="0.1" stroke="#38BDF8" strokeWidth="1.5" />
         <polygon points="55,42 85,42 50,175 45,175" fill="white" fillOpacity="0.15" />
         <polygon points="160,42 190,42 155,175 150,175" fill="white" fillOpacity="0.15" />
         <g transform="translate(190, 65)">
-          <path d="M 0 -8 L 2 -2 L 8 0 L 2 2 L 0 8 L -2 2 L -8 0 L -2 -2 Z" fill="#00C9FF" />
+          <path d="M 0 -8 L 2 -2 L 8 0 L 2 2 L 0 8 L -2 2 L -8 0 L -2 -2 Z" fill="var(--brand-linea)" />
         </g>
       </g>
 
@@ -266,20 +266,20 @@ function SvgInstalacionDetallada() {
       <g transform="translate(75, 130)">
         <circle cx="20" cy="20" r="7" fill="#F6D0B1" />
         <path d="M 11 18 C 11 11 29 11 29 18 Z" fill="#F8FAFC" />
-        <ellipse cx="20" cy="45" rx="10" ry="18" fill="#0F172A" stroke="#00C9FF" strokeWidth="1.2" />
+        <ellipse cx="20" cy="45" rx="10" ry="18" fill="#0F172A" stroke="var(--brand-linea)" strokeWidth="1.2" />
         <line x1="24" y1="36" x2="40" y2="46" stroke="#F8FAFC" strokeWidth="3" strokeLinecap="round" />
-        <rect x="38" y="42" width="14" height="6" rx="1.5" fill="#0A1118" stroke="#00C9FF" strokeWidth="1" />
+        <rect x="38" y="42" width="14" height="6" rx="1.5" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="1" />
       </g>
 
       {/* Sello de Garantía */}
       <g transform="translate(285, 125)">
-        <rect x="0" y="0" width="130" height="85" rx="8" fill="#0A1118" stroke="#00C9FF" strokeWidth="2" />
-        <circle cx="32" cy="42" r="18" fill="#00C9FF" fillOpacity="0.15" stroke="#00C9FF" strokeWidth="1.5" />
-        <path d="M 24 42 L 30 48 L 40 36" stroke="#00C9FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="0" y="0" width="130" height="85" rx="8" fill="#0A1118" stroke="var(--brand-linea)" strokeWidth="2" />
+        <circle cx="32" cy="42" r="18" fill="var(--brand-linea)" fillOpacity="0.15" stroke="var(--brand-linea)" strokeWidth="1.5" />
+        <path d="M 24 42 L 30 48 L 40 36" stroke="var(--brand-linea)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         <text x="60" y="36" fill="#F8FAFC" fontSize="10" fontFamily="sans-serif" fontWeight="900">
           OBRA 100%
         </text>
-        <text x="60" y="48" fill="#00C9FF" fontSize="8.5" fontFamily="monospace" fontWeight="bold">
+        <text x="60" y="48" fill="var(--brand-linea)" fontSize="8.5" fontFamily="monospace" fontWeight="bold">
           CONFORME
         </text>
         <text x="60" y="60" fill="#94A3B8" fontSize="7.5" fontFamily="sans-serif">

@@ -59,9 +59,9 @@ export function FiltroZonas({
                 )}
               >
                 {z.slug !== "todas" ? (
-                  <MapPin className={cn("size-3.5", esActiva ? "text-[#00c9ff]" : "text-slate-400")} />
+                  <MapPin className={cn("size-3.5", esActiva ? "text-brand" : "text-slate-400")} />
                 ) : (
-                  <Navigation className={cn("size-3.5", esActiva ? "text-[#00c9ff]" : "text-slate-400")} />
+                  <Navigation className={cn("size-3.5", esActiva ? "text-brand" : "text-slate-400")} />
                 )}
                 <span>{z.nombre}</span>
                 <span
@@ -96,7 +96,7 @@ export function FiltroZonas({
                   className={cn(
                     "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all shrink-0 cursor-pointer",
                     esActiva
-                      ? "bg-[#1A2B45] text-white shadow-xs scale-102 border border-[#00c9ff]/40"
+                      ? "bg-[#1A2B45] text-white shadow-xs scale-102 border border-brand-linea/40"
                       : "bg-muted/60 border border-border/60 text-slate-600 hover:text-foreground hover:bg-muted"
                   )}
                 >
@@ -104,7 +104,7 @@ export function FiltroZonas({
                   <span
                     className={cn(
                       "rounded-full px-1.5 py-0.2 text-[9px] font-bold",
-                      esActiva ? "bg-[#00c9ff] text-slate-950 font-black" : "bg-slate-200 text-slate-600"
+                      esActiva ? "bg-brand text-slate-950 font-black" : "bg-slate-200 text-slate-600"
                     )}
                   >
                     {sub.total}
@@ -138,7 +138,7 @@ export function FiltroZonas({
                     : "bg-muted/40 border border-border/40 text-slate-600 hover:text-foreground hover:bg-muted"
                 )}
               >
-                {Icono && <Icono className={cn("size-3", esActivo ? "text-[#00c9ff]" : "text-slate-400")} />}
+                {Icono && <Icono className={cn("size-3", esActivo ? "text-brand" : "text-slate-400")} />}
                 <span>{tipo.label}</span>
               </button>
             );
