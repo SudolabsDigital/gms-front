@@ -83,7 +83,7 @@ export function GaleriaCatalogo({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.thumb || item.src}
-                  alt={item.titulo}
+                  alt={`${item.subcategoriaNombre} · ${item.titulo}`}
                   loading="lazy"
                   className="w-full object-cover transition-transform duration-500 group-hover:scale-103"
                 />

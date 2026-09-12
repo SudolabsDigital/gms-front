@@ -31,7 +31,8 @@ export async function generateMetadata({
   const cat = obtenerCategoriaPorSlug(item.categoria);
   const catNombre = cat ? cat.nombre : item.categoria;
   const url = `${siteConfig.url}/catalogo/item/${item.id}`;
-  const titulo = `${item.titulo} — ${item.subcategoriaNombre} | Catálogo GMS Integra`;
+  // Sin la marca: la plantilla `%s | GMS Integra` del layout ya la añade, y aquí salía dos veces.
+  const titulo = `${item.titulo} — ${item.subcategoriaNombre} | Catálogo`;
   const descripcion = `Modelo de carpintería de aluminio y cristal templado: ${item.titulo} (${item.subcategoriaNombre}) en la línea de ${catNombre}. Fabricación a medida en Huancayo y el Valle del Mantaro.`;
 
   return {
@@ -49,7 +50,7 @@ export async function generateMetadata({
           url: `${siteConfig.url}${item.src}`,
           width: item.ancho || 1200,
           height: item.alto || 800,
-          alt: item.titulo,
+          alt: `${item.subcategoriaNombre} · ${item.titulo}`,
         },
       ],
     },
@@ -140,7 +141,7 @@ export default async function ItemCatalogoIndividualPage({
           antetitulo={`${catNombre} · ${item.subcategoriaNombre}`}
           resumen={`Modelo arquitectónico fabricado con perfiles pesados de aluminio virgen y cristal templado de seguridad a medida exacta en Huancayo.`}
           imagen={item.src}
-          imagenAlt={item.titulo}
+          imagenAlt={`${item.subcategoriaNombre} · ${item.titulo}`}
           badge="Modelo de Catálogo"
           meta={
             <>
@@ -165,7 +166,7 @@ export default async function ItemCatalogoIndividualPage({
               <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full max-h-[75vh]">
                 <Image
                   src={item.src}
-                  alt={item.titulo}
+                  alt={`${item.subcategoriaNombre} · ${item.titulo}`}
                   fill
                   priority
                   className="object-contain"

@@ -143,6 +143,54 @@ function revisarCarpetasInternas() {
 }
 
 /**
+ * INV-P08 — carpetas del taller sin nombre público.
+ *
+ * Las subcategorías del catálogo son carpetas de fotos: «SERIE80», «B ACERO / BARANDAS2»,
+ * «OBRAS HYO / H  JAUJA». Medido el 2026-09-12: 111 públicas con fotos y ni una con nombre publicable.
+ * `src/config/taxonomia-publica.json` les da nombre y las agrupa en series u obras, y es la ÚNICA
+ * copia de esos nombres (criterios en `gms-docs/03-sistema-de-diseno/taxonomia-publica.md`).
+ *
+ * Esta puerta falla si una carpeta pública no está en la tabla —la regeneración del catálogo desde
+ * las carpetas del taller puede traer una nueva—, si una carpeta está en dos series a la vez, o si
+ * la tabla nombra una carpeta que ya no existe. Las tres son la misma avería: tabla y dato divergen.
+ */
+const CARPETAS_SIN_NOMBRE_CONOCIDAS = 0;
+
+function revisarTaxonomia() {
+  let datos;
+  try {
+    datos = JSON.parse(readFileSync(join(RAIZ, "src/config/catalogo-data.json"), "utf8"));
+  } catch {
+    return null;
+  }
+  let taxonomia = { series: {} };
+  try {
+    taxonomia = JSON.parse(readFileSync(join(RAIZ, "src/config/taxonomia-publica.json"), "utf8"));
+  } catch {
+    /* sin tabla: toda carpeta pública cuenta como sin nombre */
+  }
+  const vecesEnTabla = new Map();
+  for (const [categoria, series] of Object.entries(taxonomia.series ?? {})) {
+    for (const serie of series) {
+      for (const carpeta of serie.carpetas ?? []) {
+        const clave = `${categoria}/${carpeta}`;
+        vecesEnTabla.set(clave, (vecesEnTabla.get(clave) ?? 0) + 1);
+      }
+    }
+  }
+  const publicas = new Set(
+    (datos.items ?? [])
+      .filter((i) => !PATRON_INTERNO.test(i.subcategoria))
+      .map((i) => `${i.categoria}/${i.subcategoria}`),
+  );
+  return {
+    sinNombre: [...publicas].filter((c) => !vecesEnTabla.has(c)),
+    repetidas: [...vecesEnTabla].filter(([, n]) => n > 1).map(([c]) => c),
+    inexistentes: [...vecesEnTabla.keys()].filter((c) => !publicas.has(c)),
+  };
+}
+
+/**
  * INV-P06 — código que no importa nadie.
  *
  * Tercera aparición del mismo defecto y primera vez que se le pone puerta. T6.4 borró 1.913 líneas
@@ -289,6 +337,18 @@ if (internas !== null) {
   );
 }
 
+const taxonomia = revisarTaxonomia();
+const problemasTaxonomia = taxonomia
+  ? taxonomia.sinNombre.length + taxonomia.repetidas.length + taxonomia.inexistentes.length
+  : 0;
+const taxonomiaFuera = taxonomia !== null && problemasTaxonomia !== CARPETAS_SIN_NOMBRE_CONOCIDAS;
+
+if (taxonomia !== null) {
+  console.log(
+    `[check-tokens] INV-P08  ${String(problemasTaxonomia).padStart(4)} / ${String(CARPETAS_SIN_NOMBRE_CONOCIDAS).padEnd(4)} ${problemasTaxonomia === CARPETAS_SIN_NOMBRE_CONOCIDAS ? "=" : problemasTaxonomia > CARPETAS_SIN_NOMBRE_CONOCIDAS ? "+" : "-"}  carpetas del taller sin nombre público`,
+  );
+}
+
 const huerfanos = revisarModulosSinImportador(archivos, rutaRelativa);
 const huerfanosFuera = huerfanos.length !== MODULOS_HUERFANOS_CONOCIDOS;
 
@@ -296,7 +356,7 @@ console.log(
   `[check-tokens] INV-P06  ${String(huerfanos.length).padStart(4)} / ${String(MODULOS_HUERFANOS_CONOCIDOS).padEnd(4)} ${huerfanos.length === MODULOS_HUERFANOS_CONOCIDOS ? "=" : huerfanos.length > MODULOS_HUERFANOS_CONOCIDOS ? "+" : "-"}  componentes que no importa nadie`,
 );
 
-if (regresiones.length === 0 && mejoras.length === 0 && !internasFuera && !huerfanosFuera) {
+if (regresiones.length === 0 && mejoras.length === 0 && !internasFuera && !huerfanosFuera && !taxonomiaFuera) {
   console.log(`[check-tokens] OK: ${archivos.length} archivos revisados, ningún invariante empeora.`);
   process.exit(0);
 }
@@ -340,6 +400,23 @@ if (huerfanosFuera) {
   console.error("  Si acabas de migrar algo, el archivo viejo se quedó en pie: bórralo en el MISMO commit.");
   console.error("  Si es un componente nuevo sin montar, móntalo o déjalo fuera del árbol hasta que lo uses.");
   for (const h of huerfanos) console.error(`    ${h}`);
+  console.error("");
+}
+
+if (taxonomiaFuera) {
+  console.error(
+    `[check-tokens] INV-P08: ${problemasTaxonomia} problema(s) entre las carpetas del catálogo y src/config/taxonomia-publica.json.`,
+  );
+  console.error("  Cada carpeta pública necesita un nombre público, en una sola serie u obra. Criterios en gms-docs/03-sistema-de-diseno/taxonomia-publica.md.");
+  const listar = (titulo, lista) => {
+    if (!lista.length) return;
+    console.error(`  ${titulo} (${lista.length}):`);
+    for (const c of lista.slice(0, 15)) console.error(`    ${c}`);
+    if (lista.length > 15) console.error(`    … (+${lista.length - 15})`);
+  };
+  listar("sin nombre", taxonomia.sinNombre);
+  listar("en dos series a la vez", taxonomia.repetidas);
+  listar("nombradas en la tabla pero inexistentes", taxonomia.inexistentes);
   console.error("");
 }
 

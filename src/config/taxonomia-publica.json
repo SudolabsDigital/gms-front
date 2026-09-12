@@ -1,0 +1,133 @@
+{
+  "documentacion": "Única copia de los nombres públicos. Cada carpeta del taller pertenece a UNA serie u obra. Criterios y decisiones: gms-docs/03-sistema-de-diseno/taxonomia-publica.md. La puerta INV-P08 de scripts/check-tokens.mjs falla si una carpeta pública queda sin nombre.",
+  "series": {
+    "ventanas": [
+      { "slug": "sistema-nova", "nombre": "Sistema Nova", "carpetas": ["v-sist-nova", "v-sist-nova-curvo-corredizo"] },
+      { "slug": "serie-20", "nombre": "Serie 20", "carpetas": ["v-serie20", "v-serie20-muestras"] },
+      { "slug": "serie-25", "nombre": "Serie 25", "carpetas": ["v-serie25"] },
+      { "slug": "series-25-y-38", "nombre": "Series 25 y 38", "carpetas": ["v-serie3825"] },
+      { "slug": "serie-80", "nombre": "Serie 80", "carpetas": ["serie80"] },
+      { "slug": "proyectantes", "nombre": "Proyectantes", "carpetas": ["v-proyectantes"] },
+      { "slug": "curvas", "nombre": "Ventanas curvas", "carpetas": ["v-curvos"] },
+      { "slug": "pvc", "nombre": "PVC", "carpetas": ["v-pvc", "v-pvc-cl-wagner"] },
+      { "slug": "fabricacion-pvc", "nombre": "Fabricación en PVC", "carpetas": ["v-pvc-proceso-pvc"] },
+      { "slug": "puerta-ventana", "nombre": "Puerta-ventana", "carpetas": ["v-puerta"] },
+      { "slug": "vidrio-templado-herrajes", "nombre": "Vidrio templado con herrajes", "carpetas": ["v-templado-accesorios"] },
+      { "slug": "vitroven", "nombre": "Vitroven", "carpetas": ["v-vitroven"] },
+      { "slug": "acabado-madera", "nombre": "Acabado madera", "carpetas": ["v-serie-madera"] },
+      { "slug": "estructurada", "nombre": "Estructurada", "carpetas": ["v-estructurada"] }
+    ],
+    "mamparas": [
+      { "slug": "estructurada", "nombre": "Estructurada", "carpetas": ["m-estructurada"] },
+      { "slug": "vaiven-templado", "nombre": "Vaivén en templado", "carpetas": ["m-vaiven-templado"] },
+      { "slug": "sistema-nova", "nombre": "Sistema Nova", "carpetas": ["m-sist-nova"] },
+      { "slug": "marco-aluminio", "nombre": "Con marco de aluminio", "carpetas": ["m-serie"] },
+      { "slug": "vidrio-arenado", "nombre": "Vidrio arenado", "carpetas": ["m-arenado"] }
+    ],
+    "puertas": [
+      { "slug": "clasicas", "nombre": "Clásicas", "carpetas": ["p-clasico"] },
+      { "slug": "vidrio-templado", "nombre": "Vidrio templado", "carpetas": ["p-vidrio-templado"] },
+      { "slug": "ducha-templado", "nombre": "Cabinas de ducha en templado", "carpetas": ["p-ducha-templado"] },
+      { "slug": "ducha-panel-texturado", "nombre": "Cabinas de ducha con panel texturado", "carpetas": ["p-ducha-poliest"] },
+      { "slug": "divisiones-bano", "nombre": "Divisiones de baño", "carpetas": ["p-bano-division", "p-bano-division-urinarios"] },
+      { "slug": "aluminio-compuesto", "nombre": "Aluminio compuesto", "carpetas": ["p-aluminio-compuesto"] },
+      { "slug": "aluminio-vidrio", "nombre": "Aluminio con vidrio", "carpetas": ["p-serie"] },
+      { "slug": "puerta-ventana", "nombre": "Puerta-ventana", "carpetas": ["p-ventana"] }
+    ],
+    "fachadas-muros-cortina": [
+      { "slug": "fachadas", "nombre": "Fachadas y muros cortina", "carpetas": ["general"] }
+    ],
+    "barandas": [
+      { "slug": "acero", "nombre": "Acero", "carpetas": ["b-acero", "b-acero-barandas2"] },
+      { "slug": "aluminio", "nombre": "Aluminio", "carpetas": ["b-aluminio"] },
+      { "slug": "cortavientos", "nombre": "Cortavientos", "carpetas": ["b-cortaviento"] }
+    ],
+    "techos-policarbonato": [
+      { "slug": "estructura-aluminio", "nombre": "Estructura de aluminio", "carpetas": ["techo-aluminio"] },
+      { "slug": "estructura-metalica", "nombre": "Estructura metálica", "carpetas": ["techo-metalico-diversos", "techo-metalico-srta-ana"] },
+      { "slug": "tragaluces", "nombre": "Tragaluces", "carpetas": ["tragaluz-vidrio"] }
+    ],
+    "divisiones": [
+      { "slug": "oficina", "nombre": "Divisiones de oficina", "carpetas": ["general"] },
+      { "slug": "uncp", "nombre": "UNCP", "carpetas": ["division-uncp"] }
+    ],
+    "sistema-spider": [
+      { "slug": "spider", "nombre": "Sistema spider", "carpetas": ["general"] }
+    ],
+    "espejos-biselados": [
+      { "slug": "espejos", "nombre": "Espejos", "carpetas": ["general"] },
+      { "slug": "muestras-biselado", "nombre": "Muestras de biselado", "carpetas": ["muestras-biselados"] }
+    ],
+    "drywall-baldosas": [
+      { "slug": "drywall", "nombre": "Drywall", "carpetas": ["general"] },
+      { "slug": "baldosas-uncp", "nombre": "Baldosas · UNCP", "carpetas": ["baldosa-uncp"] },
+      { "slug": "tabiqueria", "nombre": "Tabiquería en construcción", "carpetas": ["d-policlin"] }
+    ],
+    "muebles-melamine": [
+      { "slug": "reposteros", "nombre": "Reposteros", "carpetas": ["m-reposteros"] },
+      { "slug": "boticas", "nombre": "Mobiliario para boticas", "carpetas": ["m-boticas"] },
+      { "slug": "melamina", "nombre": "Melamina", "carpetas": ["m-diversos-melamine"] },
+      { "slug": "aluminio", "nombre": "Muebles de aluminio", "carpetas": ["m-aluminio"] },
+      { "slug": "recepcion", "nombre": "Recepción", "carpetas": ["m-recepcion"] }
+    ],
+    "reposteros-aluminio": [
+      { "slug": "reposteros", "nombre": "Reposteros de aluminio", "carpetas": ["general"] }
+    ],
+    "repisas-cristal": [
+      { "slug": "repisas", "nombre": "Repisas de cristal", "carpetas": ["general"] }
+    ],
+    "pizarras-cristal": [
+      { "slug": "pizarras", "nombre": "Pizarras de cristal", "carpetas": ["general"] }
+    ],
+    "rejas-seguridad": [
+      { "slug": "rejas", "nombre": "Rejas de seguridad", "carpetas": ["general"] }
+    ],
+    "disenos-renders": [
+      { "slug": "cocinas", "nombre": "Cocinas", "carpetas": ["d-cocina"] },
+      { "slug": "oficinas", "nombre": "Oficinas", "carpetas": ["d-oficina"] },
+      { "slug": "restaurante", "nombre": "Restaurante", "carpetas": ["el-pollon"] },
+      { "slug": "estudio-grabacion", "nombre": "Estudio de grabación", "carpetas": ["s-de-grabacion"] },
+      { "slug": "disenos", "nombre": "Diseños", "carpetas": ["disenos"] }
+    ],
+    "catalogo-materiales": [
+      { "slug": "catalogo-series", "nombre": "Catálogo de series", "carpetas": ["catalogo-serie", "catalogo-serie-catalogo-series", "catalogo-serie-serie-84", "muestra-serie"] },
+      { "slug": "perfiles-aluminio", "nombre": "Perfiles de aluminio", "carpetas": ["aluminios"] },
+      { "slug": "aluminio-compuesto", "nombre": "Aluminio compuesto", "carpetas": ["a-compuesto"] },
+      { "slug": "accesorios", "nombre": "Accesorios", "carpetas": ["accesorios"] },
+      { "slug": "tiradores", "nombre": "Tiradores", "carpetas": ["tiradores"] },
+      { "slug": "tiradores-acero", "nombre": "Tiradores de acero", "carpetas": ["tiradores-acero"] },
+      { "slug": "chapas", "nombre": "Chapas", "carpetas": ["chapas"] },
+      { "slug": "tornilleria", "nombre": "Tornillería", "carpetas": ["tornillos"] },
+      { "slug": "vidrios-colores", "nombre": "Vidrios de colores y modelos", "carpetas": ["vidrios-vidrios-modelos-colores"] },
+      { "slug": "cristal-laminado", "nombre": "Cristal laminado", "carpetas": ["vidrios-cristal-laminado"] },
+      { "slug": "perforaciones-vidrio", "nombre": "Perforaciones en vidrio", "carpetas": ["perforaciones-vidrios"] },
+      { "slug": "acrilico", "nombre": "Acrílico", "carpetas": ["acrilico"] },
+      { "slug": "policarbonato", "nombre": "Policarbonato", "carpetas": ["policarbonato"] },
+      { "slug": "muestras-melamina", "nombre": "Muestras de melamina", "carpetas": ["muestras-melamine"] },
+      { "slug": "piso-laminado", "nombre": "Piso laminado", "carpetas": ["piso-laminado"] }
+    ],
+    "obras-ejecutadas": [
+      { "slug": "grifo-la-huaycha", "nombre": "Grifo La Huaycha", "lugar": "La Huaycha", "anio": "2025", "carpetas": ["obralahuaychagrifo25"] },
+      { "slug": "uncp", "nombre": "Universidad Nacional del Centro del Perú", "lugar": "Huancayo", "carpetas": ["obras-hyo-sist-uncp", "obras-hyo-uncp-sistemas-divis", "obras-hyo-uncp-sistemas-bald", "obras-hyo-uncp-sistemas-membrana", "obras-hyo-uncp-sistemas-puert", "obras-hyo-uncp-sistemas-ventanas", "obras-hyo-uncp-mecanica", "obras-hyo-uncp-obra"] },
+      { "slug": "san-carlos", "nombre": "San Carlos", "anio": "2025", "carpetas": ["obras2025-sancarlosjhon25"] },
+      { "slug": "edificio-genesis", "nombre": "Edificio Génesis", "lugar": "Huancayo", "carpetas": ["obras-hyo-2021-obra-genesis-gms", "obras-2022-obra-genesis1"] },
+      { "slug": "obras-en-la-huaycha", "nombre": "Obras en La Huaycha", "lugar": "La Huaycha", "carpetas": ["la-huaycha25", "obras-2022-obra-la-huaycha-2", "obras-2022-obra-la-wayycha"] },
+      { "slug": "obras-en-lima", "nombre": "Obras en Lima", "lugar": "Lima", "carpetas": ["obras-lima"] },
+      { "slug": "santa-rosa", "nombre": "Santa Rosa", "lugar": "Huancayo", "carpetas": ["obras-hyo-santa-rosa"] },
+      { "slug": "jauja-2025", "nombre": "Obra en Jauja · 2025", "lugar": "Jauja", "anio": "2025", "carpetas": ["obras2025-jauja2025"] },
+      { "slug": "usil", "nombre": "Universidad San Ignacio de Loyola", "lugar": "Lima", "carpetas": ["obras-lima-u-san-ignacio-de-loyola"] },
+      { "slug": "estructura-metalica", "nombre": "Estructura metálica", "lugar": "Huancayo", "carpetas": ["obras-hyo-raez-estructura-metalica"] },
+      { "slug": "av-evitamiento", "nombre": "Av. Evitamiento", "lugar": "Huancayo", "carpetas": ["obras-hyo-evitamiento"] },
+      { "slug": "primavera", "nombre": "Primavera", "anio": "2025", "carpetas": ["obras2025-primavera25"] },
+      { "slug": "av-13-de-noviembre", "nombre": "Av. 13 de Noviembre", "anio": "2022", "carpetas": ["obras-2022-obra-13-noviembre"] },
+      { "slug": "huallhuas", "nombre": "Obra en Huallhuas", "lugar": "Huallhuas", "anio": "2025", "carpetas": ["obrahuallhuas25"] },
+      { "slug": "nave-estructura-metalica", "nombre": "Nave de estructura metálica", "anio": "2025", "carpetas": ["obras2025-estrucutrametalica25"] },
+      { "slug": "jauja", "nombre": "Obra en Jauja", "lugar": "Jauja", "carpetas": ["obras-hyo-h-jauja"] },
+      { "slug": "huancayo-2021", "nombre": "Obra en Huancayo · 2021", "lugar": "Huancayo", "anio": "2021", "carpetas": ["obras-hyo-2021-obra-sr-carlos"] },
+      { "slug": "azapampa", "nombre": "Obra en Azapampa", "lugar": "Azapampa", "anio": "2025", "carpetas": ["obras2025-obra-azapampa"] },
+      { "slug": "edificio-la-cantuta", "nombre": "Edificio La Cantuta", "lugar": "Huancayo", "carpetas": ["obras-hyo-edif-la-cantuta"] },
+      { "slug": "aco", "nombre": "Edificio con muro cortina en Aco", "lugar": "Aco", "carpetas": ["obras-hyo-esc-aco"] },
+      { "slug": "edificio-residencial-2021", "nombre": "Edificio residencial · 2021", "lugar": "Huancayo", "anio": "2021", "carpetas": ["obras-hyo-2021-obra-sra-aide-gms"] }
+    ]
+  }
+}

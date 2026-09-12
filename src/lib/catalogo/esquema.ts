@@ -59,6 +59,24 @@ export interface ItemCatalogo {
   destacado: boolean;
 }
 
+/**
+ * Una serie del catálogo —o una obra, en `obras-ejecutadas`—: el nombre público de una o varias
+ * carpetas del taller. `lugar` y `anio` solo existen si la ruta de la carpeta los dice.
+ */
+export interface SeriePublica {
+  slug: string;
+  nombre: string;
+  carpetas: string[];
+  lugar?: string;
+  anio?: string;
+}
+
+/** Forma de `src/config/taxonomia-publica.json`. */
+export interface TaxonomiaPublica {
+  documentacion: string;
+  series: Partial<Record<SlugCategoria, SeriePublica[]>>;
+}
+
 export interface CatalogoData {
   generadoEn: string;
   totalGeneral: number;
