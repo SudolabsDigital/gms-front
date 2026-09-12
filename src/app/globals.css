@@ -337,3 +337,67 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   EL HERO COMO SECUENCIA DE PLANOS
+
+   Estas animaciones vivian en un `<style>` dentro del JSX del hero. Pasan aqui porque el sistema
+   de diseño se declara en un archivo, no repartido por componentes.
+
+   TRAMPA AL VALIDARLAS, medida el 2026-09-12: el equipo de desarrollo tiene activo
+   `prefers-reduced-motion: reduce` (Windows > Accesibilidad > Efectos de animacion). Con eso las
+   cuatro dan `animation-name: none` en el navegador aunque las reglas esten cargadas: es el bloque
+   del final de esta seccion haciendo su trabajo, no un fallo. Antes de diagnosticar «la animacion
+   no se aplica», comprobar `matchMedia('(prefers-reduced-motion: reduce)').matches`.
+
+   La duracion la manda el componente por `--duracion-plano`, derivada de `SLIDE_DURATION_MS`,
+   para que el movimiento y el cambio de slide no puedan desincronizarse.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/*
+ * KEN BURNS ACOTADO. El recurso clasico escala la foto y recorta contra el marco; aqui la obra
+ * se ve ENTERA a proposito, asi que el zoom es del 2,5 % y la deriva de 8 px — ambos caben en el
+ * aire azul del lienzo, de modo que la foto respira sin que ningun borde la corte.
+ *
+ * Dos recorridos alternos: tres planos seguidos con el mismo gesto se leen como un bucle.
+ */
+@keyframes gmsPlanoA {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.025) translate3d(-8px, -4px, 0); }
+}
+@keyframes gmsPlanoB {
+  from { transform: scale(1.025) translate3d(6px, 4px, 0); }
+  to   { transform: scale(1) translate3d(0, 0, 0); }
+}
+.gms-plano-a { animation: gmsPlanoA var(--duracion-plano, 12000ms) ease-out forwards; }
+.gms-plano-b { animation: gmsPlanoB var(--duracion-plano, 12000ms) ease-out forwards; }
+
+/*
+ * EL ROTULO. El texto entra con el plano, no antes ni despues: mismo gesto que la imagen, para
+ * que las dos columnas se lean como una escena y no como dos bloques que cambian por su cuenta.
+ * El escalonado entre marca, titular, entradilla y boton es el que da el aire de rotulo de cine.
+ */
+@keyframes gmsRotulo {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.gms-rotulo > * { animation: gmsRotulo 760ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.gms-rotulo > *:nth-child(1) { animation-delay: 0ms; }
+.gms-rotulo > *:nth-child(2) { animation-delay: 90ms; }
+.gms-rotulo > *:nth-child(3) { animation-delay: 180ms; }
+.gms-rotulo > *:nth-child(4) { animation-delay: 270ms; }
+.gms-rotulo > *:nth-child(5) { animation-delay: 360ms; }
+
+@keyframes gmsSlideProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.animate-gms-progress { animation: gmsSlideProgress var(--duracion-plano, 12000ms) linear forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gms-plano-a,
+  .gms-plano-b,
+  .gms-rotulo > *,
+  .animate-gms-progress {
+    animation: none;
+  }
+}

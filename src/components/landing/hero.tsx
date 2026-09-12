@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -85,18 +85,8 @@ export function Hero() {
     <section
       id="inicio"
       className="relative bg-background text-foreground border-b border-border overflow-hidden"
+      style={{ "--duracion-plano": `${SLIDE_DURATION_MS}ms` } as CSSProperties}
     >
-      {/* Estilo para la animación lineal suave de 12 segundos */}
-      <style>{`
-        @keyframes gmsSlideProgress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-        .animate-gms-progress {
-          animation: gmsSlideProgress ${SLIDE_DURATION_MS}ms linear forwards;
-        }
-      `}</style>
-
       {/*
         DOS COLUMNAS, Y EL ORDEN SE INVIERTE CON EL ANCHO.
 
@@ -107,10 +97,13 @@ export function Hero() {
         que ya estan en el carrusel y se comia ~110 px de altura. Ese espacio es ahora del hero.
         La navegacion vive en las flechas y en el contador, que no ocupan fila propia.
       */}
-      <div className="grid md:grid-cols-[3fr_7fr] md:min-h-[clamp(560px,78vh,820px)]">
+      <div className="relative grid md:grid-cols-[3fr_7fr] md:min-h-[clamp(560px,78vh,820px)]">
 
         {/* ── 30 % · el texto, sobre el azul del footer ───────────────────── */}
-        <div className="order-2 md:order-1 flex flex-col justify-center gap-5 bg-superficie-profunda px-5 sm:px-7 lg:px-9 py-10 md:py-12">
+        <div
+          key={activeIdx}
+          className="gms-rotulo order-2 md:order-1 flex flex-col justify-center gap-5 bg-superficie-profunda px-5 sm:px-7 lg:px-9 py-10 md:py-12"
+        >
           <p className="flex items-baseline gap-2.5">
             <span className="font-marca text-xl font-semibold titular-contorno">GMS Integra</span>
             <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">
@@ -168,28 +161,77 @@ export function Hero() {
           </div>
         </div>
 
-        {/* ── 70 % · la imagen, a sangre sobre lienzo oscuro ─────────────── */}
-        <div className="order-1 md:order-2 relative h-[46vh] min-h-[300px] md:h-auto bg-superficie-profunda">
+        {/* ── 70 % · el plano ─────────────────────────────────────────────── */}
+        <div className="order-1 md:order-2 relative overflow-hidden bg-superficie-profunda h-[46vh] min-h-[300px] md:h-auto">
           {/*
-            PORTADA, NO CUADRO.
+            TRES PLANOS SUPERPUESTOS, NO UNO QUE CAMBIA DE `src`.
 
-            El marco con escuadras se retiro el 2026-09-12: la ceremonia no aportaba y se comia
-            espacio. Ahora la obra ocupa toda la altura del hero sobre el mismo azul del texto, de
-            modo que las dos columnas son una sola pieza y no dos bloques pegados.
+            Los tres estan en el DOM y solo cambia la opacidad, que es lo que da el fundido de
+            montaje en vez del corte seco de antes. Cuestan 563 KB entre las tres y solo la
+            primera lleva `priority`: las otras dos entran despues del LCP.
 
-            Sigue en `object-contain`: la foto se ve ENTERA, toque el ancho o el alto. Lo que antes
-            era aire blanco alrededor es ahora ese azul, asi que el espacio sobrante deja de leerse
-            como hueco y pasa a ser fondo.
+            Cada plano trae SU PROPIA caja con `aspect-ratio`, porque las tres obras tienen
+            proporciones distintas (0,50 · 1,34 · 1,33) y una sola caja deformaria dos de ellas.
           */}
-          <Image
-            src={current.image}
-            alt={current.alt}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 75vw"
-            className="object-contain object-center p-3 md:p-4 transition-all duration-700"
-          />
+          {SLIDES.map((slide, idx) => {
+            const activo = idx === activeIdx;
+            return (
+              <div
+                key={slide.id}
+                aria-hidden={!activo}
+                className={`absolute inset-4 md:inset-6 flex items-center justify-center transition-opacity duration-[900ms] ease-in-out ${
+                  activo ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <div
+                  className="relative h-full max-h-full w-auto max-w-full"
+                  style={{ aspectRatio: `${slide.ancho} / ${slide.alto}` }}
+                >
+                  <Image
+                    src={slide.image}
+                    alt={slide.alt}
+                    fill
+                    priority={idx === 0}
+                    sizes="(max-width: 768px) 100vw, 70vw"
+                    /*
+                      EL ETALONAJE, EN UNA LINEA.
+                      Las tres obras se fotografiaron en dias distintos: dos con cielo plomizo y
+                      una con azul intenso. Bajar saturacion, subir contraste y aclarar un punto
+                      las lleva al mismo registro, que es lo que hace que se lean como una serie
+                      y no como tres fotos sueltas.
+                    */
+                    className={`object-contain [filter:saturate(0.88)_contrast(1.09)_brightness(1.03)] ${
+                      activo ? (idx % 2 === 0 ? "gms-plano-a" : "gms-plano-b") : ""
+                    }`}
+                  />
+
+                  {/* Etalonaje frio: tine las sombras hacia el azul de la marca sin apagar las luces. */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-primary/20 mix-blend-soft-light"
+                  />
+                </div>
+              </div>
+            );
+          })}
+
         </div>
+
+        {/*
+          LUZ DE ESCENA, SOBRE LAS DOS COLUMNAS.
+
+          Antes esta vineta vivia solo dentro del 70 % y ahi estaba el defecto: oscurecia el borde
+          que toca la columna de texto, asi que las dos mitades —del MISMO color— parecian dos
+          contenedores pegados. Una costura que no existia en el dato, solo en la luz.
+
+          Ahora cubre el hero entero. La luz no respeta divisiones de layout: hunde las cuatro
+          esquinas de la escena y deja el centro limpio, que es lo que hace que se lea como un
+          plano y no como dos cajas.
+        */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-20 [background:radial-gradient(125%_105%_at_50%_45%,transparent_50%,rgba(6,14,28,0.38)_100%)]"
+        />
       </div>
 
       {/* Progreso del pase automatico */}
