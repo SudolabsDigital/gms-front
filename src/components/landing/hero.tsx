@@ -100,24 +100,32 @@ export function Hero() {
       <div className="relative grid md:grid-cols-[3fr_7fr] md:min-h-[clamp(560px,78vh,820px)]">
 
         {/* ── 30 % · el texto, sobre el azul del footer ───────────────────── */}
-        <div
-          key={activeIdx}
-          className="gms-rotulo order-2 md:order-1 flex flex-col justify-center gap-5 bg-superficie-profunda px-5 sm:px-7 lg:px-9 py-10 md:py-12"
-        >
-          <p className="flex items-baseline gap-2.5">
-            <span className="font-marca text-xl font-semibold titular-contorno">GMS Integra</span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">
-              Huancayo
-            </span>
-          </p>
+        <div className="order-2 md:order-1 flex flex-col justify-center gap-5 bg-superficie-profunda px-5 sm:px-7 lg:px-9 py-10 md:py-12">
+          {/*
+            SOLO EL ROTULO SE REMONTA CON CADA PLANO.
 
-          <h1 className="text-[clamp(1.75rem,2.6vw,2.6rem)] font-black uppercase tracking-tight leading-[1.05] font-sans titular-contorno text-balance">
-            {current.title}
-          </h1>
+            `key={activeIdx}` es lo que reinicia la animacion de entrada, y remontar destruye los
+            nodos. Cuando la clave envolvia la columna entera, «Obra siguiente» se destruia al
+            pulsarlo y el foco del teclado caia a `<body>` —medido en el navegador el 2026-09-12—,
+            y el CTA lo perdia ademas cada 12 s con el pase automatico. El CTA y la navegacion
+            quedan fuera: cambian de destino, no de nodo.
+          */}
+          <div key={activeIdx} className="gms-rotulo flex flex-col gap-5">
+            <p className="flex items-baseline gap-2.5">
+              <span className="font-marca text-xl font-semibold titular-contorno">GMS Integra</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400">
+                Huancayo
+              </span>
+            </p>
 
-          <p className="text-sm lg:text-[0.95rem] text-slate-300 leading-relaxed">
-            {current.subtitle}
-          </p>
+            <h1 className="text-[clamp(1.75rem,2.6vw,2.6rem)] font-black uppercase tracking-tight leading-[1.05] font-sans titular-contorno text-balance">
+              {current.title}
+            </h1>
+
+            <p className="text-sm lg:text-[0.95rem] text-slate-300 leading-relaxed">
+              {current.subtitle}
+            </p>
+          </div>
 
           <Button
             size="lg"

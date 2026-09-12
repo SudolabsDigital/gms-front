@@ -374,7 +374,8 @@
 /*
  * EL ROTULO. El texto entra con el plano, no antes ni despues: mismo gesto que la imagen, para
  * que las dos columnas se lean como una escena y no como dos bloques que cambian por su cuenta.
- * El escalonado entre marca, titular, entradilla y boton es el que da el aire de rotulo de cine.
+ * El escalonado entre marca, titular y entradilla es el que da el aire de rotulo de cine.
+ * Son tres a proposito: el CTA y las flechas no entran, porque remontarlos les quita el foco.
  */
 @keyframes gmsRotulo {
   from { opacity: 0; transform: translate3d(0, 14px, 0); }
@@ -384,8 +385,6 @@
 .gms-rotulo > *:nth-child(1) { animation-delay: 0ms; }
 .gms-rotulo > *:nth-child(2) { animation-delay: 90ms; }
 .gms-rotulo > *:nth-child(3) { animation-delay: 180ms; }
-.gms-rotulo > *:nth-child(4) { animation-delay: 270ms; }
-.gms-rotulo > *:nth-child(5) { animation-delay: 360ms; }
 
 @keyframes gmsSlideProgress {
   from { width: 0%; }
