@@ -12,7 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FacebookIcon, WhatsAppIcon } from "@/components/landing/social-icons";
-import { enlaceDeWhatsApp, enlaceParaCompartirEnWhatsApp } from "@/config/site-config";
+import {
+  enlaceDeWhatsApp,
+  enlaceParaCompartirEnWhatsApp,
+  mensajeDeCotizacion,
+} from "@/config/site-config";
 import { cn } from "@/lib/utils";
 
 /**
@@ -23,9 +27,16 @@ import { cn } from "@/lib/utils";
  * Cada una tenía sus canales, su orden y su forma de copiar el enlace.
  *
  * DOS INTENCIONES, NO UNA. «Cotizar» lleva al visitante a hablar con la empresa; «compartir»
- * reparte el contenido. Van juntas en el mismo menú porque aparecen en el mismo sitio, pero salen
- * de funciones distintas y se rotulan distinto: confundirlas es mandarle al cliente un mensaje
- * escrito para otra persona.
+ * reparte el contenido. Salen de funciones distintas y se rotulan distinto: confundirlas es
+ * mandarle al cliente un mensaje escrito para otra persona.
+ *
+ * Y NO PESAN LO MISMO (v2). La primera versión las metió en el mismo desplegable de cinco entradas,
+ * donde «Cotizar por WhatsApp» era una línea más de un menú que había que abrir primero. Donde la
+ * página existe para que alguien actúe —una ficha, el visor— cotizar es un botón a la vista y
+ * compartir es el secundario de al lado.
+ *
+ * LA VARIANTE `flotante` SE RETIRÓ. Era la píldora sobre la imagen de la tarjeta, y sobre la foto
+ * ya no va nada: en una galería se elige y se entra, y la acción vive en la ficha.
  */
 
 export interface AccionesDeContenidoProps {
@@ -38,15 +49,16 @@ export interface AccionesDeContenidoProps {
   /** Muestra el canal de cotización. Por defecto sí. */
   cotizar?: boolean;
   /**
-   * `flotante` = píldora sobre la imagen · `en-linea` = botón con etiqueta · `fila` = los canales
-   * a la vista, sin menú.
+   * `dominante` = cotizar a la vista y compartir al lado · `compacta` = dos cuadrados para el pie de
+   * una tarjeta · `en-linea` = un botón que abre el menú completo · `fila` = los canales a la vista,
+   * sin menú.
    *
    * `fila` no estaba en la especificación y se añadió al migrar el blog: su carril de compartir
    * está SIEMPRE visible, y cambiarlo por un desplegable habría escondido la acción justo en la
    * página donde más se comparte. Preservarlo no cuesta lógica —los canales y los enlaces son los
    * mismos— solo una rama de pintado.
    */
-  variante?: "flotante" | "en-linea" | "fila";
+  variante?: "dominante" | "compacta" | "en-linea" | "fila";
   /** Solo en `fila`: en pantallas anchas el carril lateral se apila. */
   orientacion?: "horizontal" | "vertical";
   className?: string;
@@ -57,7 +69,7 @@ export function AccionesDeContenido({
   url,
   contexto,
   cotizar = true,
-  variante = "flotante",
+  variante = "dominante",
   orientacion = "vertical",
   className,
 }: AccionesDeContenidoProps) {
@@ -81,11 +93,10 @@ export function AccionesDeContenido({
     () => false,
   );
 
-  const sobre = contexto ? `${titulo} (${contexto})` : titulo;
-  const mensajeCotizar = `Hola GMS Integra, vi ${sobre} en la web (${url}) y deseo solicitar una cotización.`;
+  /* La prosa del mensaje no se escribe aquí: sale de la fábrica, que es la única del portal. */
   const textoCompartir = `${titulo} — GMS Integra: ${url}`;
 
-  const urlCotizar = enlaceDeWhatsApp(mensajeCotizar);
+  const urlCotizar = enlaceDeWhatsApp(mensajeDeCotizacion({ titulo, url, contexto }));
   const urlCompartirWa = enlaceParaCompartirEnWhatsApp(textoCompartir);
   const urlCompartirFb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
 
@@ -112,7 +123,7 @@ export function AccionesDeContenido({
     }
   }
 
-  /** Detiene el clic para que no dispare el enlace de la tarjeta que envuelve estas acciones. */
+  /** Detiene el clic para que no dispare un enlace que envuelva a estas acciones. */
   const detener = (e: React.MouseEvent) => e.stopPropagation();
 
   const claseItem =
@@ -120,7 +131,7 @@ export function AccionesDeContenido({
 
   const menu = (
     <DropdownMenuContent
-      align={variante === "flotante" ? "start" : "end"}
+      align="end"
       sideOffset={6}
       className="w-60 rounded-xl border border-border bg-popover p-1.5 shadow-xl"
       onClick={detener}
@@ -130,16 +141,18 @@ export function AccionesDeContenido({
       </DropdownMenuLabel>
       <DropdownMenuSeparator className="my-1" />
 
-      {cotizar && (
+      {/* En `dominante` la cotización ya es un botón a la vista: repetirla aquí sería decir dos
+          veces lo mismo en la misma esquina. */}
+      {cotizar && variante === "en-linea" && (
         <>
           <DropdownMenuItem asChild>
             <a
               href={urlCotizar}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-800"
+              className="text-whatsapp hover:text-whatsapp-hover hover:bg-whatsapp/10 flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-bold transition-colors"
             >
-              <WhatsAppIcon className="size-4 shrink-0 text-emerald-600" />
+              <WhatsAppIcon className="text-whatsapp size-4 shrink-0" />
               <span>Cotizar por WhatsApp</span>
             </a>
           </DropdownMenuItem>
@@ -181,6 +194,63 @@ export function AccionesDeContenido({
     </DropdownMenuContent>
   );
 
+  /**
+   * DOS CUADRADOS EN EL PIE DE LA TARJETA — compartir y cotizar, sin tocar la foto.
+   *
+   * Pedido del usuario el 2026-09-18. No contradice la foto limpia: estos botones viven en la banda
+   * blanca, a la derecha del nombre, y la imagen sigue con cero capas encima. Lo que la decisión de
+   * la foto limpia prohibía era la píldora flotando SOBRE la imagen, que es otra cosa.
+   *
+   * El lenguaje visual es el de los cuadrados del footer —radio corto, color pleno y una sombra dura
+   * abajo que se hunde al pulsar—, que es lo que este sitio ya usa para decir «esto se toca».
+   *
+   * Cotizar es un enlace directo, no una entrada de menú: en una retícula de líneas, obligar a abrir
+   * un desplegable para llegar a la única acción que da dinero es una pulsación de más.
+   */
+  if (variante === "compacta") {
+    const claseCuadrado =
+      "focus-visible:ring-ring flex size-10 items-center justify-center rounded text-white shadow-md transition-all active:translate-y-0.5 active:shadow-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none";
+
+    return (
+      <div className={cn("flex items-center gap-2", className)} onClick={detener}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Compartir: ${titulo}`}
+              onClick={detener}
+              className={cn(
+                claseCuadrado,
+                "bg-brand hover:bg-primary-dark shadow-[0_3px_0_var(--primary-dark)]",
+              )}
+            >
+              <Share2 className="size-4" />
+            </button>
+          </DropdownMenuTrigger>
+          {menu}
+        </DropdownMenu>
+
+        {cotizar && (
+          <a
+            href={urlCotizar}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Cotizar por WhatsApp: ${titulo}`}
+            className={cn(
+              claseCuadrado,
+              "bg-whatsapp hover:bg-whatsapp-hover shadow-[0_3px_0_var(--whatsapp-hover)]",
+            )}
+          >
+            <WhatsAppIcon className="size-4" />
+          </a>
+        )}
+
+        {/* Solo entra en juego cuando el portapapeles no está disponible. */}
+        <input ref={respaldo} readOnly value={url} className="sr-only" tabIndex={-1} aria-hidden />
+      </div>
+    );
+  }
+
   if (variante === "fila") {
     const claseBoton =
       "flex size-11 items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:scale-105 hover:border-primary/30 hover:shadow-md focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none";
@@ -205,7 +275,7 @@ export function AccionesDeContenido({
               aria-label={`Cotizar por WhatsApp: ${titulo}`}
               className={claseBoton}
             >
-              <WhatsAppIcon className="size-5 text-emerald-600" />
+              <WhatsAppIcon className="text-whatsapp size-5" />
             </a>
           )}
 
@@ -227,7 +297,7 @@ export function AccionesDeContenido({
             aria-label="Compartir por WhatsApp"
             className={claseBoton}
           >
-            <WhatsAppIcon className="size-5 text-emerald-600" />
+            <WhatsAppIcon className="text-whatsapp size-5" />
           </a>
 
           <a
@@ -261,26 +331,40 @@ export function AccionesDeContenido({
     );
   }
 
+  const esDominante = variante === "dominante";
+
   return (
-    <div
-      className={cn(variante === "flotante" ? "absolute top-3.5 left-3.5 z-20" : "inline-flex", className)}
-      onClick={detener}
-    >
+    <div className={cn("inline-flex items-center gap-2.5", className)} onClick={detener}>
+      {/*
+        La acción del negocio, a la vista y con su etiqueta: nadie tiene que abrir un menú para
+        encontrarla. El verde sale del token, no de la paleta cruda — `emerald-600` sobre texto
+        blanco daba 3,65:1 y no pasa AA; `--whatsapp` da 5,48:1 y para eso se decidió.
+      */}
+      {esDominante && cotizar && (
+        <a
+          href={urlCotizar}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-whatsapp hover:bg-whatsapp-hover focus-visible:ring-ring inline-flex h-11 grow items-center justify-center gap-2 rounded-xl px-5 text-xs font-black tracking-wider text-white uppercase shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
+        >
+          <WhatsAppIcon className="size-4 shrink-0 text-white" />
+          <span>Cotizar por WhatsApp</span>
+        </a>
+      )}
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            aria-label={`Compartir o cotizar: ${titulo}`}
+            aria-label={esDominante ? `Compartir: ${titulo}` : `Compartir o cotizar: ${titulo}`}
             onClick={detener}
             className={cn(
-              "flex items-center justify-center transition-all duration-200 active:scale-95 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
-              variante === "flotante"
-                ? "size-9 rounded-full border border-white/20 bg-black/70 text-white shadow-md backdrop-blur-md hover:scale-105 hover:bg-black/90"
-                : "h-11 gap-2 rounded-xl border border-border bg-card px-4 text-xs font-bold text-foreground shadow-sm hover:border-primary/30 hover:shadow-md",
+              "border-border bg-card text-foreground hover:border-primary/30 focus-visible:ring-ring flex h-11 items-center justify-center rounded-xl border text-xs font-bold shadow-sm transition-all duration-200 hover:shadow-md focus-visible:ring-2 focus-visible:outline-none active:scale-95",
+              esDominante ? "w-11" : "gap-2 px-4",
             )}
           >
             <Share2 className="size-4" />
-            {variante === "en-linea" && <span>Compartir</span>}
+            {!esDominante && <span>Compartir</span>}
           </button>
         </DropdownMenuTrigger>
         {menu}

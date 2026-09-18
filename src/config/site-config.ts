@@ -138,3 +138,39 @@ export function enlaceDeWhatsApp(mensaje?: string): string {
 export function enlaceParaCompartirEnWhatsApp(texto: string): string {
   return `https://wa.me/?text=${encodeURIComponent(texto)}`;
 }
+
+/**
+ * EL MENSAJE DE COTIZACIÓN — la estructura fija, escrita una sola vez.
+ *
+ * Un lead nace de algo concreto que el visitante vio: una foto, una línea, una obra, un artículo.
+ * Por eso el mensaje lleva SIEMPRE qué es y dónde estaba, y por eso esto es una función y no una
+ * plantilla que cada pantalla rellena a su manera: había 22 archivos redactando su propia frase,
+ * así que el mismo producto pedía cotización de 22 formas distintas según por dónde se entrara.
+ *
+ * EL ENLACE VA SOLO EN SU LÍNEA. No es estética: WhatsApp genera la vista previa con la foto del
+ * contenido cuando la URL está aislada, y no siempre lo hace cuando va embebida entre paréntesis
+ * dentro de un párrafo — que era justo la forma anterior.
+ *
+ * Devuelve TEXTO PLANO. Codificarlo es cosa de `enlaceDeWhatsApp()`, que ya lo hace.
+ *
+ * SOLO CUBRE LA COTIZACIÓN. El contacto que NO nace de un contenido —la cabecera, el pie, el
+ * botón flotante, el 404, las legales— sigue con su frase escrita a mano: en una ficha de
+ * catálogo conviven hoy 4 redacciones, 1 de aquí y 3 de esos sitios. Su fábrica se escribe el
+ * día que se migren, no antes: una función exportada que nadie llama no se distingue de una
+ * muerta, y este repositorio tiene una puerta para eso.
+ */
+export function mensajeDeCotizacion(sobre: {
+  titulo: string;
+  url: string;
+  /** Matiza de qué se habla: «la línea de Ventanas», «la obra de La Huaycha». */
+  contexto?: string;
+}): string {
+  const que = sobre.contexto ? `${sobre.titulo} (${sobre.contexto})` : sobre.titulo;
+  return [
+    "Hola GMS Integra.",
+    `Me interesa: ${que}`,
+    `Lo vi aquí: ${sobre.url}`,
+    "",
+    "¿Me pueden cotizar?",
+  ].join("\n");
+}

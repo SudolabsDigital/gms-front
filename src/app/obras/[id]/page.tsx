@@ -6,11 +6,10 @@ import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
 import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
-import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
+import { siteConfig } from "@/config/site-config";
 import { obtenerObraPorId, obtenerTodasLasObras } from "@/lib/obras/leer";
-import { WhatsAppIcon } from "@/components/landing/social-icons";
 import { MapPin, ArrowLeft, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AccionesDeContenido } from "@/components/comunes/acciones-contenido";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import ObraJsonLd from "@/components/seo/obra-json-ld";
 
@@ -82,9 +81,7 @@ export default async function ObraIndividualPage({
   }
 
   const urlObra = `${siteConfig.url}/obras/${obra.id}`;
-  const mensajeWhatsApp = `Hola GMS Integra, vi la foto «${obra.titulo}» de la obra ${obra.obraNombre} (${urlObra}) y deseo solicitar una cotización para un acabado similar.`;
   const urlDeLaObra = `/obras?obra=${obra.obraSlug}`;
-  const urlWhatsApp = enlaceDeWhatsApp(mensajeWhatsApp);
 
   const breadcrumbItems = [
     { name: "Inicio", item: "/" },
@@ -113,7 +110,6 @@ export default async function ObraIndividualPage({
           resumen="Fotografía de una obra ejecutada por GMS Integra en carpintería de aluminio y cristal templado."
           imagen={obra.src}
           imagenAlt={`${obra.obraNombre} · ${obra.titulo}`}
-          badge="Obra Concluida"
           meta={
             <>
               {obra.lugar && (
@@ -160,24 +156,17 @@ export default async function ObraIndividualPage({
                   </h2>
                 </div>
 
-                {/* Botón de Cotización Directa */}
-                <div className="flex flex-wrap items-center gap-3 shrink-0 w-full md:w-auto">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full md:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md h-12 px-6"
-                  >
-                    <a
-                      href={urlWhatsApp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2"
-                    >
-                      <WhatsAppIcon className="size-5 text-white" />
-                      <span>Cotizar este Acabado</span>
-                    </a>
-                  </Button>
-                </div>
+                {/*
+                  Igual que en la ficha del catálogo: cotizar a la vista, compartir al lado, y el
+                  mensaje desde la fábrica única. El matiz «acabado similar» no se pierde — viaja
+                  como contexto, que es donde el organismo lo espera.
+                */}
+                <AccionesDeContenido
+                  titulo={`${obra.obraNombre} · ${obra.titulo}`}
+                  url={urlObra}
+                  contexto="quiero un acabado similar"
+                  className="w-full shrink-0 md:w-auto"
+                />
               </div>
             </div>
 

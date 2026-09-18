@@ -6,11 +6,10 @@ import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
 import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
-import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
+import { siteConfig } from "@/config/site-config";
 import { obtenerItemPorId, obtenerSlugsDeItems, obtenerCategoriaPorSlug } from "@/lib/catalogo/leer";
-import { WhatsAppIcon } from "@/components/landing/social-icons";
 import { ArrowLeft, ShieldCheck, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AccionesDeContenido } from "@/components/comunes/acciones-contenido";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 
 export const revalidate = 86400;
@@ -78,8 +77,6 @@ export default async function ItemCatalogoIndividualPage({
   const cat = obtenerCategoriaPorSlug(item.categoria);
   const catNombre = cat ? cat.nombre : item.categoria;
   const urlItem = `${siteConfig.url}/catalogo/item/${item.id}`;
-  const mensajeWhatsApp = `Hola GMS Integra, vi el modelo «${item.titulo}» (${item.subcategoriaNombre}) en el catálogo de ${catNombre} (${urlItem}) y deseo solicitar una cotización.`;
-  const urlWhatsApp = enlaceDeWhatsApp(mensajeWhatsApp);
 
   const breadcrumbItems = [
     { name: "Inicio", item: "/" },
@@ -142,7 +139,6 @@ export default async function ItemCatalogoIndividualPage({
           resumen={`Modelo arquitectónico fabricado con perfiles pesados de aluminio virgen y cristal templado de seguridad a medida exacta en Huancayo.`}
           imagen={item.src}
           imagenAlt={`${item.subcategoriaNombre} · ${item.titulo}`}
-          badge="Modelo de Catálogo"
           meta={
             <>
               <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
@@ -188,24 +184,17 @@ export default async function ItemCatalogoIndividualPage({
                   </p>
                 </div>
 
-                {/* Botón de Cotización Directa */}
-                <div className="flex flex-wrap items-center gap-3 shrink-0 w-full md:w-auto">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full md:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md h-12 px-6"
-                  >
-                    <a
-                      href={urlWhatsApp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2"
-                    >
-                      <WhatsAppIcon className="size-5 text-white" />
-                      <span>Cotizar este Modelo</span>
-                    </a>
-                  </Button>
-                </div>
+                {/*
+                  Esta página existe para que alguien actúe, así que la cotización es un botón a la
+                  vista y compartir queda al lado. Lo pinta el organismo único: el texto del mensaje
+                  ya no se escribe aquí, y el verde sale del token, no de la paleta cruda.
+                */}
+                <AccionesDeContenido
+                  titulo={item.titulo}
+                  url={urlItem}
+                  contexto={`${item.subcategoriaNombre} · línea de ${catNombre}`}
+                  className="w-full shrink-0 md:w-auto"
+                />
               </div>
             </div>
 
