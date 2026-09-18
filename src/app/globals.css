@@ -6,8 +6,8 @@
 
 /* ============================================================
    Tokens semánticos (shadcn) + MARCA GMS Integra
-   Dirección "vidrio-aluminio": blanco, neutros gris-frío, geometría
-   (radio 6px), gradiente azul→cian como acento de luz.
+   Blanco, neutros gris-frío y azul de marca. El degradado va de azul a azul:
+   el cian solo es línea. Roles y contraste medido: gms-docs/03-sistema-de-diseno/identidad-y-paleta.md
    ============================================================ */
 :root {
   --radius: 0.25rem;
@@ -15,7 +15,6 @@
   /* Gradiente de marca — "luz atravesando el cristal" */
   /* Sin cian: el degradado va de azul a azul, del contorno al primario. */
   --gradient-brand: linear-gradient(135deg, #00477d 0%, #004aad 100%);
-  --gradient-luminous: linear-gradient(135deg, #004aad 0%, #00d2ff 60%, #10b981 100%);
 
   /* Base / superficies — dirección "Aluminio Estructural" */
   --background: #F4F6F9;
@@ -45,8 +44,8 @@
   /* MARCA extra — cian radiante y azul eléctrico */
   /* ACENTO DEL PORTAL PUBLICO. Era #00c9ff hasta el 2026-09-12.
      El cian daba 1,94:1 sobre blanco -ni el minimo de elementos graficos, que es 3:1- y no
-     aparece en el logo: sus tonos dominantes son #105080 y #105090, el 25 % de los pixeles.
-     Este azul da 9,56:1 y es practicamente el de la marca. El cian conserva un papel, abajo. */
+     aparece en el logo. Este azul da 9,56:1 sobre blanco; los colores medidos del logo y su
+     diferencia con este valor estan en identidad-y-paleta.md §1. El cian conserva un papel, abajo. */
   --brand: #00477d;
   /* LINEA, no relleno. El cian tiene 1,94:1 sobre blanco: no cumple ni el minimo de
      elementos graficos. Vale como trazo decorativo y, sobre fondo oscuro (#0A1118 en los
@@ -58,6 +57,17 @@
      los dos sitios lo leen de aqui. Blanco encima da 14,23:1. */
   --superficie-profunda: #1A2B45;
   --brand-linea-soft: #38bdf8;
+  /* MARCA SOBRE OSCURO. El azul claro de los paneles del logo (k-means, 16,4 % de sus pixeles).
+     `--brand` sobre oscuro da 1,49-2,11:1 y es ilegible; este da 9,41:1 sobre --superficie-profunda
+     y 13,33:1 sobre slate-950. Sobre claro da 1,51:1: NUNCA texto sobre fondo claro. */
+  --brand-claro: #a7d9f5;
+  /* CASI NEGRO DE ESCENA. Solo para degradados sobre foto (el viñeteado del hero), nunca fondo
+     plano: frente a --superficie-profunda da 1,33:1 y dos oscuros así no pueden llevar dos papeles (D8). */
+  --sombra-escena: #060E1C;
+  /* WHATSAPP. Solo acciones de WhatsApp (D7). Texto blanco encima: 5,48:1; hover 7,68:1.
+     El emerald-600 que pinta hoy el sitio da 3,65:1 y no llega a AA. */
+  --whatsapp: #047857;
+  --whatsapp-hover: #065f46;
 
   /* Bordes / marco de aluminio anodizado pulido */
   --border: oklch(0.92 0.008 250);
@@ -82,10 +92,6 @@
   --sidebar-ring: #004aad;
 
   /* ── Tokens "Aluminio Estructural" (Sesión 10) ── */
-  /* Azul acero oscuro — secciones hero oscuro, footer, bandas de contraste */
-  --steel: #1A2B45;
-  --steel-light: #243650;
-
   /* Variaciones de primary para interacción precisa */
   --primary-dark: #003282;
   --primary-light: #E8F0FD;
@@ -134,6 +140,10 @@
   --color-brand-linea: var(--brand-linea);
   --color-superficie-profunda: var(--superficie-profunda);
   --color-brand-linea-soft: var(--brand-linea-soft);
+  --color-brand-claro: var(--brand-claro);
+  --color-sombra-escena: var(--sombra-escena);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-hover: var(--whatsapp-hover);
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -163,8 +173,6 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Tokens "Aluminio Estructural" — expuestos como utilidades Tailwind */
-  --color-steel: var(--steel);
-  --color-steel-light: var(--steel-light);
   --color-primary-dark: var(--primary-dark);
   --color-primary-light: var(--primary-light);
 }
@@ -311,11 +319,6 @@
   }
 }
 
-/* Fondo acero — secciones oscuras de contraste (CTA strip, footer) */
-@utility bg-steel {
-  background-color: var(--steel);
-  color: #ffffff;
-}
 @utility bg-primary-light {
   background-color: var(--primary-light);
 }
