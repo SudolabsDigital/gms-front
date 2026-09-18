@@ -229,19 +229,26 @@ async function procesar() {
       let alto = 900;
 
       try {
-        // Procesar con sharp
+        // Procesar con sharp.
+        // ORIENTACIÓN: `metadata()` da las dimensiones del sensor, sin aplicar el EXIF, y sin `.rotate()` sharp
+        // tampoco lo aplica al procesar. Hasta el 2026-09-17 este script no lo hacía: 188 de 1.533 fotos (las
+        // de móvil tomadas en vertical) se publicaron de lado. Las orientaciones 5-8 giran 90°: se intercambian
+        // las dimensiones para que describan la foto como se ve.
         const metadata = await sharp(arch.rutaAbsoluta).metadata();
-        ancho = metadata.width || 1200;
-        alto = metadata.height || 900;
+        const girada90 = (metadata.orientation ?? 1) >= 5;
+        ancho = (girada90 ? metadata.height : metadata.width) || 1200;
+        alto = (girada90 ? metadata.width : metadata.height) || 900;
 
         // Imagen principal max 1200px
         await sharp(arch.rutaAbsoluta)
+          .rotate()
           .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
           .webp({ quality: 80, effort: 4 })
           .toFile(rutaDestinoWebp);
 
         // Thumbnail max 450px
         await sharp(arch.rutaAbsoluta)
+          .rotate()
           .resize({ width: 450, height: 450, fit: "inside", withoutEnlargement: true })
           .webp({ quality: 75, effort: 3 })
           .toFile(rutaDestinoThumb);
