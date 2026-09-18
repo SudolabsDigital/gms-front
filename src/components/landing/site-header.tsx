@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -41,27 +41,63 @@ const NAV: NavItem[] = [
 ];
 
 export function SiteHeader() {
-  const [scrolled, setScrolled] = useState(false);
+  const barra = useRef<HTMLElement>(null);
   const pathname = usePathname();
 
+  /**
+   * SE ESCONDE AL BAJAR Y VUELVE AL SUBIR, SIN UN SOLO RENDER DE REACT.
+   *
+   * El estado no vive en `useState` a propósito: el scroll dispara decenas de eventos por segundo y
+   * cada cambio de estado arrastraría a re-pintar el header entero — menú, redes, botón de llamada—
+   * para mover una barra. Aquí lo único que cambia es un atributo `data-` del propio nodo, y de las
+   * clases se encarga el CSS, que es donde este trabajo es gratis.
+   *
+   * Tres cosas más, por lo mismo:
+   *   · el oyente es `passive`, así que el navegador no espera a ver si cancelamos el scroll;
+   *   · se lee `scrollY` dentro de un `requestAnimationFrame`, una vez por fotograma como mucho, en
+   *     el momento en que leerlo no obliga a recalcular la maquetación;
+   *   · `will-change-transform` deja la barra en su propia capa y el desplazamiento no repinta nada.
+   *
+   * El menú móvil no necesita excepción: mientras está abierto bloquea el scroll del documento, así
+   * que no llega ningún evento y la barra se queda donde está.
+   */
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 15);
+    const el = barra.current;
+    if (!el) return;
+
+    let anterior = window.scrollY;
+    let encolado = false;
+
+    const medir = () => {
+      encolado = false;
+      const y = window.scrollY;
+      el.dataset.scrolled = y > 15 ? "si" : "no";
+      /*
+       * Arriba nunca se esconde: ahí la barra es parte de la portada y no estorba. El umbral es
+       * bastante mayor que su altura para que no parpadee con el primer empujón del dedo.
+       */
+      el.dataset.oculto = y > anterior && y > 240 ? "si" : "no";
+      anterior = y;
     };
-    window.addEventListener("scroll", handleScroll);
 
-    // Auto-scroll al ancla si se llega desde otra ruta (ej: /blog -> /#servicios)
-    if (pathname === "/" && window.location.hash) {
-      const targetId = window.location.hash.replace("#", "");
-      const el = document.getElementById(targetId);
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      }
-    }
+    const alHacerScroll = () => {
+      if (encolado) return;
+      encolado = true;
+      requestAnimationFrame(medir);
+    };
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    medir();
+    window.addEventListener("scroll", alHacerScroll, { passive: true });
+    return () => window.removeEventListener("scroll", alHacerScroll);
+  }, []);
+
+  /** Auto-scroll al ancla cuando se llega desde otra ruta (ej: /blog -> /#servicios). */
+  useEffect(() => {
+    if (pathname !== "/" || !window.location.hash) return;
+    const destino = document.getElementById(window.location.hash.replace("#", ""));
+    if (!destino) return;
+    const t = setTimeout(() => destino.scrollIntoView({ behavior: "smooth" }), 100);
+    return () => clearTimeout(t);
   }, [pathname]);
 
   const esRutaActiva = (href: string) => {
@@ -85,15 +121,18 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-300">
-      
+    <header
+      ref={barra}
+      data-scrolled="no"
+      data-oculto="no"
+      className="group/barra sticky top-0 z-50 w-full transition-transform duration-300 ease-out will-change-transform data-[oculto=si]:-translate-y-full"
+    >
       {/* Barra de Navegación Principal — fondo blanco sólido */}
       <div
         className={cn(
           "w-full border-b transition-all duration-300",
-          scrolled
-            ? "border-border bg-white shadow-sm py-2.5"
-            : "border-border/60 bg-white/98 shadow-xs py-3"
+          "border-border/60 bg-white/98 py-3 shadow-xs",
+          "group-data-[scrolled=si]/barra:border-border group-data-[scrolled=si]/barra:bg-white group-data-[scrolled=si]/barra:py-2.5 group-data-[scrolled=si]/barra:shadow-sm",
         )}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
