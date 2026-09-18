@@ -114,7 +114,6 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
           resumen={articulo.descripcion}
           imagen={articulo.portada}
           imagenAlt={articulo.portadaAlt}
-          badge="Lectura Técnica"
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">

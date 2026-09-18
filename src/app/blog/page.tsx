@@ -66,7 +66,6 @@ export default function BlogPage() {
           resumen="Guías prácticas, comparativas de series de aluminio, normativas acústicas y consejos de mantenimiento para tus ventanas y mamparas. Escrito por el equipo técnico de taller."
           imagen="/catalogo/mamparas/m-serie-49.webp"
           imagenAlt="Mamparas monumentales y proyectos de aluminio y vidrio de GMS Integra"
-          badge="Guías & Consejos"
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">

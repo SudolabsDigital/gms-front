@@ -78,7 +78,6 @@ export default async function EtiquetaPage({ params }: { params: Promise<{ tag: 
           resumen={`Guías técnicas y publicaciones sobre ${NOMBRE_DE_ETIQUETA[tag].toLowerCase()} para proyectos de aluminio y vidrio.`}
           imagen="/catalogo/mamparas/m-serie-49.webp"
           imagenAlt="Proyectos de aluminio y vidrio de GMS Integra"
-          badge="Tema de Especialidad"
           meta={
             <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
               {articulos.length} {articulos.length === 1 ? "Artículo en este tema" : "Artículos en este tema"}

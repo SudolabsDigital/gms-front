@@ -7,7 +7,8 @@ import { GaleriaObras } from "@/components/obras/galeria-obras";
 import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import { obtenerLugares, obtenerObras, obtenerTodasLasObras } from "@/lib/obras/leer";
-import { MessageSquare, ArrowRight, Wrench } from "lucide-react";
+import { ArrowRight, Wrench } from "lucide-react";
+import { WhatsAppIcon } from "@/components/landing/social-icons";
 
 export const revalidate = 86400;
 
@@ -79,14 +80,18 @@ export default function ObrasPage() {
         <CabeceraDePagina
           migas={[{ nombre: "Inicio", href: "/" }, { nombre: "Obras Ejecutadas" }]}
           titulo="Obras Ejecutadas & Proyectos Reales"
+          pregunta="¿La siguiente es la tuya?"
           /* SIN CIFRA, A PROPÓSITO (2026-09-12). `obras.length` cuenta FOTOS: 472, de las que 450
              son distintas, repartidas en 31 carpetas que corresponden a menos obras. Pintarlo como
              «472 proyectos» o «+472 obras registradas» afirmaba algo que el dato no dice. Antes el
              texto decía «más de 490»: dos versiones del mismo número, y ninguna contaba obras. */
           resumen="Portafolio fotográfico de proyectos entregados: edificios, una estación de servicio, estructuras metálicas y dos campus universitarios en Huancayo, La Huaycha, Jauja y Lima."
-          imagen="/catalogo/fachadas-muros-cortina/general-1.webp"
-          imagenAlt="Obras y proyectos arquitectónicos de GMS Integra"
-          badge="Portafolio de Obras"
+          /* 1200x675 = 1,78, así que es PANORÁMICA y se declara: con el alto de «horizontal» la
+             cabecera le recortaría arriba y abajo, que es justo lo que la regla 5 del sistema de
+             imagen prohíbe. Y deja de compartir foto con /catalogo: eran la misma. */
+          imagen="/catalogo/obras-ejecutadas/la-huaycha25-11.webp"
+          imagenAlt="Edificio institucional en La Huaycha con ventanal corrido de aluminio y cristal, ejecutado por GMS Integra"
+          orientacion="panoramica"
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
@@ -103,9 +108,9 @@ export default function ObrasPage() {
               href={enlaceDeWhatsApp("Hola GMS Integra, vi el portafolio de obras ejecutadas y deseo cotizar un proyecto arquitectónico.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl bg-whatsapp px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-whatsapp-hover transition-all"
             >
-              <MessageSquare className="size-4" />
+              <WhatsAppIcon className="size-4" />
               <span>Cotizar Obra Similar</span>
             </a>
           }
@@ -134,9 +139,9 @@ export default function ObrasPage() {
                 href={enlaceDeWhatsApp("Hola GMS Integra, vi las obras ejecutadas en la web y deseo cotizar la carpintería de aluminio y vidrio para mi proyecto.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-7 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all active:scale-98"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-7 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md hover:bg-whatsapp-hover transition-all active:scale-98"
               >
-                <MessageSquare className="size-4" />
+                <WhatsAppIcon className="size-4" />
                 <span>Cotizar Proyecto por WhatsApp</span>
                 <ArrowRight className="size-4" />
               </a>
