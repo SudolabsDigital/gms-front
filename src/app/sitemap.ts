@@ -54,9 +54,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     /**
-     * LAS 472 OBRAS, no las destacadas.
+     * LAS 472 FICHAS DE OBRA, no las destacadas. (Son fichas de FOTO: no hay 472 obras.)
      *
-     * Este bloque filtraba por `destacado`, y en el dato real hay **3 obras destacadas de 472**: el
+     * Este bloque filtraba por `destacado`, y en el dato real hay **3 fichas destacadas de 472**: el
      * sitemap publicaba 3 URLs de obra. Las 469 restantes existían, se generaban y estaban
      * enlazadas desde `tarjeta-obra`, pero el sitio nunca se las declaró a Google.
      *

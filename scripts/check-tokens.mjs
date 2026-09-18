@@ -43,11 +43,20 @@ const INVARIANTES = [
     id: "INV-P02",
     nombre: "color de marca por token, no por literal",
     patron: /#(?:00c9ff|004aad)\b/gi,
-    exentos: ["src/app/globals.css"],
+    // `manifest.ts` lo lee el SO al instalar la PWA: ahi `var()` no se resuelve y el literal
+    // es inevitable. Queda declarado en el propio archivo.
+    // `sdl-footer.css` es la firma portable de Sudolabs: declara "sin dependencias, funciona en
+    // cualquier proyecto" y trae su propio sistema `--sdlf-*`. Atarlo a `--brand` de GMS romperia
+    // exactamente lo que lo hace reutilizable. Es identidad del estudio, no del cliente.
+    exentos: ["src/app/globals.css", "src/app/manifest.ts", "src/components/layout/sdl-footer.css"],
     // 148 -> 143 al migrar las tres tarjetas al organismo unico (T3.2), que usa el token.
     // 143 -> 105 al borrar los 10 componentes sin importador (T6.4): 38 de las 143 infracciones
     // vivian en codigo que nadie renderizaba. El numero llevaba meses midiendo deuda inexistente.
-    umbral: 105,
+    // 105 -> 0 el 2026-09-12 (T9.4). Ni un pixel cambio: `text-brand` resuelve al mismo
+    // #00c9ff que el literal. Lo que cambia es que ahora el color se decide en UN sitio.
+    // 47 de los 105 estaban en los SVG de `process-steps`, dibujos CAD sobre #0A1118 donde
+    // el cian da 9,76:1 y es correcto: esos pasaron a `var(--brand-linea)`, mismo valor.
+    umbral: 0,
     salida: "Usa las utilidades del token: `text-brand` / `bg-brand` / `border-brand` para el cian, y `text-primary` / `bg-primary` para el azul. Los valores se declaran una sola vez en `globals.css`.",
   },
   {
@@ -66,7 +75,11 @@ const INVARIANTES = [
     //
     // 10 -> 5 al cerrarse T6.4: esos 5 se fueron con sus componentes. Los 5 que quedan son los del
     // visor duplicado, y ese sigue siendo su propio tramo.
-    umbral: 5,
+    //
+    // 5 -> 4 el 2026-09-18: el pie de cada foto de `galeria-catalogo` construía su enlace dentro del
+    // bucle —uno por foto, 212 en la línea de ventanas— y ahora lo pinta `AccionesDeContenido`. Los
+    // 4 restantes siguen siendo los dos visores, que se van con su tramo.
+    umbral: 4,
     salida: "Importa `enlaceDeWhatsApp()` de `@/config/site-config` en vez de concatenar la URL. El número y el formato viven ahí.",
   },
   {
@@ -78,8 +91,23 @@ const INVARIANTES = [
     exentos: [],
     // 7 -> 6: `tarjeta-obra` deja de pintar con <img> crudo. Las 6 que quedan estan en los dos
     // visores y en la galeria del blog, que se unifican al extraer el lightbox.
+    // Sigue en 6. El 2026-09-12 bajo a 3 al borrar `blog/galeria.tsx` y volvio a 6 al restaurarlo:
+    // el archivo NO estaba muerto, lo importa `mdx-components.tsx` desde la raiz del proyecto.
+    // Las 3 infracciones que aporta son reales y se ven en el blog; se pagan, no se descuentan.
     umbral: 6,
     salida: "Usa `next/image`. Si el caso exige control fino (visor, lightbox), decláralo aquí como exento con su motivo en vez de silenciar el linter con `eslint-disable`.",
+  },
+  {
+    id: "INV-P07",
+    nombre: "datos de contacto por site-config",
+    // Teléfono, dirección, redes, correos y horas escritas a mano. El 2026-09-12 había 40 copias
+    // en 12 archivos y el horario tenía tres valores distintos en cuatro sitios.
+    patron: /958\s?413\s?806|51958413806|Hu[áa]nuco[\s+]+(?:Nro\.?[\s+]+)?1389|facebook\.com\/profile|instagram\.com\/gms_integra|tiktok\.com\/@GMS_INTEGRA|@GMSIntegra(?![.\w])|@gms_integra(?![.\w])|gmsintegra21@gmail\.com|contacto@gmsintegra\.com|\b\d{1,2}:\d{2}\s?(?:am|pm)\b|"(?:opens|closes)"\s*:\s*"\d/gi,
+    exentos: ["src/config/site-config.ts"],
+    // 54 -> 5 el 2026-09-12 (T12.2): los 5 que quedaron eran correos, porque el sitio declaraba dos.
+    // 5 -> 0 el mismo dia, cuando el usuario decidio (D13) que el real es `gmsintegra21@gmail.com`.
+    umbral: 0,
+    salida: "Lee el dato de `@/config/site-config`: `telefonoVisible()`, `enlaceDeLlamada()`, `direccionCompleta()`, `horarioVisible()`, `siteConfig.redes`… Es la única copia de los datos de la empresa.",
   },
 ];
 
@@ -116,6 +144,136 @@ function revisarCarpetasInternas() {
       .map((s) => `${c.slug}/${s.slug}`),
   );
   return halladas;
+}
+
+/**
+ * INV-P08 — carpetas del taller sin nombre público.
+ *
+ * Las subcategorías del catálogo son carpetas de fotos: «SERIE80», «B ACERO / BARANDAS2»,
+ * «OBRAS HYO / H  JAUJA». Medido el 2026-09-12: 111 públicas con fotos y ni una con nombre publicable.
+ * `src/config/taxonomia-publica.json` les da nombre y las agrupa en series u obras, y es la ÚNICA
+ * copia de esos nombres (criterios en `gms-docs/03-sistema-de-diseno/taxonomia-publica.md`).
+ *
+ * Esta puerta falla si una carpeta pública no está en la tabla —la regeneración del catálogo desde
+ * las carpetas del taller puede traer una nueva—, si una carpeta está en dos series a la vez, o si
+ * la tabla nombra una carpeta que ya no existe. Las tres son la misma avería: tabla y dato divergen.
+ */
+const CARPETAS_SIN_NOMBRE_CONOCIDAS = 0;
+
+function revisarTaxonomia() {
+  let datos;
+  try {
+    datos = JSON.parse(readFileSync(join(RAIZ, "src/config/catalogo-data.json"), "utf8"));
+  } catch {
+    return null;
+  }
+  let taxonomia = { series: {} };
+  try {
+    taxonomia = JSON.parse(readFileSync(join(RAIZ, "src/config/taxonomia-publica.json"), "utf8"));
+  } catch {
+    /* sin tabla: toda carpeta pública cuenta como sin nombre */
+  }
+  const vecesEnTabla = new Map();
+  for (const [categoria, series] of Object.entries(taxonomia.series ?? {})) {
+    for (const serie of series) {
+      for (const carpeta of serie.carpetas ?? []) {
+        const clave = `${categoria}/${carpeta}`;
+        vecesEnTabla.set(clave, (vecesEnTabla.get(clave) ?? 0) + 1);
+      }
+    }
+  }
+  const publicas = new Set(
+    (datos.items ?? [])
+      .filter((i) => !PATRON_INTERNO.test(i.subcategoria))
+      .map((i) => `${i.categoria}/${i.subcategoria}`),
+  );
+  return {
+    sinNombre: [...publicas].filter((c) => !vecesEnTabla.has(c)),
+    repetidas: [...vecesEnTabla].filter(([, n]) => n > 1).map(([c]) => c),
+    inexistentes: [...vecesEnTabla.keys()].filter((c) => !publicas.has(c)),
+  };
+}
+
+/**
+ * INV-P06 — código que no importa nadie.
+ *
+ * Tercera aparición del mismo defecto y primera vez que se le pone puerta. T6.4 borró 1.913 líneas
+ * sin importador; T7 descubrió que 38 de las 143 infracciones de color vivían en esos mismos
+ * archivos muertos —el umbral llevaba semanas midiendo deuda inexistente—; y la migración de T3,
+ * que arregló aquello, dejó otros tres: dos shims de retrocompatibilidad («mientras se completa la
+ * migración gradual», ya completada) y una galería de 202 líneas.
+ *
+ * El patrón no es despiste: migrar deja el archivo viejo en pie y NADA lo comprueba. El linter no
+ * lo ve —un módulo sin importar es válido—, y el build tampoco: si no entra en el grafo, no se
+ * compila y no falla. Solo se nota cuando alguien mide, y medir no estaba en ninguna puerta.
+ *
+ * `src/components/ui/` queda exento: es shadcn instalado por CLI y se espera que sobre.
+ */
+// 2 -> 0 el 2026-09-12: borrados los dos shims de retrocompatibilidad del blog
+// (`cabecera-blog`, `migas`), que anunciaban una "migracion gradual" ya terminada.
+// `blog/galeria.tsx` NO entra: parecia huerfano y lo importa `mdx-components.tsx` desde la raiz.
+const MODULOS_HUERFANOS_CONOCIDOS = 0;
+const RAICES_VIGILADAS = ["src/components/", "src/features/"];
+const HUERFANOS_EXENTOS = ["src/components/ui/"];
+const PATRON_IMPORT = /(?:from|import)\s*\(?\s*["']([^"']+)["']/g;
+
+/** `@/x/y` y `./y` a ruta del repo sin extensión. `null` para paquetes externos. */
+function resolverEspecificador(especificador, desde) {
+  if (especificador.startsWith("@/")) return `src/${especificador.slice(2)}`;
+  if (!especificador.startsWith(".")) return null;
+  const partes = desde.split("/").slice(0, -1);
+  for (const parte of especificador.split("/")) {
+    if (parte === "." || parte === "") continue;
+    else if (parte === "..") partes.pop();
+    else partes.push(parte);
+  }
+  return partes.join("/");
+}
+
+/**
+ * Los importadores NO viven solo en `src/`.
+ *
+ * Esto lo enseñó un build roto el 2026-09-12: `blog/galeria.tsx` parecía huérfano en las dos
+ * mediciones —la de fuera y la de esta misma puerta— y lo importa `mdx-components.tsx`, que vive
+ * en la RAÍZ del proyecto porque `@next/mdx` lo exige ahí. Se borró, el build cayó, se restauró.
+ *
+ * Una puerta que solo mira `src/` da luz verde a un borrado que rompe la compilación. Por eso este
+ * recorrido es propio y parte de la raíz, en vez de reutilizar el de los otros invariantes.
+ */
+function recolectarImportadores() {
+  const IGNORADOS = new Set(["node_modules", ".next", ".git", "public", "dist"]);
+  const EXT_IMPORTADORAS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".mdx"];
+  const encontrados = [];
+  const recorrerRaiz = (ruta) => {
+    const st = statSync(ruta);
+    if (st.isDirectory()) {
+      for (const e of readdirSync(ruta)) {
+        if (IGNORADOS.has(e)) continue;
+        recorrerRaiz(join(ruta, e));
+      }
+    } else if (EXT_IMPORTADORAS.some((x) => ruta.endsWith(x))) {
+      encontrados.push(ruta);
+    }
+  };
+  recorrerRaiz(RAIZ);
+  return encontrados;
+}
+
+function revisarModulosSinImportador(archivos, rutaRelativa) {
+  const importados = new Set();
+  for (const archivo of recolectarImportadores()) {
+    const rel = rutaRelativa(archivo);
+    for (const [, especificador] of readFileSync(archivo, "utf8").matchAll(PATRON_IMPORT)) {
+      const destino = resolverEspecificador(especificador, rel);
+      if (destino) importados.add(destino.replace(/\/index$/, ""));
+    }
+  }
+  return archivos
+    .map(rutaRelativa)
+    .filter((rel) => /\.tsx?$/.test(rel))
+    .filter((rel) => RAICES_VIGILADAS.some((raiz) => rel.startsWith(raiz)))
+    .filter((rel) => !HUERFANOS_EXENTOS.some((raiz) => rel.startsWith(raiz)))
+    .filter((rel) => !importados.has(rel.replace(/\.tsx?$/, "")));
 }
 
 const archivos = [];
@@ -183,7 +341,26 @@ if (internas !== null) {
   );
 }
 
-if (regresiones.length === 0 && mejoras.length === 0 && !internasFuera) {
+const taxonomia = revisarTaxonomia();
+const problemasTaxonomia = taxonomia
+  ? taxonomia.sinNombre.length + taxonomia.repetidas.length + taxonomia.inexistentes.length
+  : 0;
+const taxonomiaFuera = taxonomia !== null && problemasTaxonomia !== CARPETAS_SIN_NOMBRE_CONOCIDAS;
+
+if (taxonomia !== null) {
+  console.log(
+    `[check-tokens] INV-P08  ${String(problemasTaxonomia).padStart(4)} / ${String(CARPETAS_SIN_NOMBRE_CONOCIDAS).padEnd(4)} ${problemasTaxonomia === CARPETAS_SIN_NOMBRE_CONOCIDAS ? "=" : problemasTaxonomia > CARPETAS_SIN_NOMBRE_CONOCIDAS ? "+" : "-"}  carpetas del taller sin nombre público`,
+  );
+}
+
+const huerfanos = revisarModulosSinImportador(archivos, rutaRelativa);
+const huerfanosFuera = huerfanos.length !== MODULOS_HUERFANOS_CONOCIDOS;
+
+console.log(
+  `[check-tokens] INV-P06  ${String(huerfanos.length).padStart(4)} / ${String(MODULOS_HUERFANOS_CONOCIDOS).padEnd(4)} ${huerfanos.length === MODULOS_HUERFANOS_CONOCIDOS ? "=" : huerfanos.length > MODULOS_HUERFANOS_CONOCIDOS ? "+" : "-"}  componentes que no importa nadie`,
+);
+
+if (regresiones.length === 0 && mejoras.length === 0 && !internasFuera && !huerfanosFuera && !taxonomiaFuera) {
   console.log(`[check-tokens] OK: ${archivos.length} archivos revisados, ningún invariante empeora.`);
   process.exit(0);
 }
@@ -217,6 +394,33 @@ if (internasFuera) {
   );
   console.error("  ajusta SUBCATEGORIAS_INTERNAS_CONOCIDAS aquí en el mismo commit.");
   for (const s of internas) console.error(`    ${s}`);
+  console.error("");
+}
+
+if (huerfanosFuera) {
+  console.error(
+    `[check-tokens] INV-P06: ${huerfanos.length} módulo(s) bajo src/components o src/features que no importa nadie; la lista conocida tiene ${MODULOS_HUERFANOS_CONOCIDOS}.`,
+  );
+  console.error("  Si acabas de migrar algo, el archivo viejo se quedó en pie: bórralo en el MISMO commit.");
+  console.error("  Si es un componente nuevo sin montar, móntalo o déjalo fuera del árbol hasta que lo uses.");
+  for (const h of huerfanos) console.error(`    ${h}`);
+  console.error("");
+}
+
+if (taxonomiaFuera) {
+  console.error(
+    `[check-tokens] INV-P08: ${problemasTaxonomia} problema(s) entre las carpetas del catálogo y src/config/taxonomia-publica.json.`,
+  );
+  console.error("  Cada carpeta pública necesita un nombre público, en una sola serie u obra. Criterios en gms-docs/03-sistema-de-diseno/taxonomia-publica.md.");
+  const listar = (titulo, lista) => {
+    if (!lista.length) return;
+    console.error(`  ${titulo} (${lista.length}):`);
+    for (const c of lista.slice(0, 15)) console.error(`    ${c}`);
+    if (lista.length > 15) console.error(`    … (+${lista.length - 15})`);
+  };
+  listar("sin nombre", taxonomia.sinNombre);
+  listar("en dos series a la vez", taxonomia.repetidas);
+  listar("nombradas en la tabla pero inexistentes", taxonomia.inexistentes);
   console.error("");
 }
 

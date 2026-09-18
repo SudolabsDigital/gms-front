@@ -9,6 +9,9 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
+    // LITERAL A PROPOSITO, el unico del portal fuera de globals.css.
+    // Lo lee el sistema operativo al instalar la PWA, no el navegador: aqui `var(--primary)`
+    // no se resuelve. Si cambia el azul de marca, se cambia tambien esta linea.
     theme_color: "#004aad",
     icons: [
       {

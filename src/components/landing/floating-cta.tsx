@@ -1,19 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { ArrowUp, Play, Pause } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { enlaceDeLlamada, enlaceDeWhatsApp, siteConfig, telefonoVisible } from "@/config/site-config";
 import {
   WhatsAppIcon,
   FacebookIcon,
   InstagramIcon,
   TikTokIcon,
   PhoneIcon,
-  CalculatorIcon,
   CloseIcon,
 } from "./social-icons";
 
+/*
+ * El «Cotizador» y el scroll automático se retiraron el 2026-09-12, por decisión del usuario.
+ * El primero hacía scroll a un `#cotizador` que no existe en ninguna página: el botón no hacía
+ * nada. Con él se fue la única acción que no era un enlace, y por eso todas se pintan como `<a>`.
+ */
 /* ─── Datos de acciones ──────────────────────────────────────────── */
 
 const ACTIONS = [
@@ -25,7 +29,6 @@ const ACTIONS = [
       "Hola GMS Integra, quisiera solicitar una cotización para mi proyecto de aluminio y vidrio."
     ),
     external: true,
-    scroll: null,
     icon: <WhatsAppIcon className="size-5" />,
     bg: "bg-emerald-600 hover:bg-emerald-700",
     shadow: "shadow-[0_4px_0px_#15803d]",
@@ -34,10 +37,9 @@ const ACTIONS = [
   {
     key: "fb",
     label: "Facebook",
-    hint: "@GMSIntegra",
-    href: "https://www.facebook.com/profile.php?id=100089261427668",
+    hint: siteConfig.redes.facebook.usuario,
+    href: siteConfig.redes.facebook.url,
     external: true,
-    scroll: null,
     icon: <FacebookIcon className="size-5" />,
     bg: "bg-[#1877F2] hover:bg-[#166FE5]",
     shadow: "shadow-[0_4px_0px_#1251A8]",
@@ -46,10 +48,9 @@ const ACTIONS = [
   {
     key: "ig",
     label: "Instagram",
-    hint: "@gms_integra",
-    href: "https://www.instagram.com/gms_integra",
+    hint: siteConfig.redes.instagram.usuario,
+    href: siteConfig.redes.instagram.url,
     external: true,
-    scroll: null,
     icon: <InstagramIcon className="size-5" />,
     bg: "bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FD1D1D] hover:brightness-110",
     shadow: "shadow-[0_4px_0px_#9B27AF]",
@@ -58,34 +59,20 @@ const ACTIONS = [
   {
     key: "tt",
     label: "TikTok",
-    hint: "@GMS_INTEGRA",
-    href: "https://www.tiktok.com/@GMS_INTEGRA",
+    hint: siteConfig.redes.tiktok.usuario,
+    href: siteConfig.redes.tiktok.url,
     external: true,
-    scroll: null,
     icon: <TikTokIcon className="size-5" />,
     bg: "bg-slate-900 hover:bg-slate-800",
     shadow: "shadow-[0_4px_0px_#000]",
     ring: "ring-slate-600",
   },
   {
-    key: "calc",
-    label: "Cotizador",
-    hint: "Calcular m² en línea",
-    href: null,
-    external: false,
-    scroll: "cotizador",
-    icon: <CalculatorIcon className="size-5" />,
-    bg: "bg-[#004AAD] hover:bg-[#003282]",
-    shadow: "shadow-[0_4px_0px_#003282]",
-    ring: "ring-blue-600",
-  },
-  {
     key: "tel",
     label: "Llamar",
-    hint: "(51) 958 413 806",
-    href: "tel:+51958413806",
+    hint: telefonoVisible(),
+    href: enlaceDeLlamada(),
     external: false,
-    scroll: null,
     icon: <PhoneIcon className="size-5" />,
     bg: "bg-slate-700 hover:bg-slate-600",
     shadow: "shadow-[0_4px_0px_#374151]",
@@ -97,8 +84,6 @@ const ACTIONS = [
 export function FloatingCta() {
   const [isOpen, setIsOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
-  const autoScrollRef = useRef<number | null>(null);
 
   // Detección de posición para el botón de volver arriba
   useEffect(() => {
@@ -110,63 +95,9 @@ export function FloatingCta() {
     return () => window.removeEventListener("scroll", checkScroll);
   }, []);
 
-  // Lógica de Scroll Automático con velocidad diferenciada (Desktop vs Móvil)
-  useEffect(() => {
-    if (!isAutoScrolling) {
-      if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current);
-      return;
-    }
-
-    let lastTime = performance.now();
-
-    const animateScroll = (currentTime: number) => {
-      const deltaTime = (currentTime - lastTime) / 1000;
-      lastTime = currentTime;
-
-      // Velocidad diferenciada: Desktop = 115 px/s, Móvil/Tablet = 68 px/s
-      const isDesktop = window.innerWidth >= 1024;
-      const speedPxPerSec = isDesktop ? 115 : 68;
-      const step = speedPxPerSec * deltaTime;
-
-      window.scrollBy(0, step);
-
-      // Si llega al final de la página, detener automáticamente
-      const isAtBottom =
-        window.innerHeight + window.scrollY >=
-        document.documentElement.scrollHeight - 15;
-
-      if (isAtBottom) {
-        setIsAutoScrolling(false);
-        return;
-      }
-
-      autoScrollRef.current = requestAnimationFrame(animateScroll);
-    };
-
-    autoScrollRef.current = requestAnimationFrame(animateScroll);
-
-    return () => {
-      if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current);
-    };
-  }, [isAutoScrolling]);
-
-  const toggleAutoScroll = () => {
-    setIsAutoScrolling((prev) => !prev);
-  };
-
   const scrollToTop = () => {
-    if (isAutoScrolling) setIsAutoScrolling(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  function handleAction(action: (typeof ACTIONS)[number]) {
-    if (action.scroll) {
-      setIsOpen(false);
-      requestAnimationFrame(() => {
-        document.getElementById(action.scroll!)?.scrollIntoView({ behavior: "smooth" });
-      });
-    }
-  }
 
   return (
     <div
@@ -220,63 +151,24 @@ export function FloatingCta() {
             isOpen ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
           );
 
-          if (action.href) {
-            return (
-              <a
-                key={action.key}
-                href={action.href}
-                target={action.external ? "_blank" : undefined}
-                rel={action.external ? "noopener noreferrer" : undefined}
-                className={baseClass}
-                style={{ transitionDelay: delay }}
-                onClick={() => setIsOpen(false)}
-              >
-                {inner}
-              </a>
-            );
-          }
-
           return (
-            <button
+            <a
               key={action.key}
-              type="button"
+              href={action.href}
+              target={action.external ? "_blank" : undefined}
+              rel={action.external ? "noopener noreferrer" : undefined}
               className={baseClass}
               style={{ transitionDelay: delay }}
-              onClick={() => handleAction(action)}
+              onClick={() => setIsOpen(false)}
             >
               {inner}
-            </button>
+            </a>
           );
         })}
       </div>
 
-      {/* ── Fila de Botones Principales (Auto-Scroll + Scroll Top + Burbuja Contacto) ── */}
+      {/* ── Fila de botones principales: subir al inicio + burbuja de contacto ── */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Botón de Scroll Automático con Velocidad Adaptativa */}
-        <button
-          type="button"
-          onClick={toggleAutoScroll}
-          className={cn(
-            "flex size-11 sm:size-12 items-center justify-center rounded-xl transition-all duration-300 cursor-pointer",
-            "border shadow-lg shadow-black/25 active:scale-95",
-            isAutoScrolling
-              ? "bg-[#004AAD] text-[#00c9ff] border-[#00c9ff]/70 ring-2 ring-[#00c9ff]/40 animate-pulse"
-              : "bg-[#1A2B45] text-slate-300 hover:text-white hover:bg-slate-800 border-white/20 hover:border-white/40"
-          )}
-          aria-label={isAutoScrolling ? "Pausar scroll automático" : "Iniciar scroll automático"}
-          title={
-            isAutoScrolling
-              ? "Pausar lectura automática"
-              : "Scroll automático (Lectura continua adaptativa)"
-          }
-        >
-          {isAutoScrolling ? (
-            <Pause className="size-5 fill-current stroke-[2.5]" />
-          ) : (
-            <Play className="size-5 fill-current stroke-[2.5] ml-0.5" />
-          )}
-        </button>
-
         {/* Botón Flotante para Subir al Inicio */}
         <button
           type="button"

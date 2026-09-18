@@ -1,3 +1,5 @@
+import { siteConfig } from "@/config/site-config";
+
 export interface FaqItem {
   num: string;
   q: string;
@@ -8,7 +10,7 @@ export const FAQS_VENDIBLES: FaqItem[] = [
   {
     num: "01",
     q: "¿Por qué elegir GMS Integra frente a un taller o vidriero informal?",
-    a: "Porque somos fabricantes directos con taller propio en Jr. Huánuco 1389. No tercerizamos: trabajamos con perfiles pesados de extrusión virgen (Miyasato/Alumex), corte milimétrico por matriz y te entregamos 1 Año de Garantía Escrita Formal respaldada con Factura legal.",
+    a: `Porque somos fabricantes directos con taller propio en ${siteConfig.direccion.corta}. No tercerizamos: trabajamos con perfiles pesados de extrusión virgen (Miyasato/Alumex), corte milimétrico por matriz y te entregamos 1 Año de Garantía Escrita Formal respaldada con Factura legal.`,
   },
   {
     num: "02",

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { direccionCompleta, enlaceDeWhatsApp, horarioCorto, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad y Tratamiento de Datos | GMS Integra",
@@ -22,15 +22,15 @@ export default function PoliticaPrivacidadPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-mono text-[#00c9ff] hover:underline mb-6"
+            className="inline-flex items-center gap-2 text-xs font-mono text-brand hover:underline mb-6"
           >
             <ArrowLeft className="size-3.5" />
             <span>Volver al Portal Principal</span>
           </Link>
 
           <div className="flex items-center gap-2 mb-3">
-            <Lock className="size-4 text-[#00c9ff]" />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#00c9ff]">
+            <Lock className="size-4 text-brand" />
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-brand">
               Privacidad Web & Ley N° 29733 (Perú)
             </span>
           </div>
@@ -130,19 +130,19 @@ export default function PoliticaPrivacidadPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs font-mono bg-secondary/50 p-4 rounded-xl border border-border text-foreground">
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Atención WhatsApp</span>
-                <strong>+51 958 413 806</strong>
+                <strong>{telefonoVisible()}</strong>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Correo Electrónico</span>
-                <strong>contacto@gmsintegra.com</strong>
+                <strong>{siteConfig.correo}</strong>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Atención Presencial</span>
-                <span>Jr. Huánuco Nro. 1389, Huancayo, Junín</span>
+                <span>{direccionCompleta()}</span>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Horario de Atención</span>
-                <span>Lun–Sáb: 8:00 AM – 7:00 PM</span>
+                <span>{horarioCorto()}</span>
               </div>
             </div>
           </section>

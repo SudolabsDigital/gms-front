@@ -1,11 +1,15 @@
 import catalogoRaw from "@/config/catalogo-data.json";
+import taxonomiaRaw from "@/config/taxonomia-publica.json";
 import type {
   CatalogoData,
   CategoriaCatalogo,
   ItemCatalogo,
+  SeriePublica,
+  TaxonomiaPublica,
 } from "./esquema";
 
 const catalogo: CatalogoData = catalogoRaw as CatalogoData;
+const taxonomia = taxonomiaRaw as TaxonomiaPublica;
 
 /**
  * SUBCATEGORÍAS QUE NO SALEN AL PÚBLICO.
@@ -37,22 +41,59 @@ const esInterna = (slugSubcategoria: string) =>
   SUBCATEGORIAS_INTERNAS.some((p) => p.test(slugSubcategoria));
 
 /**
- * Nombres que identifican a una persona concreta y se muestran de forma genérica.
+ * NOMBRES PÚBLICOS: las carpetas del taller no salen a pantalla.
  *
- * La foto de la obra sí es material comercial; el nombre de quien la encargó, no. UNCP y USIL se
- * dejan como están: son casos de obra ya publicados con nombre propio en el blog.
+ * Hasta el 2026-09-12 cada subcategoría se pintaba con su nombre de carpeta —«SERIE80», «B ACERO /
+ * BARANDAS2», «OBRAS HYO / H  JAUJA»— y un mapa escrito a mano corregía una sola. Ahora cada carpeta
+ * pertenece a UNA serie (u obra) de `taxonomia-publica.json`, y el ítem sale con el slug y el nombre
+ * de esa serie: el filtro, la galería, la ficha y el mensaje de WhatsApp lo heredan sin tocarse.
+ * Varias carpetas pueden ser una misma serie: «B ACERO» y «B ACERO / BARANDAS2» son «Acero».
+ *
+ * Una carpeta sin serie hace caer el build AQUÍ, además de en la puerta INV-P08: publicar un nombre
+ * de carpeta en silencio es justo lo que la tabla existe para impedir.
  */
-const NOMBRE_PUBLICO: Record<string, string> = {
-  "techo-metalico-srta-ana": "Techo Metálico",
-};
+const seriePorCarpeta = new Map<string, SeriePublica>();
+for (const [categoria, series] of Object.entries(taxonomia.series)) {
+  for (const serie of series ?? []) {
+    for (const carpeta of serie.carpetas) seriePorCarpeta.set(`${categoria}/${carpeta}`, serie);
+  }
+}
+
+const carpetasSinNombre = new Set<string>();
+
+/**
+ * EL TÍTULO DE CADA FOTO ES «Foto N» DENTRO DE SU SERIE.
+ *
+ * El JSON trae como título el nombre del archivo: «1000073449», «IMG 20220123 WA0004»,
+ * «007139f7 18bd 4fa2…», o genéricos como «Modelo / Instalación» y «B.ACERO». Medido el 2026-09-12:
+ * 107 títulos distintos para 472 fotos de obra, y 298 que repetían la carpeta. Se pintaban como H1
+ * de la ficha, en el `alt` y en el mensaje de WhatsApp.
+ *
+ * El nombre de la serie ya viaja al lado (`subcategoriaNombre`), así que el título solo tiene que
+ * distinguir la foto dentro de ella. Los pocos títulos que sí describían algo («Estrella y flecha»)
+ * se pierden aquí y siguen en el JSON: recuperarlos es trabajo de T4, con una taxonomía de ítems.
+ */
+const fotosPorSerie = new Map<string, number>();
 
 const items: ItemCatalogo[] = catalogo.items
   .filter((i) => !esInterna(i.subcategoria))
-  .map((i) =>
-    NOMBRE_PUBLICO[i.subcategoria]
-      ? { ...i, subcategoriaNombre: NOMBRE_PUBLICO[i.subcategoria] }
-      : i,
+  .map((i) => {
+    const serie = seriePorCarpeta.get(`${i.categoria}/${i.subcategoria}`);
+    if (!serie) {
+      carpetasSinNombre.add(`${i.categoria}/${i.subcategoria}`);
+      return i;
+    }
+    const clave = `${i.categoria}/${serie.slug}`;
+    const numero = (fotosPorSerie.get(clave) ?? 0) + 1;
+    fotosPorSerie.set(clave, numero);
+    return { ...i, subcategoria: serie.slug, subcategoriaNombre: serie.nombre, titulo: `Foto ${numero}` };
+  });
+
+if (carpetasSinNombre.size > 0) {
+  throw new Error(
+    `Carpetas del catálogo sin nombre público en src/config/taxonomia-publica.json: ${[...carpetasSinNombre].join(", ")}`,
   );
+}
 
 /**
  * Los recuentos se derivan de los ÍTEMS, no del campo `total` que trae el JSON.
@@ -65,11 +106,11 @@ const items: ItemCatalogo[] = catalogo.items
  */
 const categorias: CategoriaCatalogo[] = catalogo.categorias.map((c) => {
   const deLaCategoria = items.filter((i) => i.categoria === c.slug);
-  const subcategorias = c.subcategorias
-    .filter((s) => !esInterna(s.slug))
+  // Las subcategorías que ve el visitante son las SERIES de la tabla, en su orden, no las carpetas.
+  const subcategorias = (taxonomia.series[c.slug] ?? [])
     .map((s) => ({
-      ...s,
-      nombre: NOMBRE_PUBLICO[s.slug] ?? s.nombre,
+      slug: s.slug,
+      nombre: s.nombre,
       total: deLaCategoria.filter((i) => i.subcategoria === s.slug).length,
     }))
     .filter((s) => s.total > 0);

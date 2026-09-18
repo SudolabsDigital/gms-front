@@ -19,8 +19,19 @@ import { cn } from "@/lib/utils";
  * SOLO EL TÍTULO. Nada de descripción ni de resumen: la foto es el argumento de venta en este rubro
  * y tres longitudes de resumen distintas conviviendo en la misma retícula la empequeñecían.
  *
- * ABRIR EL VISOR ES *ADEMÁS*, NUNCA *EN LUGAR DE*. Cuando se pasa `alAbrirVista` se pinta un botón
- * hermano del enlace: quien navega con el ratón se queda en la galería, y el rastreador sigue
+ * SOBRE LA FOTO NO VA NADA (v2). La primera versión ponía el texto ENCIMA de la imagen, sobre un
+ * velo negro, y alrededor hasta cuatro cosas más: antetítulo, píldora de conteo, botón de compartir
+ * y botón de visor. El producto de esta empresa se compra por cómo se ve, y cada capa era una
+ * porción de foto tapada para decir algo que cabe debajo. Ahora la imagen está limpia y el texto
+ * vive en un pie, fuera del marco.
+ *
+ * CON EL VELO SE VA TAMBIÉN UN DEFECTO DE CONTRASTE: el antetítulo en `text-brand` sobre la base
+ * oscura daba 2,11:1 —bajo AA en las 476 tarjetas de obras—. El pie es superficie clara, así que el
+ * texto deja de depender de dónde cayó el recorte de la foto.
+ *
+ * ABRIR EL VISOR ES *ADEMÁS*, NUNCA *EN LUGAR DE*. El enlace envuelve foto y pie: un clic en la
+ * tarjeta entra en la ficha, que es donde vive la acción. Cuando se pasa `alAbrirVista` se pinta un
+ * botón hermano del enlace —en la esquina del pie, no sobre la imagen— y el rastreador sigue
  * teniendo un `<a href>` que seguir.
  */
 
@@ -76,15 +87,23 @@ export interface TarjetaDeContenidoProps {
   orientacion?: OrientacionImagen;
   /** Jerarquía en el mosaico: 1 destaca, 3 es la baldosa menor. */
   nivel?: 1 | 2 | 3;
-  /** Línea breve sobre el título: «Residencial · Huancayo», «7 min de lectura». */
-  antetitulo?: React.ReactNode;
-  /** Píldora superior derecha: conteo, ubicación, etiqueta. */
-  badge?: React.ReactNode;
+  /**
+   * Línea bajo el título: «La Huaycha · 2025 · 48 fotos», «7 min de lectura».
+   *
+   * Absorbe el `antetitulo` y el `badge` de la v1, que eran dos textos en dos esquinas distintas de
+   * la imagen. Juntos y debajo se leen de una vez, y la foto queda entera.
+   */
+  meta?: React.ReactNode;
   /** Marca la imagen como LCP. Solo las primeras de la retícula. */
   prioridad?: boolean;
-  /** Si viene, monta las acciones de compartir y cotizar sobre la imagen. */
+  /**
+   * Compartir y cotizar, como dos cuadrados EN EL PIE, a la derecha del nombre.
+   *
+   * La v1 los montaba flotando sobre la imagen y eso se retiró: la foto va limpia. Aquí están en la
+   * banda blanca, que es un sitio distinto y no le quita un píxel a la foto.
+   */
   acciones?: Omit<AccionesDeContenidoProps, "variante">;
-  /** Abre el visor. Se pinta como botón aparte, sin sustituir al enlace. */
+  /** Abre el visor. Se pinta en la esquina del pie, sin sustituir al enlace. */
   alAbrirVista?: () => void;
   className?: string;
 }
@@ -96,8 +115,7 @@ export function TarjetaDeContenido({
   imagenAlt,
   orientacion = "horizontal",
   nivel = 2,
-  antetitulo,
-  badge,
+  meta,
   prioridad = false,
   acciones,
   alAbrirVista,
@@ -106,61 +124,79 @@ export function TarjetaDeContenido({
   const { proporcion, encuadre } = FORMA[orientacion];
   const destacada = nivel === 1;
 
+  /**
+   * Cuánto sitio hay que dejarle al carril de botones del pie.
+   *
+   * Se calcula aquí y no se escribe a ojo en cada caso porque el texto y los botones comparten
+   * franja: si el reservado se queda corto, un título largo pasa por debajo de los botones y lo que
+   * se lee es un nombre cortado a la mitad.
+   */
+  const anchoDeLosBotones = (acciones ? 2 : 0) + (alAbrirVista ? 1 : 0);
+  const RESERVA = ["", "pr-16", "pr-28", "pr-40"][anchoDeLosBotones];
+
   return (
     <article
       className={cn(
-        "group relative isolate overflow-hidden rounded-2xl border border-border/80 bg-slate-950 shadow-xs",
-        "transition-all duration-500 hover:-translate-y-1 hover:border-primary/60 hover:shadow-2xl",
-        "focus-within:ring-ring focus-within:ring-2 focus-within:ring-offset-2",
-        proporcion,
+        "group border-border/80 bg-card relative flex flex-col overflow-hidden rounded-2xl border shadow-xs",
+        "hover:border-primary/60 focus-within:ring-ring transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-within:ring-2 focus-within:ring-offset-2",
         className,
       )}
     >
-      {/* El ancla envuelve imagen Y título: enlace con texto, no enlace vacío. */}
-      <Link href={href} className="absolute inset-0 flex flex-col justify-end">
-        <Image
-          src={imagen}
-          alt={imagenAlt}
-          fill
-          priority={prioridad}
-          sizes={TAMANOS[nivel]}
-          className={cn(
-            "-z-10 object-cover transition-transform duration-700 group-hover:scale-105",
-            encuadre,
-          )}
-        />
+      {/* El ancla envuelve imagen Y pie: enlace con texto, no enlace vacío. */}
+      <Link href={href} className="flex min-h-0 flex-auto flex-col">
+        {/*
+          El marco no lleva NADA dentro salvo la foto. Ni velo, ni píldora, ni botón.
+
+          `flex-auto` junto a la proporción es lo que hace innecesario el `aspect-auto` que dos
+          consumidores pasaban para anular el marco: cuando la tarjeta cae en una retícula de celdas
+          altas —el mosaico del blog— la foto crece hasta llenar la celda; cuando la altura es libre
+          —catálogo, obras— manda la proporción derivada de la forma real de la foto.
+        */}
+        <div className={cn("bg-muted relative min-h-0 flex-auto overflow-hidden", proporcion)}>
+          <Image
+            src={imagen}
+            alt={imagenAlt}
+            fill
+            priority={prioridad}
+            sizes={TAMANOS[nivel]}
+            className={cn(
+              "object-cover transition-transform duration-700 group-hover:scale-[1.03]",
+              encuadre,
+            )}
+          />
+        </div>
 
         <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/25 to-transparent transition-opacity duration-300 group-hover:from-black/90"
-        />
-
-        <div className={cn("relative flex flex-col gap-1.5", destacada ? "p-6 sm:p-8" : "p-5")}>
-          {antetitulo && (
-            <span className="text-brand truncate text-[11px] font-bold tracking-wider uppercase">
-              {antetitulo}
-            </span>
+          className={cn(
+            "flex shrink-0 flex-col gap-1",
+            destacada ? "p-5 sm:p-6" : "px-4 py-3.5",
+            /* Deja libre la franja derecha donde se posan los botones. */
+            RESERVA,
           )}
+        >
           <h3
             className={cn(
-              "text-balance font-black tracking-tight text-white transition-colors group-hover:text-brand",
-              destacada ? "text-xl leading-tight sm:text-2xl md:text-3xl" : "text-base sm:text-lg",
+              "text-foreground group-hover:text-brand text-balance font-black tracking-tight transition-colors",
+              destacada ? "text-lg leading-tight sm:text-xl md:text-2xl" : "text-sm sm:text-base",
             )}
           >
             {titulo}
           </h3>
+          {meta && <p className="text-muted-foreground truncate text-xs font-medium">{meta}</p>}
         </div>
       </Link>
 
-      {badge && (
-        <div className="pointer-events-none absolute top-3.5 right-3.5 z-10 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] font-bold text-white shadow-sm backdrop-blur-md">
-          {badge}
+      {/*
+        El carril de botones del pie. Va FUERA del `<Link>` a propósito: un `<button>` o un `<a>`
+        dentro de un ancla es HTML inválido y el navegador reparte el clic de forma impredecible.
+        Se posiciona sobre la banda blanca, nunca sobre la imagen.
+      */}
+      {(acciones || alAbrirVista) && (
+        <div className="absolute right-3 bottom-3 flex items-center gap-2">
+          {acciones && <AccionesDeContenido {...acciones} variante="compacta" />}
+          {alAbrirVista && <BotonDeVisor titulo={titulo} alAbrir={alAbrirVista} />}
         </div>
       )}
-
-      {acciones && <AccionesDeContenido {...acciones} variante="flotante" />}
-
-      {alAbrirVista && <BotonDeVisor titulo={titulo} alAbrir={alAbrirVista} />}
     </article>
   );
 }
@@ -169,7 +205,11 @@ export function TarjetaDeContenido({
  * Botón para abrir el visor sin salir de la galería.
  *
  * Va FUERA del `<a>` a propósito: un `<button>` dentro de un ancla es HTML inválido y el navegador
- * reparte el clic entre los dos de forma impredecible.
+ * reparte el clic entre los dos de forma impredecible. Y va en el PIE, no sobre la foto: es la
+ * segunda intención de la tarjeta, y la primera —entrar en la ficha— es el enlace entero.
+ *
+ * Comparte medida y radio con los cuadrados de `AccionesDeContenido`, para que el carril del pie se
+ * lea como un grupo y no como tres piezas sueltas.
  */
 function BotonDeVisor({ titulo, alAbrir }: { titulo: string; alAbrir: () => void }) {
   return (
@@ -181,7 +221,7 @@ function BotonDeVisor({ titulo, alAbrir }: { titulo: string; alAbrir: () => void
         alAbrir();
       }}
       aria-label={`Ver ${titulo} en grande`}
-      className="focus-visible:ring-ring absolute right-3.5 bottom-3.5 z-10 flex size-9 items-center justify-center rounded-full border border-white/20 bg-white/15 text-white backdrop-blur-md transition-transform duration-300 group-hover:scale-110 hover:bg-white/25 focus-visible:ring-2 focus-visible:outline-none"
+      className="border-border bg-card text-muted-foreground hover:text-brand hover:border-brand/40 focus-visible:ring-ring flex size-10 items-center justify-center rounded border transition-colors focus-visible:ring-2 focus-visible:outline-none"
     >
       <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
         <path

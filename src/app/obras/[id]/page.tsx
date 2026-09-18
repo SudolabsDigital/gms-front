@@ -6,11 +6,10 @@ import { SiteHeader } from "@/components/landing/site-header";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { FloatingCta } from "@/components/landing/floating-cta";
 import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
-import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
+import { siteConfig } from "@/config/site-config";
 import { obtenerObraPorId, obtenerTodasLasObras } from "@/lib/obras/leer";
-import { WhatsAppIcon } from "@/components/landing/social-icons";
 import { MapPin, ArrowLeft, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AccionesDeContenido } from "@/components/comunes/acciones-contenido";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 import ObraJsonLd from "@/components/seo/obra-json-ld";
 
@@ -34,8 +33,12 @@ export async function generateMetadata({
   if (!obra) return {};
 
   const url = `${siteConfig.url}/obras/${obra.id}`;
-  const titulo = `${obra.titulo} — ${obra.ubicacionDetalle} | GMS Integra`;
-  const descripcion = `Proyecto de ${obra.tipoNombre.toLowerCase()} ejecutado en ${obra.ubicacionDetalle} (${obra.zonaNombre}), Huancayo. Acabados en ${obra.materiales?.join(", ") || "aluminio y cristal templado"}.`;
+  // Sin la marca: la plantilla `%s | GMS Integra` del layout ya la añade.
+  const titulo = `${obra.obraNombre} · ${obra.titulo} | Obras`;
+  // Solo lo que dice la carpeta: ni tipo ni materiales, que eran deducidos por zona.
+  // El lugar no se repite si el nombre ya lo lleva: «Obras en La Huaycha en La Huaycha».
+  const lugarAparte = obra.lugar && !obra.obraNombre.includes(obra.lugar) ? ` en ${obra.lugar}` : "";
+  const descripcion = `Fotografía de la obra ${obra.obraNombre}${lugarAparte}${obra.anio ? ` (${obra.anio})` : ""}, ejecutada por GMS Integra en carpintería de aluminio y vidrio.`;
 
   return {
     title: titulo,
@@ -44,7 +47,7 @@ export async function generateMetadata({
     openGraph: {
       type: "article",
       url,
-      title: `${obra.titulo} | Obra Ejecutada en ${obra.ubicacionDetalle}`,
+      title: `${obra.obraNombre} · ${obra.titulo} | GMS Integra`,
       description: descripcion,
       locale: "es_PE",
       images: [
@@ -52,13 +55,13 @@ export async function generateMetadata({
           url: `${siteConfig.url}${obra.src}`,
           width: obra.ancho || 1200,
           height: obra.alto || 800,
-          alt: obra.titulo,
+          alt: `${obra.obraNombre} · ${obra.titulo}`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${obra.titulo} — GMS Integra`,
+      title: `${obra.obraNombre} · ${obra.titulo} — GMS Integra`,
       description: descripcion,
       images: [`${siteConfig.url}${obra.src}`],
     },
@@ -78,12 +81,12 @@ export default async function ObraIndividualPage({
   }
 
   const urlObra = `${siteConfig.url}/obras/${obra.id}`;
-  const mensajeWhatsApp = `Hola GMS Integra, vi el proyecto «${obra.titulo}» en ${obra.ubicacionDetalle} (${urlObra}) y deseo solicitar una cotización para un acabado similar.`;
-  const urlWhatsApp = enlaceDeWhatsApp(mensajeWhatsApp);
+  const urlDeLaObra = `/obras?obra=${obra.obraSlug}`;
 
   const breadcrumbItems = [
     { name: "Inicio", item: "/" },
     { name: "Obras Ejecutadas", item: "/obras" },
+    { name: obra.obraNombre, item: urlDeLaObra },
     { name: obra.titulo, item: `/obras/${obra.id}` },
   ];
 
@@ -99,20 +102,22 @@ export default async function ObraIndividualPage({
           migas={[
             { nombre: "Inicio", href: "/" },
             { nombre: "Obras Ejecutadas", href: "/obras" },
+            { nombre: obra.obraNombre, href: urlDeLaObra },
             { nombre: obra.titulo },
           ]}
-          titulo={obra.titulo}
-          antetitulo={`${obra.zonaNombre} · ${obra.tipoNombre}`}
-          resumen={`Proyecto ejecutado con los más altos estándares de carpintería pesada de aluminio y cristal templado en ${obra.ubicacionDetalle}.`}
+          titulo={obra.obraNombre}
+          antetitulo={[obra.lugar, obra.anio, obra.titulo].filter(Boolean).join(" · ")}
+          resumen="Fotografía de una obra ejecutada por GMS Integra en carpintería de aluminio y cristal templado."
           imagen={obra.src}
-          imagenAlt={obra.titulo}
-          badge="Obra Concluida"
+          imagenAlt={`${obra.obraNombre} · ${obra.titulo}`}
           meta={
             <>
-              <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                <MapPin className="size-3.5 text-[#00c9ff]" />
-                <span>{obra.ubicacionDetalle}</span>
-              </span>
+              {obra.lugar && (
+                <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
+                  <MapPin className="size-3.5 text-brand" />
+                  <span>{obra.lugar}</span>
+                </span>
+              )}
               <span className="flex items-center gap-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 backdrop-blur-xs border border-emerald-500/30">
                 <ShieldCheck className="size-3.5" />
                 <span>1 Año de Garantía Formal</span>
@@ -130,7 +135,7 @@ export default async function ObraIndividualPage({
               <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full max-h-[75vh]">
                 <Image
                   src={obra.src}
-                  alt={obra.titulo}
+                  alt={`${obra.obraNombre} · ${obra.titulo}`}
                   fill
                   priority
                   className="object-contain"
@@ -140,56 +145,46 @@ export default async function ObraIndividualPage({
 
               <div className="p-6 sm:p-8 bg-card border-t border-border flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-mono font-bold text-primary uppercase tracking-wider">
-                    <MapPin className="size-4" />
-                    <span>{obra.ubicacionDetalle} · {obra.zonaNombre}</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-foreground font-sans">
-                    {obra.titulo}
-                  </h2>
-                  {obra.materiales && obra.materiales.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {obra.materiales.map((mat, i) => (
-                        <span
-                          key={i}
-                          className="rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-foreground border border-border"
-                        >
-                          {mat}
-                        </span>
-                      ))}
+                  {(obra.lugar || obra.anio) && (
+                    <div className="flex items-center gap-2 text-xs font-mono font-bold text-primary uppercase tracking-wider">
+                      <MapPin className="size-4" />
+                      <span>{[obra.lugar, obra.anio].filter(Boolean).join(" · ")}</span>
                     </div>
                   )}
+                  <h2 className="text-xl sm:text-2xl font-black text-foreground font-sans">
+                    {obra.obraNombre} · {obra.titulo}
+                  </h2>
                 </div>
 
-                {/* Botón de Cotización Directa */}
-                <div className="flex flex-wrap items-center gap-3 shrink-0 w-full md:w-auto">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full md:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md h-12 px-6"
-                  >
-                    <a
-                      href={urlWhatsApp}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2"
-                    >
-                      <WhatsAppIcon className="size-5 text-white" />
-                      <span>Cotizar este Acabado</span>
-                    </a>
-                  </Button>
-                </div>
+                {/*
+                  Igual que en la ficha del catálogo: cotizar a la vista, compartir al lado, y el
+                  mensaje desde la fábrica única. El matiz «acabado similar» no se pierde — viaja
+                  como contexto, que es donde el organismo lo espera.
+                */}
+                <AccionesDeContenido
+                  titulo={`${obra.obraNombre} · ${obra.titulo}`}
+                  url={urlObra}
+                  contexto="quiero un acabado similar"
+                  className="w-full shrink-0 md:w-auto"
+                />
               </div>
             </div>
 
             {/* Botón de Retorno al Portafolio Completo */}
-            <div className="flex items-center justify-between border-t border-border pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
+              <Link
+                href={urlDeLaObra}
+                className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
+              >
+                <ArrowLeft className="size-4" />
+                <span>Ver todas las fotos de {obra.obraNombre}</span>
+              </Link>
               <Link
                 href="/obras"
                 className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
               >
                 <ArrowLeft className="size-4" />
-                <span>Explorar todas las 472 obras en el Portafolio</span>
+                <span>Explorar todas las obras del portafolio</span>
               </Link>
             </div>
 

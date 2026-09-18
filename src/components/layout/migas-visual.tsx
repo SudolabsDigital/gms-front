@@ -45,7 +45,7 @@ export function MigasVisual({
                 <ChevronRight
                   className={cn(
                     "size-3.5 shrink-0",
-                    esOscura ? "text-[#00C9FF]" : "text-muted-foreground/60"
+                    esOscura ? "text-brand-claro" : "text-muted-foreground/60"
                   )}
                 />
               )}
@@ -66,11 +66,11 @@ export function MigasVisual({
                   className={cn(
                     "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors",
                     esOscura
-                      ? "text-slate-200 hover:text-[#00C9FF]"
+                      ? "text-slate-200 hover:text-brand"
                       : "text-muted-foreground hover:text-primary"
                   )}
                 >
-                  {esInicio && <Home className="size-3.5 text-[#00C9FF]" />}
+                  {esInicio && <Home className="size-3.5 text-brand" />}
                   <span>{item.nombre}</span>
                 </Link>
               )}

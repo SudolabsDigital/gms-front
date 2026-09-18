@@ -6,15 +6,15 @@
 
 /* ============================================================
    Tokens semánticos (shadcn) + MARCA GMS Integra
-   Dirección "vidrio-aluminio": blanco, neutros gris-frío, geometría
-   (radio 6px), gradiente azul→cian como acento de luz.
+   Blanco, neutros gris-frío y azul de marca. El degradado va de azul a azul:
+   el cian solo es línea. Roles y contraste medido: gms-docs/03-sistema-de-diseno/identidad-y-paleta.md
    ============================================================ */
 :root {
   --radius: 0.25rem;
 
   /* Gradiente de marca — "luz atravesando el cristal" */
-  --gradient-brand: linear-gradient(135deg, #004aad 0%, #00c9ff 100%);
-  --gradient-luminous: linear-gradient(135deg, #004aad 0%, #00d2ff 60%, #10b981 100%);
+  /* Sin cian: el degradado va de azul a azul, del contorno al primario. */
+  --gradient-brand: linear-gradient(135deg, #00477d 0%, #004aad 100%);
 
   /* Base / superficies — dirección "Aluminio Estructural" */
   --background: #F4F6F9;
@@ -42,8 +42,32 @@
   --warning: #f59e0b;
 
   /* MARCA extra — cian radiante y azul eléctrico */
-  --brand: #00c9ff;
-  --brand-soft: #38bdf8;
+  /* ACENTO DEL PORTAL PUBLICO. Era #00c9ff hasta el 2026-09-12.
+     El cian daba 1,94:1 sobre blanco -ni el minimo de elementos graficos, que es 3:1- y no
+     aparece en el logo. Este azul da 9,56:1 sobre blanco; los colores medidos del logo y su
+     diferencia con este valor estan en identidad-y-paleta.md §1. El cian conserva un papel, abajo. */
+  --brand: #00477d;
+  /* LINEA, no relleno. El cian tiene 1,94:1 sobre blanco: no cumple ni el minimo de
+     elementos graficos. Vale como trazo decorativo y, sobre fondo oscuro (#0A1118 en los
+     planos de `process-steps`), llega a 9,76:1 y es el lenguaje CAD de la marca.
+     Nunca como texto, fondo de bloque ni indicador de estado. Ver 03-sistema-de-diseno/identidad-y-paleta.md */
+  --brand-linea: #00c9ff;
+  /* AZUL NOCHE. Es el fondo del footer y de la columna de texto del hero.
+     Estaba escrito a mano como `bg-[#1A2B45]` en site-footer.tsx y en ningun sitio mas; ahora
+     los dos sitios lo leen de aqui. Blanco encima da 14,23:1. */
+  --superficie-profunda: #1A2B45;
+  --brand-linea-soft: #38bdf8;
+  /* MARCA SOBRE OSCURO. El azul claro de los paneles del logo (k-means, 16,4 % de sus pixeles).
+     `--brand` sobre oscuro da 1,49-2,11:1 y es ilegible; este da 9,41:1 sobre --superficie-profunda
+     y 13,33:1 sobre slate-950. Sobre claro da 1,51:1: NUNCA texto sobre fondo claro. */
+  --brand-claro: #a7d9f5;
+  /* CASI NEGRO DE ESCENA. Solo para degradados sobre foto (el viñeteado del hero), nunca fondo
+     plano: frente a --superficie-profunda da 1,33:1 y dos oscuros así no pueden llevar dos papeles (D8). */
+  --sombra-escena: #060E1C;
+  /* WHATSAPP. Solo acciones de WhatsApp (D7). Texto blanco encima: 5,48:1; hover 7,68:1.
+     El emerald-600 que pinta hoy el sitio da 3,65:1 y no llega a AA. */
+  --whatsapp: #047857;
+  --whatsapp-hover: #065f46;
 
   /* Bordes / marco de aluminio anodizado pulido */
   --border: oklch(0.92 0.008 250);
@@ -68,10 +92,6 @@
   --sidebar-ring: #004aad;
 
   /* ── Tokens "Aluminio Estructural" (Sesión 10) ── */
-  /* Azul acero oscuro — secciones hero oscuro, footer, bandas de contraste */
-  --steel: #1A2B45;
-  --steel-light: #243650;
-
   /* Variaciones de primary para interacción precisa */
   --primary-dark: #003282;
   --primary-light: #E8F0FD;
@@ -91,9 +111,11 @@
    Exponer tokens como utilidades (bg-primary, text-muted-foreground...)
    ============================================================ */
 @theme inline {
-  --font-sans: var(--font-jost);
+  --font-sans: var(--font-montserrat);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-jost);
+  --font-heading: var(--font-montserrat);
+  /* Solo marca y nombres de producto. Ver layout.tsx. */
+  --font-marca: var(--font-fredoka);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -115,7 +137,13 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-brand: var(--brand);
-  --color-brand-soft: var(--brand-soft);
+  --color-brand-linea: var(--brand-linea);
+  --color-superficie-profunda: var(--superficie-profunda);
+  --color-brand-linea-soft: var(--brand-linea-soft);
+  --color-brand-claro: var(--brand-claro);
+  --color-sombra-escena: var(--sombra-escena);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-hover: var(--whatsapp-hover);
 
   --color-border: var(--border);
   --color-input: var(--input);
@@ -145,8 +173,6 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Tokens "Aluminio Estructural" — expuestos como utilidades Tailwind */
-  --color-steel: var(--steel);
-  --color-steel-light: var(--steel-light);
   --color-primary-dark: var(--primary-dark);
   --color-primary-light: var(--primary-light);
 }
@@ -154,6 +180,77 @@
 /* ============================================================
    Utilidades de marca (gradiente / vidrio / grilla)
    ============================================================ */
+/**
+ * Titular de relleno blanco con contorno, para texto sobre fondo oscuro o sobre fotografia.
+ *
+ * EL CONTORNO ES `--primary`, Y SE LLEGO AHI BAJANDO DE TONO TRES VECES. Medido sobre el azul
+ * noche del 25 % (#1A2B45), contorno contra FONDO y contra el RELLENO blanco:
+ *
+ *   #00c9ff  --brand-linea       7,32 / 1,94   filo muy visible, pero en titular grande es neon
+ *   #38bdf8  --brand-linea-soft  6,64 / 2,14   igual de legible, algo menos electrico
+ *   #004aad  --primary           1,75 / 8,13   ELEGIDO
+ *
+ * Los dos primeros destacan el trazo; `--primary` hace lo contrario y por eso funciona aqui: se
+ * funde casi con el fondo y separa con fuerza del relleno, asi que no se lee como un filo de luz
+ * sino como un borde que recorta la letra. Es el registro que corresponde a una carpinteria de
+ * aluminio, no a un cartel luminoso.
+ *
+ * SOBRE FOTOGRAFIA ESTA ELECCION NO VALE: ahi el fondo cambia en cada pixel y hace falta un tono
+ * claro. Si este recurso vuelve a usarse sobre foto, el contorno tiene que volver a medirse.
+ *
+ * `paint-order: stroke fill` NO es opcional: sin el, `-webkit-text-stroke` pinta el trazo
+ * CENTRADO sobre el borde de la letra y se come el interior. En Montserrat 900 eso cierra las
+ * contraformas de la «a» y la «e» y el titular se vuelve una mancha. Con `paint-order` el trazo
+ * va por detras del relleno y solo engorda hacia fuera.
+ *
+ * El grosor escala con el viewport: a 36 px en movil un trazo de 3 px ahoga la letra.
+ */
+/*
+ * LA VENTANA DEL SUBHERO — una foto que se desplaza dentro de su marco al hacer scroll.
+ *
+ * El panel de la cabecera deja de ser un rectángulo translúcido y pasa a comportarse como lo que
+ * esta empresa fabrica: un hueco con vista. La foto de dentro va sobredimensionada y se mueve más
+ * despacio que la página, que es lo que produce la sensación de mirar a través y no de leer encima.
+ *
+ * SIN UNA LÍNEA DE JAVASCRIPT. `animation-timeline: view()` ata el avance de la animación a la
+ * posición del elemento en la ventana del navegador: no hay oyente de scroll, no hay `rAF`, no hay
+ * estado en React, y el desplazamiento lo resuelve el compositor sin repintar. Donde el navegador
+ * no lo soporta —Firefox hoy— el `@supports` deja la foto quieta y encuadrada, que es una portada
+ * perfectamente válida: el efecto es una mejora, no un requisito.
+ *
+ * Y SE APAGA CON `prefers-reduced-motion`. Un desplazamiento atado al scroll es justo el tipo de
+ * movimiento que marea a quien lo ha pedido apagado.
+ */
+@keyframes ventana-desplaza {
+  from {
+    transform: translate3d(0, -7%, 0);
+  }
+  to {
+    transform: translate3d(0, 7%, 0);
+  }
+}
+
+@utility ventana-vista {
+  will-change: transform;
+}
+
+@supports (animation-timeline: view()) {
+  @media not (prefers-reduced-motion: reduce) {
+    .ventana-vista {
+      animation: ventana-desplaza linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+@utility titular-contorno {
+  color: #ffffff;
+  -webkit-text-stroke-width: clamp(1.2px, 0.32vw, 3px);
+  -webkit-text-stroke-color: var(--primary);
+  paint-order: stroke fill;
+}
+
 @utility bg-gradient-brand {
   background-image: var(--gradient-brand);
 }
@@ -209,6 +306,29 @@
   html {
     @apply font-sans;
   }
+
+  /*
+   * SIN BARRA DE DESPLAZAMIENTO VISIBLE.
+   *
+   * La pagina sigue desplazandose igual: rueda, dedo, teclado, barra espaciadora y el propio
+   * arrastre de la barra del sistema operativo en los navegadores que la superponen. Lo unico que
+   * desaparece es el carril gris, que en un portal donde la foto llega hasta el borde partia la
+   * pantalla con una linea que no dice nada.
+   *
+   * Las tres declaraciones son el mismo ajuste en tres motores: `scrollbar-width` es el estandar
+   * (Firefox y Chromium moderno), `-ms-overflow-style` cubre el Edge antiguo y el pseudo-elemento
+   * `::-webkit-scrollbar` el WebKit de Safari e iOS.
+   *
+   * SE PIERDE la referencia de cuanto queda por leer. Es el coste, y se acepta a sabiendas: en las
+   * galerias largas quien mide el avance es el propio contenido.
+   */
+  html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Overlays con vidrio esmerilado (mampara). Sin @layer para ganar a las utilidades. */
@@ -261,11 +381,6 @@
   }
 }
 
-/* Fondo acero — secciones oscuras de contraste (CTA strip, footer) */
-@utility bg-steel {
-  background-color: var(--steel);
-  color: #ffffff;
-}
 @utility bg-primary-light {
   background-color: var(--primary-light);
 }
@@ -287,3 +402,66 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   EL HERO COMO SECUENCIA DE PLANOS
+
+   Estas animaciones vivian en un `<style>` dentro del JSX del hero. Pasan aqui porque el sistema
+   de diseño se declara en un archivo, no repartido por componentes.
+
+   TRAMPA AL VALIDARLAS, medida el 2026-09-12: el equipo de desarrollo tiene activo
+   `prefers-reduced-motion: reduce` (Windows > Accesibilidad > Efectos de animacion). Con eso las
+   cuatro dan `animation-name: none` en el navegador aunque las reglas esten cargadas: es el bloque
+   del final de esta seccion haciendo su trabajo, no un fallo. Antes de diagnosticar «la animacion
+   no se aplica», comprobar `matchMedia('(prefers-reduced-motion: reduce)').matches`.
+
+   La duracion la manda el componente por `--duracion-plano`, derivada de `SLIDE_DURATION_MS`,
+   para que el movimiento y el cambio de slide no puedan desincronizarse.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/*
+ * KEN BURNS ACOTADO. El recurso clasico escala la foto y recorta contra el marco; aqui la obra
+ * se ve ENTERA a proposito, asi que el zoom es del 2,5 % y la deriva de 8 px — ambos caben en el
+ * aire azul del lienzo, de modo que la foto respira sin que ningun borde la corte.
+ *
+ * Dos recorridos alternos: tres planos seguidos con el mismo gesto se leen como un bucle.
+ */
+@keyframes gmsPlanoA {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.025) translate3d(-8px, -4px, 0); }
+}
+@keyframes gmsPlanoB {
+  from { transform: scale(1.025) translate3d(6px, 4px, 0); }
+  to   { transform: scale(1) translate3d(0, 0, 0); }
+}
+.gms-plano-a { animation: gmsPlanoA var(--duracion-plano, 12000ms) ease-out forwards; }
+.gms-plano-b { animation: gmsPlanoB var(--duracion-plano, 12000ms) ease-out forwards; }
+
+/*
+ * EL ROTULO. El texto entra con el plano, no antes ni despues: mismo gesto que la imagen, para
+ * que las dos columnas se lean como una escena y no como dos bloques que cambian por su cuenta.
+ * El escalonado entre marca, titular y entradilla es el que da el aire de rotulo de cine.
+ * Son tres a proposito: el CTA y las flechas no entran, porque remontarlos les quita el foco.
+ */
+@keyframes gmsRotulo {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.gms-rotulo > * { animation: gmsRotulo 760ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.gms-rotulo > *:nth-child(1) { animation-delay: 0ms; }
+.gms-rotulo > *:nth-child(2) { animation-delay: 90ms; }
+.gms-rotulo > *:nth-child(3) { animation-delay: 180ms; }
+
+@keyframes gmsSlideProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.animate-gms-progress { animation: gmsSlideProgress var(--duracion-plano, 12000ms) linear forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gms-plano-a,
+  .gms-plano-b,
+  .gms-rotulo > *,
+  .animate-gms-progress {
+    animation: none;
+  }
+}

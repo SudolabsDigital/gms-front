@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { direccionCompleta, enlaceDeWhatsApp, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export const metadata: Metadata = {
   title: "Términos y Condiciones de Uso del Sitio Web | GMS Integra",
@@ -22,15 +22,15 @@ export default function TerminosCondicionesPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-mono text-[#00c9ff] hover:underline mb-6"
+            className="inline-flex items-center gap-2 text-xs font-mono text-brand hover:underline mb-6"
           >
             <ArrowLeft className="size-3.5" />
             <span>Volver al Portal Principal</span>
           </Link>
 
           <div className="flex items-center gap-2 mb-3">
-            <Scale className="size-4 text-[#00c9ff]" />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#00c9ff]">
+            <Scale className="size-4 text-brand" />
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-brand">
               Términos de Uso del Sitio Web & Canales Digitales
             </span>
           </div>
@@ -161,15 +161,15 @@ export default function TerminosCondicionesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs font-mono bg-secondary/50 p-4 rounded-xl border border-border text-foreground">
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Sede & Taller Central</span>
-                <span>Jr. Huánuco Nro. 1389, Huancayo, Junín</span>
+                <span>{direccionCompleta()}</span>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">WhatsApp / Teléfono Oficial</span>
-                <span>+51 958 413 806</span>
+                <span>{telefonoVisible()}</span>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Correo Electrónico</span>
-                <span>contacto@gmsintegra.com</span>
+                <span>{siteConfig.correo}</span>
               </div>
               <div>
                 <span className="text-muted-foreground block text-[10px] uppercase">Libro de Reclamaciones</span>

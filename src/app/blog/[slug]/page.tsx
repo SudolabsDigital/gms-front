@@ -114,7 +114,6 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
           resumen={articulo.descripcion}
           imagen={articulo.portada}
           imagenAlt={articulo.portadaAlt}
-          badge="Lectura Técnica"
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
@@ -123,7 +122,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
                 {fechaLegible(articulo.fecha)}
               </span>
-              <span className="rounded-xl bg-[#00c9ff]/20 text-[#00c9ff] px-3.5 py-1.5 backdrop-blur-xs border border-[#00c9ff]/30">
+              <span className="rounded-xl bg-brand/20 text-brand px-3.5 py-1.5 backdrop-blur-xs border border-brand-linea/30">
                 {articulo.minutosDeLectura} min de lectura
               </span>
             </>

@@ -14,7 +14,8 @@ import {
   obtenerSlugsCategorias,
   obtenerCategorias,
 } from "@/lib/catalogo/leer";
-import { MessageSquare, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { WhatsAppIcon } from "@/components/landing/social-icons";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 
 export const revalidate = 86400;
@@ -105,14 +106,16 @@ export default async function CategoriaPage({
             { nombre: cat.nombre },
           ]}
           titulo={cat.nombre}
+          /* Sin `toLowerCase()`: dejaba «pvc» y «acm» en minúscula, y son siglas. El nombre de la
+             línea se escribe como está en la tabla. */
+          pregunta={`¿Necesitas ${cat.nombre} a medida?`}
           resumen={cat.descripcion}
           imagen={cat.portada}
           imagenAlt={cat.nombre}
-          badge="Línea Certificada"
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                {items.length} Modelos Disponibles
+                {items.length} {items.length === 1 ? "foto" : "fotos"}
               </span>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
                 {cat.subcategorias?.length || 1} Series & Tipos
@@ -127,9 +130,9 @@ export default async function CategoriaPage({
               href={enlaceDeWhatsApp(`Hola GMS Integra, deseo solicitar una cotización técnica para la línea de ${cat.nombre}.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-emerald-500 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl bg-whatsapp px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-whatsapp-hover transition-all"
             >
-              <MessageSquare className="size-4" />
+              <WhatsAppIcon className="size-4" />
               <span>Cotizar {cat.nombre}</span>
             </a>
           }
@@ -151,9 +154,9 @@ export default async function CategoriaPage({
               href={enlaceDeWhatsApp(`Hola GMS Integra, deseo solicitar una cotización para la línea de ${cat.nombre}.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 rounded-lg bg-whatsapp px-4 py-2 text-xs font-bold text-white hover:bg-whatsapp-hover transition-colors shadow-xs"
             >
-              <MessageSquare className="size-3.5" />
+              <WhatsAppIcon className="size-3.5" />
               <span>Cotizar {cat.nombre}</span>
             </a>
           </div>

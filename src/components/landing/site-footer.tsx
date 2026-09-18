@@ -6,12 +6,12 @@ import logo from "@/assets/gms-logo.webp";
 import { Button } from "@/components/ui/button";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "./social-icons";
 import { SdlFooter } from "@/components/layout/sdl-footer";
-import { enlaceDeWhatsApp } from "@/config/site-config";
+import { direccionCompleta, enlaceDeWhatsApp, horarioCorto, siteConfig, telefonoVisible } from "@/config/site-config";
 
 export function SiteFooter() {
   return (
     <>
-      <footer className="bg-[#1A2B45] text-slate-300 border-t border-slate-700">
+      <footer className="bg-superficie-profunda text-slate-300 border-t border-slate-700">
         {/* Línea superior de acento de marca */}
         <div className="h-1 w-full bg-primary" />
 
@@ -24,7 +24,7 @@ export function SiteFooter() {
                 <Image src={logo} alt="GMS Integra - Ventanas y Mamparas" className="size-11 object-contain" />
                 <div className="flex flex-col">
                   <span className="text-lg font-black text-white leading-none font-sans">
-                    GMS <span className="text-[#00c9ff]">INTEGRA</span>
+                    GMS <span className="text-brand">INTEGRA</span>
                   </span>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
                     Carpintería de Aluminio & Vidrio
@@ -39,7 +39,7 @@ export function SiteFooter() {
               {/* Redes Sociales Oficiales */}
               <div className="flex items-center gap-3 pt-2">
                 <a
-                  href="https://www.facebook.com/profile.php?id=100089261427668"
+                  href={siteConfig.redes.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-[#1877F2] text-white hover:bg-[#166FE5] shadow-[0_3px_0px_#1251A8] active:translate-y-0.5 active:shadow-none transition-all"
@@ -48,7 +48,7 @@ export function SiteFooter() {
                   <FacebookIcon className="size-4" />
                 </a>
                 <a
-                  href="https://www.instagram.com/gms_integra"
+                  href={siteConfig.redes.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FD1D1D] text-white hover:brightness-110 shadow-[0_3px_0px_#9B27AF] active:translate-y-0.5 active:shadow-none transition-all"
@@ -57,7 +57,7 @@ export function SiteFooter() {
                   <InstagramIcon className="size-4" />
                 </a>
                 <a
-                  href="https://www.tiktok.com/@GMS_INTEGRA"
+                  href={siteConfig.redes.tiktok.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex size-9 items-center justify-center rounded bg-slate-900 border border-slate-700 text-white hover:bg-black shadow-[0_3px_0px_#000] active:translate-y-0.5 active:shadow-none transition-all"
@@ -83,7 +83,7 @@ export function SiteFooter() {
                 Líneas de Fabricación
               </h4>
               <ul className="flex flex-col gap-2.5 text-xs text-slate-400">
-                <li><Link href="/catalogo" className="hover:text-white transition-colors text-[#00c9ff] font-bold">→ Ver Catálogo Completo (18 Líneas)</Link></li>
+                <li><Link href="/catalogo" className="hover:text-white transition-colors text-brand font-bold">→ Ver Catálogo Completo (18 Líneas)</Link></li>
                 <li><Link href="/catalogo/mamparas" className="hover:text-white transition-colors">Mamparas Panorámicas Serie 80</Link></li>
                 <li><Link href="/catalogo/ventanas" className="hover:text-white transition-colors">Ventanas Herméticas S-20/25/38</Link></li>
                 <li><Link href="/catalogo/puertas" className="hover:text-white transition-colors">Línea Spazio & Cabinas de Ducha</Link></li>
@@ -100,7 +100,7 @@ export function SiteFooter() {
                 Portafolio & Marco Legal
               </h4>
               <ul className="flex flex-col gap-2.5 text-xs text-slate-400">
-                <li><Link href="/obras" className="hover:text-white transition-colors text-slate-200 font-semibold">Galeria de 472 Obras</Link></li>
+                <li><Link href="/obras" className="hover:text-white transition-colors text-slate-200 font-semibold">Galería de obras</Link></li>
                 <li><Link href="/blog" className="hover:text-white transition-colors font-semibold text-sky-400">→ Blog & Guías Técnicas</Link></li>
                 <li><Link href="/terminos-y-condiciones" className="hover:text-white transition-colors">Términos & Condiciones</Link></li>
                 <li><Link href="/politica-de-privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
@@ -117,15 +117,15 @@ export function SiteFooter() {
               <div className="flex flex-col gap-2.5 text-xs text-slate-400">
                 <span className="flex items-start gap-2 text-slate-300">
                   <MapPin className="size-4 text-primary shrink-0 mt-0.5" />
-                  <span>Jr. Huánuco Nro. 1389, Huancayo, Junín</span>
+                  <span>{direccionCompleta()}</span>
                 </span>
                 <span className="flex items-center gap-2 text-slate-300">
                   <Phone className="size-4 text-emerald-400 shrink-0" />
-                  <span>+51 958 413 806</span>
+                  <span>{telefonoVisible()}</span>
                 </span>
                 <span className="flex items-center gap-2 text-slate-300">
                   <Clock className="size-4 text-slate-400 shrink-0" />
-                  <span>Lun–Sáb: 8:00 AM – 7:00 PM</span>
+                  <span>{horarioCorto()}</span>
                 </span>
               </div>
 

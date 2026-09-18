@@ -19,8 +19,9 @@ export default function ObraJsonLd({ obra }: { obra: ObraItem }) {
       "@type": "WebPage",
       "@id": url,
     },
-    headline: obra.titulo,
-    description: `Proyecto de carpintería arquitectónica en aluminio y vidrio: ${obra.tipoNombre} ejecutado en ${obra.ubicacionDetalle}, ${obra.zonaNombre}. Materiales: ${obra.materiales.join(", ")}.`,
+    headline: `${obra.obraNombre} · ${obra.titulo}`,
+    // El lugar no se repite si el nombre de la obra ya lo lleva.
+    description: `Fotografía de la obra ${obra.obraNombre}${obra.lugar && !obra.obraNombre.includes(obra.lugar) ? `, en ${obra.lugar}` : ""}${obra.anio ? ` (${obra.anio})` : ""}, ejecutada por GMS Integra en carpintería de aluminio y vidrio.`,
     image: imageUrl,
     author: {
       "@type": "Organization",
@@ -37,24 +38,26 @@ export default function ObraJsonLd({ obra }: { obra: ObraItem }) {
         url: `${siteConfig.url}/gms-logo.webp`,
       },
     },
-    contentLocation: {
-      "@type": "Place",
-      name: `${obra.ubicacionDetalle}, ${obra.zonaNombre}`,
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: obra.zonaNombre,
-        addressRegion: "Junín",
-        addressCountry: "PE",
-      },
-    },
-    keywords: [
-      ...obra.materiales,
-      obra.tipoNombre,
-      obra.zonaNombre,
-      "GMS Integra",
-      "Carpintería de aluminio",
-      "Vidrio templado",
-    ].join(", "),
+    /**
+     * Ubicación SOLO si la carpeta la declara. Antes toda obra llevaba `addressRegion: "Junín"`,
+     * también las de Lima, y un lugar deducido del nombre de carpeta; ahora sin lugar no hay bloque.
+     */
+    ...(obra.lugar
+      ? {
+          contentLocation: {
+            "@type": "Place",
+            name: obra.lugar,
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: obra.lugar,
+              addressCountry: "PE",
+            },
+          },
+        }
+      : {}),
+    keywords: [obra.obraNombre, obra.lugar, "GMS Integra", "Carpintería de aluminio", "Vidrio templado"]
+      .filter(Boolean)
+      .join(", "),
   };
 
   return (

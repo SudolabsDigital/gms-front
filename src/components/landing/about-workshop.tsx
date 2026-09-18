@@ -19,8 +19,8 @@ const PROYECTOS_COLLAGE = [
     span: "col-span-12 lg:col-span-6 row-span-2 min-h-[360px] lg:min-h-[580px]",
     wa: "Hola GMS Integra, vi las obras de Residencial San Carlos y deseo cotizar acabados similares.",
     fotos: [
-      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-433.webp",
-      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-434.webp",
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-433-v2.webp",
+      "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-434-v2.webp",
       "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-435.webp",
       "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-436.webp",
       "/catalogo/obras-ejecutadas/obras2025-sancarlosjhon25-437.webp",
@@ -139,10 +139,10 @@ const PROYECTOS_COLLAGE = [
     span: "col-span-12 sm:col-span-6 lg:col-span-3 min-h-[260px] lg:min-h-[290px]",
     wa: "Hola GMS Integra, vi Residencial Primavera 2025 y solicito cotización.",
     fotos: [
-      "/catalogo/obras-ejecutadas/obras2025-primavera25-415.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-415-v2.webp",
       "/catalogo/obras-ejecutadas/obras2025-primavera25-416.webp",
-      "/catalogo/obras-ejecutadas/obras2025-primavera25-417.webp",
-      "/catalogo/obras-ejecutadas/obras2025-primavera25-418.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-417-v2.webp",
+      "/catalogo/obras-ejecutadas/obras2025-primavera25-418-v2.webp",
       "/catalogo/obras-ejecutadas/obras2025-primavera25-419.webp",
     ],
   },
@@ -181,12 +181,12 @@ export function AboutWorkshop() {
       {/* ── Barra Superior Integrada en el Collage ── */}
       <div className="w-full bg-[#0A1118] px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <span className="size-2.5 rounded-full bg-[#00c9ff] animate-pulse" />
+          <span className="size-2.5 rounded-full bg-brand animate-pulse" />
           <h2 className="text-sm sm:text-base font-black uppercase tracking-wider text-white font-sans">
             Proyectos Ejecutados
           </h2>
           <span className="text-xs text-slate-400 hidden sm:inline">
-            · 472 Obras en Huancayo, Junín & Lima
+            · Obras en Huancayo, Junín y Lima
           </span>
         </div>
 
@@ -200,7 +200,7 @@ export function AboutWorkshop() {
                 onClick={() => setSlideGlobalIdx(idx)}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
                   idx === slideGlobalIdx
-                    ? "w-7 bg-[#00c9ff]"
+                    ? "w-7 bg-brand"
                     : "w-2 bg-white/30 hover:bg-white/60"
                 }`}
                 aria-label={`Ver secuencia ${idx + 1}`}
@@ -214,7 +214,7 @@ export function AboutWorkshop() {
             className="rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 text-white h-8 px-3.5"
           >
             <Link href="/obras">
-              <span>Ver las 472 Obras</span>
+              <span>Ver todas las obras</span>
               <ArrowRight className="size-3 ml-1" />
             </Link>
           </Button>
@@ -257,7 +257,7 @@ export function AboutWorkshop() {
               {/* Badge de Ubicación Superior */}
               <div className="absolute top-3.5 left-3.5 z-30">
                 <div className="inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-0.8 text-[10px] font-mono font-bold text-white backdrop-blur-md border border-white/15">
-                  <MapPin className="size-2.5 text-[#00c9ff]" />
+                  <MapPin className="size-2.5 text-brand" />
                   <span>{proyecto.ubicacion}</span>
                 </div>
               </div>

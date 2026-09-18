@@ -78,7 +78,6 @@ export default async function EtiquetaPage({ params }: { params: Promise<{ tag: 
           resumen={`Guías técnicas y publicaciones sobre ${NOMBRE_DE_ETIQUETA[tag].toLowerCase()} para proyectos de aluminio y vidrio.`}
           imagen="/catalogo/mamparas/m-serie-49.webp"
           imagenAlt="Proyectos de aluminio y vidrio de GMS Integra"
-          badge="Tema de Especialidad"
           meta={
             <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
               {articulos.length} {articulos.length === 1 ? "Artículo en este tema" : "Artículos en este tema"}
@@ -108,7 +107,7 @@ export default async function EtiquetaPage({ params }: { params: Promise<{ tag: 
               <Link
                 key={articulo.slug}
                 href={`/blog/${articulo.slug}`}
-                className="group relative flex min-h-[16rem] flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/30 shadow-md transition-all duration-300 hover:border-[#00C9FF]/50"
+                className="group relative flex min-h-[16rem] flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/30 shadow-md transition-all duration-300 hover:border-brand-linea/50"
               >
                 <Image
                   src={articulo.portada}
@@ -125,12 +124,12 @@ export default async function EtiquetaPage({ params }: { params: Promise<{ tag: 
                 />
 
                 <div className="relative mt-auto flex flex-col gap-2 p-6 z-10">
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#00C9FF]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-brand">
                     <Clock className="size-3.5 shrink-0" />
                     <span>{articulo.minutosDeLectura} min de lectura</span>
                   </div>
 
-                  <h2 className="text-balance font-black leading-snug tracking-tight text-white transition-colors group-hover:text-[#00C9FF] text-lg sm:text-xl">
+                  <h2 className="text-balance font-black leading-snug tracking-tight text-white transition-colors group-hover:text-brand text-lg sm:text-xl">
                     {articulo.titulo}
                   </h2>
                 </div>
