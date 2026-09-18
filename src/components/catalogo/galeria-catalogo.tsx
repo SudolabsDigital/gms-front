@@ -14,6 +14,7 @@ import {
 import type { ItemCatalogo } from "@/lib/catalogo/esquema";
 import { siteConfig } from "@/config/site-config";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
+import { AccionesDeContenido } from "@/components/comunes/acciones-contenido";
 
 export function GaleriaCatalogo({
   items,
@@ -67,8 +68,8 @@ export function GaleriaCatalogo({
       {/* ── Masonry Grid Collage ── */}
       <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
         {items.map((item, index) => {
-          const mensajeWhatsApp = `Hola GMS Integra, vi la foto «${item.titulo}» (${item.subcategoriaNombre}) en el catálogo de ${categoriaNombre} (${siteConfig.url}/catalogo/item/${item.id}) y deseo solicitar una cotización.`;
-          const urlWhatsApp = `https://wa.me/${siteConfig.whatsapp.numero}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+          /* La URL de ESTA foto: es la que viaja en el mensaje y la que se comparte. */
+          const urlItem = `${siteConfig.url}/catalogo/item/${item.id}`;
 
           return (
             <div
@@ -109,7 +110,13 @@ export function GaleriaCatalogo({
                 </div>
               </div>
 
-              {/* Pie de Foto con Botón de Cotización */}
+              {/*
+                Pie de la foto: el nombre a la izquierda, compartir y cotizar a la derecha.
+
+                Antes había aquí un solo cuadrado verde con su enlace de WhatsApp escrito a mano en
+                el bucle. Ahora son los dos del organismo único, y el mensaje sale de la fábrica con
+                el enlace de esta foto en concreto — no el de la línea, ni el de la home.
+              */}
               <div className="flex items-center justify-between gap-2 p-3 bg-card border-t border-border/50">
                 <div className="min-w-0 flex-1">
                   <h4 className="truncate text-xs font-bold text-foreground" title={item.titulo}>
@@ -120,16 +127,13 @@ export function GaleriaCatalogo({
                   </span>
                 </div>
 
-                <a
-                  href={urlWhatsApp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs"
-                  title="Cotizar este modelo por WhatsApp"
-                  aria-label="Cotizar en WhatsApp"
-                >
-                  <WhatsAppIcon className="size-4 text-white" />
-                </a>
+                <AccionesDeContenido
+                  titulo={item.titulo}
+                  url={urlItem}
+                  contexto={`${item.subcategoriaNombre} · línea de ${categoriaNombre}`}
+                  variante="compacta"
+                  className="shrink-0"
+                />
               </div>
             </div>
           );

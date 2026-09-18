@@ -75,7 +75,11 @@ const INVARIANTES = [
     //
     // 10 -> 5 al cerrarse T6.4: esos 5 se fueron con sus componentes. Los 5 que quedan son los del
     // visor duplicado, y ese sigue siendo su propio tramo.
-    umbral: 5,
+    //
+    // 5 -> 4 el 2026-09-18: el pie de cada foto de `galeria-catalogo` construía su enlace dentro del
+    // bucle —uno por foto, 212 en la línea de ventanas— y ahora lo pinta `AccionesDeContenido`. Los
+    // 4 restantes siguen siendo los dos visores, que se van con su tramo.
+    umbral: 4,
     salida: "Importa `enlaceDeWhatsApp()` de `@/config/site-config` en vez de concatenar la URL. El número y el formato viven ahí.",
   },
   {

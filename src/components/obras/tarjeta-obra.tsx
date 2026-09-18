@@ -2,6 +2,7 @@ import {
   TarjetaDeContenido,
   orientacionDe,
 } from "@/components/comunes/tarjeta-contenido";
+import { siteConfig } from "@/config/site-config";
 import type { ObraItem } from "@/lib/obras/esquema";
 
 /**
@@ -24,17 +25,26 @@ export function TarjetaObra({ obra, onAbrir }: { obra: ObraItem; onAbrir: () => 
       imagenAlt={`${obra.obraNombre} · ${obra.titulo}`}
       orientacion={orientacionDe(obra.ancho, obra.alto)}
       nivel={obra.nivel}
-      /* Lugar y año solo si la carpeta los declara; tipo y zona eran deducidos y ya no se afirman. */
-      antetitulo={[obra.lugar, obra.anio].filter(Boolean).join(" · ") || "Obra ejecutada"}
-      /* Sin badge de ubicación. En pantalla la tarjeta decía el mismo sitio TRES veces: en la
-         píldora, en el antetítulo y otra vez dentro del título generado. El antetítulo ya lo
-         sitúa; repetirlo no añade dato, solo tapa foto. */
+      /* Lugar y año solo si la carpeta los declara; tipo y zona eran deducidos y ya no se afirman.
+         Va DEBAJO del título desde la v2: encima de la foto daba 2,11:1 de contraste. */
+      meta={[obra.lugar, obra.anio].filter(Boolean).join(" · ") || "Obra ejecutada"}
+      /* Sin píldora de ubicación. En pantalla la tarjeta decía el mismo sitio TRES veces: en la
+         píldora, en la línea de meta y otra vez dentro del título generado. */
+      /* Compartir y cotizar en el pie, con el enlace de ESTA foto de la obra. El matiz importa:
+         quien ve una obra terminada no pide esa obra, pide algo parecido para la suya. */
+      acciones={{
+        titulo: `${obra.obraNombre} · ${obra.titulo}`,
+        url: `${siteConfig.url}/obras/${obra.id}`,
+        contexto: "quiero un acabado similar",
+      }}
       alAbrirVista={onAbrir}
-      className={
-        esPanoramica
-          ? "aspect-auto min-h-[380px] md:col-span-2 md:row-span-2 md:min-h-[480px]"
-          : "aspect-auto min-h-[280px] md:min-h-[320px]"
-      }
+      /*
+        Fuera `aspect-auto` y las alturas mínimas. Anulaban la proporción que `orientacionDe()`
+        deduce de las dimensiones reales, que es justo el trabajo que evita que una foto vertical
+        —una puerta, una baranda de escalera— entre recortada en un marco apaisado. La obra
+        destacada sigue ocupando dos columnas; el alto lo pone su foto.
+      */
+      className={esPanoramica ? "md:col-span-2 md:row-span-2" : undefined}
     />
   );
 }
