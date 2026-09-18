@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import type { ObraItem, ZonaInfo, ZonaSlug } from "@/lib/obras/esquema";
+import { Suspense, useCallback, useState, useMemo, useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { LugarResumen, ObraItem, ObraResumen } from "@/lib/obras/esquema";
 import { TarjetaObra } from "./tarjeta-obra";
-import { FiltroZonas } from "./filtro-zonas";
+import { FiltroObras } from "./filtro-obras";
 import { siteConfig } from "@/config/site-config";
 import { WhatsAppIcon } from "@/components/landing/social-icons";
 import {
@@ -21,16 +22,67 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function GaleriaObras({
-  obras,
-  zonas,
-}: {
+interface PropsGaleria {
   obras: ObraItem[];
-  zonas: ZonaInfo[];
+  lugares: LugarResumen[];
+  resumenObras: ObraResumen[];
+}
+
+/**
+ * EL FILTRO DE OBRAS VIVE EN LA URL: `/obras?obra=uncp` o `/obras?lugar=lima`.
+ *
+ * Mismo mecanismo que el catálogo (`vista-categoria-cliente`): el megamenú del header necesita enlazar
+ * una obra ya filtrada. En una página estática, `useSearchParams` exige un límite de `Suspense`; su
+ * `fallback` —la galería sin filtrar— es lo que va en el HTML prerenderado. `?obra=` manda sobre
+ * `?lugar=`, porque una obra ya dice su lugar. Un slug que no existe muestra todas las fotos.
+ */
+export function GaleriaObras(props: PropsGaleria) {
+  return (
+    <Suspense fallback={<Galeria {...props} lugarActivo="todas" obraActiva="todas" />}>
+      <GaleriaConUrl {...props} />
+    </Suspense>
+  );
+}
+
+function GaleriaConUrl(props: PropsGaleria) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const parametros = useSearchParams();
+
+  const obraPedida = props.resumenObras.find((o) => o.slug === parametros.get("obra"));
+  const lugarPedido = props.lugares.find((l) => l.slug === parametros.get("lugar"));
+  const obraActiva = obraPedida?.slug ?? "todas";
+  const lugarActivo = obraPedida?.lugarSlug ?? lugarPedido?.slug ?? "todas";
+
+  const filtrar = useCallback(
+    ({ lugar, obra }: { lugar?: string; obra?: string }) => {
+      const nuevos = new URLSearchParams(parametros.toString());
+      nuevos.delete("obra");
+      nuevos.delete("lugar");
+      if (obra && obra !== "todas") nuevos.set("obra", obra);
+      else if (lugar && lugar !== "todas") nuevos.set("lugar", lugar);
+      const consulta = nuevos.toString();
+      // `replace` y no `push`: filtrar no es navegar, y «atrás» debe volver a la página anterior.
+      router.replace(consulta ? `${pathname}?${consulta}` : pathname, { scroll: false });
+    },
+    [parametros, pathname, router],
+  );
+
+  return <Galeria {...props} lugarActivo={lugarActivo} obraActiva={obraActiva} onFiltrar={filtrar} />;
+}
+
+function Galeria({
+  obras,
+  lugares,
+  resumenObras,
+  lugarActivo,
+  obraActiva,
+  onFiltrar,
+}: PropsGaleria & {
+  lugarActivo: string;
+  obraActiva: string;
+  onFiltrar?: (filtro: { lugar?: string; obra?: string }) => void;
 }) {
-  const [zonaActiva, setZonaActiva] = useState<ZonaSlug>("todas");
-  const [subzonaActiva, setSubzonaActiva] = useState<string>("todas");
-  const [tipoActivo, setTipoActivo] = useState<string>("todos");
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
 
   // Estados del visor / lightbox
@@ -43,24 +95,18 @@ export function GaleriaObras({
 
   const obrasFiltradas = useMemo(() => {
     return obras.filter((o) => {
-      const coincideZona = zonaActiva === "todas" || o.zona === zonaActiva;
-      const coincideSubzona = subzonaActiva === "todas" || o.subzonaSlug === subzonaActiva;
-      const coincideTipo = tipoActivo === "todos" || o.tipo === tipoActivo;
-      return coincideZona && coincideSubzona && coincideTipo;
+      if (obraActiva !== "todas") return o.obraSlug === obraActiva;
+      return lugarActivo === "todas" || o.lugarSlug === lugarActivo;
     });
-  }, [obras, zonaActiva, subzonaActiva, tipoActivo]);
+  }, [obras, lugarActivo, obraActiva]);
 
-  const limpiarFiltros = () => {
-    setZonaActiva("todas");
-    setSubzonaActiva("todas");
-    setTipoActivo("todos");
-  };
+  const limpiarFiltros = () => onFiltrar?.({});
 
-  const hayFiltrosActivos = zonaActiva !== "todas" || subzonaActiva !== "todas" || tipoActivo !== "todos";
+  const hayFiltrosActivos = lugarActivo !== "todas" || obraActiva !== "todas";
 
-  // Objeto de zona y subzona actual para el recordatorio
-  const zonaActual = zonas.find((z) => z.slug === zonaActiva);
-  const subzonaActual = zonaActual?.subzonas.find((s) => s.slug === subzonaActiva);
+  // Lugar y obra activos, para el recordatorio
+  const lugarActual = lugares.find((l) => l.slug === lugarActivo);
+  const obraSeleccionada = resumenObras.find((o) => o.slug === obraActiva);
 
   // Control de teclado para el visor
   useEffect(() => {
@@ -122,7 +168,9 @@ export function GaleriaObras({
     const sincronizarHash = () => {
       if (typeof window !== "undefined" && window.location.hash) {
         const hashId = window.location.hash.replace("#", "");
-        const index = obras.findIndex((o) => o.id === hashId);
+        // Sobre las FILTRADAS, que son las que recorre el visor. Buscaba en todas: con un filtro
+        // activo, `#id` abría otra foto (defecto hallado el 2026-09-12 al llevar el filtro a la URL).
+        const index = obrasFiltradas.findIndex((o) => o.id === hashId);
         if (index !== -1) {
           setSeleccionada(index);
         }
@@ -136,7 +184,7 @@ export function GaleriaObras({
       clearTimeout(timer);
       window.removeEventListener("hashchange", sincronizarHash);
     };
-  }, [obras]);
+  }, [obrasFiltradas]);
 
   const copiarEnlace = (url: string) => {
     navigator.clipboard.writeText(url);
@@ -147,7 +195,7 @@ export function GaleriaObras({
   const obraActual = seleccionada !== null ? obrasFiltradas[seleccionada] : null;
   const urlObraActual = obraActual ? `${siteConfig.url}/obras/${obraActual.id}` : "";
   const mensajeWhatsApp = obraActual
-    ? `Hola GMS Integra, vi la obra «${obraActual.titulo}» en ${obraActual.ubicacionDetalle} (${urlObraActual}) y deseo cotizar un proyecto similar.`
+    ? `Hola GMS Integra, vi la foto «${obraActual.titulo}» de la obra ${obraActual.obraNombre} (${urlObraActual}) y deseo cotizar un proyecto similar.`
     : "";
 
   return (
@@ -155,14 +203,16 @@ export function GaleriaObras({
       
       {/* ── Panel de Filtros Jerárquicos ── */}
       <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs">
-        <FiltroZonas
-          zonas={zonas}
-          zonaActiva={zonaActiva}
-          subzonaActiva={subzonaActiva}
-          tipoActivo={tipoActivo}
-          onSeleccionarZona={setZonaActiva}
-          onSeleccionarSubzona={setSubzonaActiva}
-          onSeleccionarTipo={setTipoActivo}
+        <FiltroObras
+          lugares={lugares}
+          obras={resumenObras}
+          lugarActivo={lugarActivo}
+          obraActiva={obraActiva}
+          totalFotos={obras.length}
+          onSeleccionarLugar={(lugar) => onFiltrar?.({ lugar })}
+          // Quitar la obra devuelve a SU lugar, que es el que la pantalla mostraba activo. Sin esto,
+          // Lima → USIL → quitar USIL acababa en las 472 fotos (recorrido del 2026-09-17).
+          onSeleccionarObra={(obra) => onFiltrar?.(obra === "todas" ? { lugar: lugarActivo } : { obra })}
         />
       </div>
 
@@ -173,18 +223,13 @@ export function GaleriaObras({
           <div className="flex items-center gap-1.5 text-xs font-black truncate">
             <span className="text-slate-400">Viendo:</span>
             <span className="text-brand">
-              {zonaActual?.nombre || "Todas las Zonas"}
+              {lugarActual?.nombre || "Todos los lugares"}
             </span>
-            {subzonaActiva !== "todas" && subzonaActual && (
+            {obraSeleccionada && (
               <>
                 <span className="text-white/30">/</span>
-                <span className="text-white font-bold">{subzonaActual.nombre}</span>
+                <span className="text-white font-bold">{obraSeleccionada.nombre}</span>
               </>
-            )}
-            {tipoActivo !== "todos" && (
-              <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] text-emerald-400 border border-white/10 capitalize ml-1">
-                {tipoActivo}
-              </span>
             )}
           </div>
         </div>
@@ -339,7 +384,7 @@ export function GaleriaObras({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={obraActual.src}
-              alt={obraActual.titulo}
+              alt={`${obraActual.obraNombre} · ${obraActual.titulo}`}
               onDoubleClick={() => setZoomActivado(!zoomActivado)}
               className={cn(
                 "rounded-2xl object-contain shadow-2xl transition-all duration-300 max-w-full",
@@ -379,32 +424,16 @@ export function GaleriaObras({
               
               {/* Información del Proyecto */}
               <div className="text-center md:text-left min-w-0 flex-1">
-                <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-bold text-brand uppercase tracking-wider mb-1">
-                  <MapPin className="size-3.5" />
-                  <span>{obraActual.ubicacionDetalle}</span>
-                  <span className="text-white/30">·</span>
-                  <span className="text-slate-300">{obraActual.zonaNombre}</span>
-                  <span className="rounded bg-white/10 px-2 py-0.2 text-[10px] font-bold text-white ml-1">
-                    {obraActual.tipoNombre}
-                  </span>
-                </div>
-
-                <h3 className="text-base sm:text-lg font-black text-white leading-tight font-sans truncate">
-                  {obraActual.titulo}
-                </h3>
-
-                {obraActual.materiales && obraActual.materiales.length > 0 && (
-                  <div className="mt-2 flex flex-wrap items-center justify-center md:justify-start gap-1.5">
-                    {obraActual.materiales.map((mat, i) => (
-                      <span
-                        key={i}
-                        className="rounded bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-slate-300 border border-white/10"
-                      >
-                        {mat}
-                      </span>
-                    ))}
+                {(obraActual.lugar || obraActual.anio) && (
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-bold text-brand uppercase tracking-wider mb-1">
+                    <MapPin className="size-3.5" />
+                    <span>{[obraActual.lugar, obraActual.anio].filter(Boolean).join(" · ")}</span>
                   </div>
                 )}
+
+                <h3 className="text-base sm:text-lg font-black text-white leading-tight font-sans truncate">
+                  {obraActual.obraNombre} · {obraActual.titulo}
+                </h3>
               </div>
 
               {/* Botones de Acción (Cotizar & Compartir) */}
@@ -423,7 +452,7 @@ export function GaleriaObras({
                 {/* Compartir WhatsApp */}
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(
-                    `Mira este proyecto de ${obraActual.titulo} en ${obraActual.ubicacionDetalle}: ${urlObraActual}`
+                    `Mira esta foto de la obra ${obraActual.obraNombre}: ${urlObraActual}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

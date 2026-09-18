@@ -6,13 +6,13 @@ import { CabeceraDePagina } from "@/components/layout/subhero-cabecera";
 import { GaleriaObras } from "@/components/obras/galeria-obras";
 import { siteConfig, enlaceDeWhatsApp } from "@/config/site-config";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
-import { obtenerTodasLasObras, obtenerZonas } from "@/lib/obras/leer";
+import { obtenerLugares, obtenerObras, obtenerTodasLasObras } from "@/lib/obras/leer";
 import { MessageSquare, ArrowRight, Wrench } from "lucide-react";
 
 export const revalidate = 86400;
 
 const DESCRIPCION =
-  "Registro fotográfico y audiovisual de obras ejecutadas por GMS Integra: mamparas monumentales, muros cortina, ventanas herméticas y cerramientos en Huancayo, El Tambo, Huallhuas, La Huaycha, Jauja y Lima.";
+  "Registro fotográfico y audiovisual de obras ejecutadas por GMS Integra: mamparas monumentales, muros cortina, ventanas herméticas y cerramientos en Huancayo, La Huaycha, Huallhuas, Jauja y Lima.";
 
 export const metadata: Metadata = {
   title: "Obras Ejecutadas | Portafolio de Proyectos",
@@ -29,7 +29,8 @@ export const metadata: Metadata = {
 
 export default function ObrasPage() {
   const obras = obtenerTodasLasObras();
-  const zonas = obtenerZonas();
+  const lugares = obtenerLugares();
+  const resumenObras = obtenerObras();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -53,7 +54,7 @@ export default function ObrasPage() {
       itemListElement: obras.slice(0, 30).map((obra, idx) => ({
         "@type": "ListItem",
         position: idx + 1,
-        name: obra.titulo,
+        name: `${obra.obraNombre} · ${obra.titulo}`,
         image: `${siteConfig.url}${obra.src}`,
       })),
     },
@@ -82,14 +83,15 @@ export default function ObrasPage() {
              son distintas, repartidas en 31 carpetas que corresponden a menos obras. Pintarlo como
              «472 proyectos» o «+472 obras registradas» afirmaba algo que el dato no dice. Antes el
              texto decía «más de 490»: dos versiones del mismo número, y ninguna contaba obras. */
-          resumen="Portafolio fotográfico de proyectos entregados: viviendas unifamiliares, estaciones comerciales, edificios multifamiliares y campus universitarios en Huancayo, El Tambo, Jauja y Lima."
+          resumen="Portafolio fotográfico de proyectos entregados: edificios, una estación de servicio, estructuras metálicas y dos campus universitarios en Huancayo, La Huaycha, Jauja y Lima."
           imagen="/catalogo/fachadas-muros-cortina/general-1.webp"
           imagenAlt="Obras y proyectos arquitectónicos de GMS Integra"
           badge="Portafolio de Obras"
           meta={
             <>
               <span className="rounded-xl bg-white/10 px-3.5 py-1.5 backdrop-blur-xs border border-white/15">
-                5 Zonas Geográficas
+                {/* Cuentan OBRAS y LUGARES de la tabla, no fotos: son las cifras que sí son ciertas. */}
+                {resumenObras.length} obras · {lugares.filter((l) => l.slug !== "otros").length} lugares
               </span>
               <span className="rounded-xl bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 backdrop-blur-xs border border-emerald-500/30">
                 1 Año Garantía Escrita
@@ -111,7 +113,7 @@ export default function ObrasPage() {
 
         {/* ── Galería Bento de Proyectos ── */}
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <GaleriaObras obras={obras} zonas={zonas} />
+          <GaleriaObras obras={obras} lugares={lugares} resumenObras={resumenObras} />
         </section>
 
         {/* ── Banner de Cotización para Constructoras / Propietarios ── */}

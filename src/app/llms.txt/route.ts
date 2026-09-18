@@ -1,6 +1,6 @@
 import { direccionCompleta, horarioVisible, siteConfig } from "@/config/site-config";
 import { obtenerCategorias } from "@/lib/catalogo/leer";
-import { obtenerTodasLasObras } from "@/lib/obras/leer";
+import { obtenerObras } from "@/lib/obras/leer";
 import { leerPublicados } from "@/lib/blog/leer";
 
 /**
@@ -17,7 +17,7 @@ const linea = (titulo: string, ruta: string, desc?: string) =>
 
 export async function GET() {
   const categorias = obtenerCategorias();
-  const obras = obtenerTodasLasObras();
+  const obras = obtenerObras();
   const articulos = leerPublicados();
 
   const cuerpo = [
@@ -45,16 +45,16 @@ export async function GET() {
       )
     ),
     "",
-    "## Obras Destacadas en el Valle del Mantaro",
-    ...obras
-      .filter((o) => o.destacado)
-      .map((o) =>
-        linea(
-          o.titulo,
-          `/obras/${o.id}`,
-          `${o.tipoNombre} en ${o.zonaNombre} (${o.materiales.join(", ")})`
-        )
-      ),
+    // Las 21 obras de la tabla, no 3 fotos «destacadas» con tipo y materiales deducidos; y sin
+    // «Valle del Mantaro» en el título, que dejaba fuera a las obras de Lima.
+    "## Obras Ejecutadas",
+    ...obras.map((o) =>
+      linea(
+        o.nombre,
+        `/obras?obra=${o.slug}`,
+        `${[o.lugar, o.anio].filter(Boolean).join(" · ") || "Obra ejecutada"} · ${o.fotos} ${o.fotos === 1 ? "foto" : "fotos"}`
+      )
+    ),
     "",
     "## Artículos y Documentación Técnica",
     ...articulos.map((art) =>

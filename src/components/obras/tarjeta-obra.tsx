@@ -18,13 +18,14 @@ export function TarjetaObra({ obra, onAbrir }: { obra: ObraItem; onAbrir: () => 
   return (
     <TarjetaDeContenido
       href={`/obras/${obra.id}`}
-      titulo={obra.titulo}
+      titulo={obra.obraNombre}
       imagen={obra.src}
-      /* Descriptivo y no el título: en el catálogo heredado muchos son nombres de cámara. */
-      imagenAlt={`Obra ${obra.tipoNombre.toLowerCase()} en ${obra.ubicacionDetalle}, ${obra.zonaNombre}`}
+      /* La obra delante y la foto detrás: «Foto N» solo distingue la foto dentro de su obra. */
+      imagenAlt={`${obra.obraNombre} · ${obra.titulo}`}
       orientacion={orientacionDe(obra.ancho, obra.alto)}
       nivel={obra.nivel}
-      antetitulo={`${obra.tipoNombre} · ${obra.zonaNombre}`}
+      /* Lugar y año solo si la carpeta los declara; tipo y zona eran deducidos y ya no se afirman. */
+      antetitulo={[obra.lugar, obra.anio].filter(Boolean).join(" · ") || "Obra ejecutada"}
       /* Sin badge de ubicación. En pantalla la tarjeta decía el mismo sitio TRES veces: en la
          píldora, en el antetítulo y otra vez dentro del título generado. El antetítulo ya lo
          sitúa; repetirlo no añade dato, solo tapa foto. */
