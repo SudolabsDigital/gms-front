@@ -45,7 +45,7 @@ export function MigasVisual({
                 <ChevronRight
                   className={cn(
                     "size-3.5 shrink-0",
-                    esOscura ? "text-brand" : "text-muted-foreground/60"
+                    esOscura ? "text-brand-claro" : "text-muted-foreground/60"
                   )}
                 />
               )}

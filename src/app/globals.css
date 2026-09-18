@@ -205,6 +205,45 @@
  *
  * El grosor escala con el viewport: a 36 px en movil un trazo de 3 px ahoga la letra.
  */
+/*
+ * LA VENTANA DEL SUBHERO — una foto que se desplaza dentro de su marco al hacer scroll.
+ *
+ * El panel de la cabecera deja de ser un rectángulo translúcido y pasa a comportarse como lo que
+ * esta empresa fabrica: un hueco con vista. La foto de dentro va sobredimensionada y se mueve más
+ * despacio que la página, que es lo que produce la sensación de mirar a través y no de leer encima.
+ *
+ * SIN UNA LÍNEA DE JAVASCRIPT. `animation-timeline: view()` ata el avance de la animación a la
+ * posición del elemento en la ventana del navegador: no hay oyente de scroll, no hay `rAF`, no hay
+ * estado en React, y el desplazamiento lo resuelve el compositor sin repintar. Donde el navegador
+ * no lo soporta —Firefox hoy— el `@supports` deja la foto quieta y encuadrada, que es una portada
+ * perfectamente válida: el efecto es una mejora, no un requisito.
+ *
+ * Y SE APAGA CON `prefers-reduced-motion`. Un desplazamiento atado al scroll es justo el tipo de
+ * movimiento que marea a quien lo ha pedido apagado.
+ */
+@keyframes ventana-desplaza {
+  from {
+    transform: translate3d(0, -7%, 0);
+  }
+  to {
+    transform: translate3d(0, 7%, 0);
+  }
+}
+
+@utility ventana-vista {
+  will-change: transform;
+}
+
+@supports (animation-timeline: view()) {
+  @media not (prefers-reduced-motion: reduce) {
+    .ventana-vista {
+      animation: ventana-desplaza linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
 @utility titular-contorno {
   color: #ffffff;
   -webkit-text-stroke-width: clamp(1.2px, 0.32vw, 3px);
@@ -266,6 +305,29 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /*
+   * SIN BARRA DE DESPLAZAMIENTO VISIBLE.
+   *
+   * La pagina sigue desplazandose igual: rueda, dedo, teclado, barra espaciadora y el propio
+   * arrastre de la barra del sistema operativo en los navegadores que la superponen. Lo unico que
+   * desaparece es el carril gris, que en un portal donde la foto llega hasta el borde partia la
+   * pantalla con una linea que no dice nada.
+   *
+   * Las tres declaraciones son el mismo ajuste en tres motores: `scrollbar-width` es el estandar
+   * (Firefox y Chromium moderno), `-ms-overflow-style` cubre el Edge antiguo y el pseudo-elemento
+   * `::-webkit-scrollbar` el WebKit de Safari e iOS.
+   *
+   * SE PIERDE la referencia de cuanto queda por leer. Es el coste, y se acepta a sabiendas: en las
+   * galerias largas quien mide el avance es el propio contenido.
+   */
+  html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
   }
 }
 
