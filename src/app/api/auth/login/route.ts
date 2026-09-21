@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { env } from "@/lib/env";
+import { urlDelBackend } from "@/lib/env";
+import { respuestaSinBackend } from "@/lib/respuestas-bff";
 import { guardarSesion } from "@/lib/session";
 
 /**
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
   let respuesta: Response;
 
   try {
-    respuesta = await fetch(`${env.BACKEND_URL}/api/v1/auth/login`, {
+    respuesta = await fetch(urlDelBackend("/api/v1/auth/login"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,28 +35,20 @@ export async function POST(request: Request) {
       body: JSON.stringify(credenciales),
       cache: "no-store",
     });
-  } catch {
-    return NextResponse.json(
-      {
-        error: "BACKEND_NO_DISPONIBLE",
-        detalles: [
-          {
-            campo: null,
-            codigo: "BACKEND_NO_DISPONIBLE",
-            mensaje: "No se pudo contactar con el servidor. Inténtelo en unos segundos.",
-          },
-        ],
-      },
-      { status: 503 },
-    );
+  } catch (error) {
+    return respuestaSinBackend(error);
   }
 
   const datos = await respuesta.json().catch(() => null);
 
   if (!respuesta.ok || !datos?.token) {
-    // Se propaga el error de Laravel tal cual: ya trae { error, detalles[] }
+    // Se propaga el error de Laravel tal cual: ya trae { error, detalles[] }. Y su `Retry-After`,
+    // que es lo único que permite decir cuánto esperar tras el límite de 5 intentos por minuto
+    const reintentar = respuesta.headers.get("Retry-After");
+
     return NextResponse.json(datos ?? { error: "ERROR_DESCONOCIDO", detalles: [] }, {
       status: respuesta.status,
+      headers: reintentar !== null ? { "Retry-After": reintentar } : undefined,
     });
   }
 

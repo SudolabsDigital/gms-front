@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { env } from "@/lib/env";
+import { urlDelBackend } from "@/lib/env";
+import { respuestaSinBackend } from "@/lib/respuestas-bff";
 import { leerToken } from "@/lib/session";
 
 /**
@@ -14,6 +15,8 @@ import { leerToken } from "@/lib/session";
  */
 
 const METODOS_SIN_CUERPO = new Set(["GET", "HEAD"]);
+
+const CABECERAS_PARA_EL_CLIENTE = ["Retry-After", "Allow"];
 
 async function reenviar(request: Request, slug: string[]): Promise<Response> {
   const token = await leerToken();
@@ -30,10 +33,6 @@ async function reenviar(request: Request, slug: string[]): Promise<Response> {
     );
   }
 
-  const origen = new URL(request.url);
-  const destino = new URL(`/api/${slug.join("/")}`, env.BACKEND_URL);
-  destino.search = origen.search;
-
   const cabeceras = new Headers(request.headers);
   cabeceras.set("Authorization", `Bearer ${token}`);
   cabeceras.set("Accept", "application/json");
@@ -43,6 +42,10 @@ async function reenviar(request: Request, slug: string[]): Promise<Response> {
   cabeceras.delete("cookie");
 
   try {
+    // Dentro del `try`: sin `BACKEND_URL`, `urlDelBackend` lanza y la respuesta lo dice
+    const destino = new URL(urlDelBackend(`/api/${slug.join("/")}`));
+    destino.search = new URL(request.url).search;
+
     const respuesta = await fetch(destino, {
       method: request.method,
       headers: cabeceras,
@@ -51,27 +54,24 @@ async function reenviar(request: Request, slug: string[]): Promise<Response> {
       redirect: "manual",
     });
 
+    const salida = new Headers({
+      "Content-Type": respuesta.headers.get("Content-Type") ?? "application/json",
+    });
+
+    // Las que llevan información para el cliente: cuándo reintentar tras un 429 y qué métodos
+    // admite la ruta tras un 405. Sin reenviarlas, el contrato del backend no llega al navegador.
+    for (const nombre of CABECERAS_PARA_EL_CLIENTE) {
+      const valor = respuesta.headers.get(nombre);
+      if (valor !== null) salida.set(nombre, valor);
+    }
+
     return new Response(respuesta.body, {
       status: respuesta.status,
       statusText: respuesta.statusText,
-      headers: {
-        "Content-Type": respuesta.headers.get("Content-Type") ?? "application/json",
-      },
+      headers: salida,
     });
-  } catch {
-    return NextResponse.json(
-      {
-        error: "BACKEND_NO_DISPONIBLE",
-        detalles: [
-          {
-            campo: null,
-            codigo: "BACKEND_NO_DISPONIBLE",
-            mensaje: "No se pudo contactar con el servidor.",
-          },
-        ],
-      },
-      { status: 503 },
-    );
+  } catch (error) {
+    return respuestaSinBackend(error);
   }
 }
 

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { env } from "@/lib/env";
+import { urlDelBackend } from "@/lib/env";
 import { leerToken } from "@/lib/session";
 
 /**
@@ -24,7 +24,7 @@ export class ApiError extends Error {
 export async function apiGet<T>(ruta: string): Promise<T> {
   const token = await leerToken();
 
-  const respuesta = await fetch(`${env.BACKEND_URL}/api/v1${ruta}`, {
+  const respuesta = await fetch(urlDelBackend(`/api/v1${ruta}`), {
     headers: {
       Accept: "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

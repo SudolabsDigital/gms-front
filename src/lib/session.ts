@@ -2,7 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-import { env } from "@/lib/env";
+import { urlDelBackend } from "@/lib/env";
 
 /**
  * Gestión de la sesión del ERP.
@@ -74,7 +74,7 @@ export async function obtenerUsuario(): Promise<Usuario | null> {
   if (!token) return null;
 
   try {
-    const respuesta = await fetch(`${env.BACKEND_URL}/api/v1/auth/me`, {
+    const respuesta = await fetch(urlDelBackend("/api/v1/auth/me"), {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
