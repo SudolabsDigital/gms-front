@@ -30,9 +30,12 @@ const nextConfig: NextConfig = {
     "/blog/**": [".next/cache/**/*"],
   },
 
-  // Limpieza de console en producción
+  // Limpieza de console en producción, MENOS `console.error`. Con `true` se borraba también del
+  // código del servidor: medido el 2026-09-21, el build no contenía ni un `console.error` del BFF ni
+  // el aviso de arranque. En Cloud Run el log es lo único que queda de un fallo.
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
+    removeConsole:
+      process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
   },
 
   // Optimización de importaciones pesadas (árboles de iconos y animaciones)
