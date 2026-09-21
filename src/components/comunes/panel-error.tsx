@@ -3,18 +3,19 @@ import { AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { RespuestaError } from "@/features/cotizar/types";
+import type { RespuestaError } from "@/lib/api-cliente";
 
 /**
- * El rechazo del motor, explicado.
+ * Un error de la API, explicado: el rechazo del motor o que la petición no llegó a hacerse.
  *
- * Cuando el motor rechaza un cálculo devuelve `{ error, detalles[] }` con un código por
- * detalle (N01…N06). El código importa —es lo que se cita al reportar el problema— pero
- * no es lo que resuelve la situación: el mensaje sí. Por eso el código va como distintivo
- * discreto y el mensaje ocupa la línea.
+ * Todo error llega como `{ error, detalles[] }` con un código por detalle (N01…N06 del motor,
+ * `SIN_CONEXION`, `NO_AUTENTICADO`…). El código importa —es lo que se cita al reportar el
+ * problema— pero no es lo que resuelve la situación: el mensaje sí. Por eso el código va como
+ * distintivo discreto y el mensaje ocupa la línea.
  *
- * Un rechazo NO es un fallo del sistema: es el motor protegiendo al taller de cortar
- * aluminio con una medida imposible. El tono del panel lo refleja: advierte, no alarma.
+ * Un rechazo NO es un fallo del sistema: es el motor protegiendo al taller de cortar aluminio con
+ * una medida imposible. El tono del panel lo refleja: advierte, no alarma. **El título lo decide
+ * quien lo usa** según el caso, porque solo un 422 es un rechazo (ver el cotizador).
  */
 export function PanelError({
   error,

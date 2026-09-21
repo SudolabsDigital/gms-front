@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { pedir } from "@/lib/api-cliente";
 
 const schema = z.object({
   email: z.email("Ingrese un correo válido"),
@@ -25,11 +26,6 @@ const schema = z.object({
 });
 
 type Credenciales = z.infer<typeof schema>;
-
-type RespuestaError = {
-  error?: string;
-  detalles?: { campo: string | null; codigo: string; mensaje: string }[];
-};
 
 export function LoginForm() {
   const router = useRouter();
@@ -44,33 +40,25 @@ export function LoginForm() {
   async function onSubmit(valores: Credenciales) {
     setErrorGeneral(null);
 
-    try {
-      const respuesta = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(valores),
-      });
+    const respuesta = await pedir("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify(valores),
+    });
 
-      if (!respuesta.ok) {
-        const datos = (await respuesta.json().catch(() => null)) as RespuestaError | null;
+    if (!respuesta.ok) {
+      // El cliente ya trae el mensaje adecuado a cada caso: credenciales, límite de intentos
+      // o sin conexión
+      setErrorGeneral(respuesta.error.detalles[0].mensaje);
 
-        setErrorGeneral(
-          datos?.detalles?.[0]?.mensaje ??
-            "No se pudo iniciar sesión. Inténtelo nuevamente.",
-        );
-
-        return;
-      }
-
-      // Se vuelve a donde el usuario quería ir antes de que el proxy lo desviara
-      const destino = parametros.get("continuar") ?? RUTA_INICIO;
-
-      router.replace(destino);
-      // Refresca los Server Components para que el layout lea la sesión recién creada
-      router.refresh();
-    } catch {
-      setErrorGeneral("No hay conexión con el servidor. Verifique su red.");
+      return;
     }
+
+    // Se vuelve a donde el usuario quería ir antes de que el proxy lo desviara
+    const destino = parametros.get("continuar") ?? RUTA_INICIO;
+
+    router.replace(destino);
+    // Refresca los Server Components para que el layout lea la sesión recién creada
+    router.refresh();
   }
 
   const enviando = form.formState.isSubmitting;

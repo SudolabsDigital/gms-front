@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { COLOR_CORREDIZO } from "@/lib/catalogo-visual";
 import { cn } from "@/lib/utils";
-import type { RespuestaError } from "@/features/cotizar/types";
+import { erroresPorCampo, pedir } from "@/lib/api-cliente";
 
 /**
  * El compositor: crear un tipo nuevo escribiendo su secuencia de paneles.
@@ -30,6 +30,9 @@ type Panel = "F" | "D";
 
 const COMPOSICION_INICIAL: Panel[] = ["F", "D", "F"];
 const MAXIMO_PANELES = 20;
+
+/** Los campos que pintan su error debajo. Si se añade uno en el JSX, se añade aquí. */
+const CAMPOS_CON_ERROR_VISIBLE = ["codigo"];
 
 export function CompositorTipo({
   disenoId,
@@ -78,9 +81,8 @@ export function CompositorTipo({
     setErrores({});
 
     iniciarGuardado(async () => {
-      const respuesta = await fetch(`/api/v1/disenos/${disenoId}/tipos`, {
+      const respuesta = await pedir(`/api/v1/disenos/${disenoId}/tipos`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           codigo,
           composicion,
@@ -90,18 +92,17 @@ export function CompositorTipo({
         }),
       });
 
-      const datos = await respuesta.json().catch(() => null);
-
-      if (respuesta.status === 422) {
-        setErrores(datos?.errors ?? {});
-        toast.error("Revise los datos del tipo.");
-
-        return;
-      }
-
       if (!respuesta.ok) {
-        const error = datos as RespuestaError | null;
-        toast.error(error?.detalles?.[0]?.mensaje ?? "No se pudo crear el tipo.");
+        setErrores(erroresPorCampo(respuesta.error));
+
+        // Lo que tiene sitio en el formulario se pinta ahí. Lo que no —la composición, las medidas
+        // por defecto, un fallo de red o de permiso— solo lo puede contar el aviso, con su mensaje
+        // real: un «revise los datos» sin decir cuál deja al maestro adivinando.
+        const sinSitio = respuesta.error.detalles.find(
+          ({ campo }) => campo === null || !CAMPOS_CON_ERROR_VISIBLE.includes(campo),
+        );
+
+        toast.error(sinSitio?.mensaje ?? "Revise los datos del tipo.");
 
         return;
       }
@@ -202,7 +203,16 @@ export function CompositorTipo({
             <Input
               id="codigo"
               value={codigo}
-              onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                setCodigo(e.target.value.toUpperCase());
+                // «Ya existe un tipo con ese código» habla del código de antes: con otro, miente
+                setErrores((actuales) => {
+                  const siguientes = { ...actuales };
+                  delete siguientes.codigo;
+
+                  return siguientes;
+                });
+              }}
               className="font-mono"
             />
             {errores.codigo ? (

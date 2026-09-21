@@ -168,13 +168,4 @@ export type Despiece = {
   advertencias: Advertencia[];
 };
 
-export type DetalleError = {
-  campo: string | null;
-  codigo: string;
-  mensaje: string;
-};
-
-export type RespuestaError = {
-  error: string;
-  detalles: DetalleError[];
-};
+// La forma del error no es del cotizador sino de toda la API: vive en `@/lib/api-cliente`.

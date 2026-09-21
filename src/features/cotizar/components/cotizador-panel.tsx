@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/popover";
 import { BarraControles } from "@/features/cotizar/components/barra-controles";
 import { ResultadoCalculo } from "@/features/cotizar/components/resultado-calculo";
-import type { Despiece, RespuestaError, Tipo } from "@/features/cotizar/types";
+import type { Despiece, Tipo } from "@/features/cotizar/types";
+import { pedir, type ErrorApi } from "@/lib/api-cliente";
 
 /**
  * Panel del cotizador.
@@ -34,7 +35,7 @@ export function CotizadorPanel({
   const [alto, setAlto] = useState<string>(String(tipos[0]?.alto_default ?? 170));
 
   const [resultado, setResultado] = useState<Despiece | null>(null);
-  const [errores, setErrores] = useState<RespuestaError | null>(null);
+  const [errores, setErrores] = useState<ErrorApi | null>(null);
   const [calculando, iniciarCalculo] = useTransition();
 
   /** Pieza aislada en el plano. Vive aquí porque la comparten la lista y el dibujo. */
@@ -63,29 +64,19 @@ export function CotizadorPanel({
     iniciarCalculo(async () => {
       setErrores(null);
 
-      const respuesta = await fetch(`/api/v1/tipos/${tipoId}/calcular`, {
+      const respuesta = await pedir<Despiece>(`/api/v1/tipos/${tipoId}/calcular`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ancho: Number(ancho), alto: Number(alto) }),
       });
 
-      const datos = await respuesta.json().catch(() => null);
-
       if (!respuesta.ok) {
         setResultado(null);
-        setErrores(
-          datos ?? {
-            error: "ERROR",
-            detalles: [
-              { campo: null, codigo: "ERROR", mensaje: "No se pudo calcular." },
-            ],
-          },
-        );
+        setErrores(respuesta.error);
 
         return;
       }
 
-      setResultado(datos as Despiece);
+      setResultado(respuesta.datos);
     });
   }
 
@@ -143,7 +134,15 @@ export function CotizadorPanel({
         </Popover>
       ) : null}
 
-      {errores ? <PanelError error={errores} /> : null}
+      {errores ? (
+        <PanelError
+          error={errores}
+          // Solo un 422 es el motor rechazando una medida; lo demás es que el cálculo no llegó
+          // a hacerse, y decir «rechazado» ante una caída de red le atribuye al motor un juicio
+          // que no emitió
+          titulo={errores.estado === 422 ? "El cálculo fue rechazado" : "No se pudo calcular"}
+        />
+      ) : null}
 
       {resultado ? (
         <ResultadoCalculo
