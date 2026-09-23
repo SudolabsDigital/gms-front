@@ -8,8 +8,9 @@ import { estadoDeSesion, exigirUsuario } from "@/lib/session";
  *
  * El proxy solo comprobó que existiera una cookie. Aquí se pregunta al backend quién es
  * el usuario: si el token caducó, se revocó o la cuenta se desactivó, `exigirUsuario`
- * borra la cookie y lleva al login; si el backend no responde, pinta `error.tsx`. También
- * es donde se conoce el ROL, que el proxy no puede saber.
+ * borra la cookie y lleva al login; si el backend no responde, el propio layout pinta el
+ * aviso de «Reintentar» (`error.tsx` no atrapa lo que falla en su layout). También es donde
+ * se conocen los PERMISOS, que el proxy no puede saber.
  */
 export default async function ErpLayout({
   children,

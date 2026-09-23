@@ -8,14 +8,15 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import type { Rol } from "@/lib/session";
+import { puede, type PermisoDelFront } from "@/lib/permisos";
 
 /**
  * Mapa de páginas del ERP (08-propuestas-cambio/README.md §5).
  *
- * `nivelMinimo` decide qué ve cada rol en el menú. Esto es SOLO presentación: evita
- * mostrar enlaces que devolverían 403. La autorización de verdad está en Laravel, y
- * escribir la URL a mano no sirve de nada si el backend dice que no.
+ * `permiso` decide qué entrada se ve (`null`: basta la sesión). Esto es SOLO presentación: evita
+ * mostrar enlaces que devolverían 403, y se pregunta por permiso, nunca por rol (`PER-01`).
+ * La autorización de verdad está en Laravel, y escribir la URL a mano no sirve de nada si el
+ * backend dice que no.
  *
  * `disponible` distingue lo construido de lo planificado. El mapa de páginas completo se
  * muestra desde el primer día —un ERP que revela sus secciones de a una deja al usuario
@@ -28,12 +29,10 @@ export type EntradaNavegacion = {
   titulo: string;
   href: string;
   icono: LucideIcon;
-  nivelMinimo: Rol;
+  permiso: PermisoDelFront | null;
   descripcion: string;
   disponible: boolean;
 };
-
-const NIVEL: Record<Rol, number> = { almacen: 1, maestro: 2, admin: 3 };
 
 /** Donde aterriza el usuario tras iniciar sesión. */
 export const RUTA_INICIO = "/inicio";
@@ -43,7 +42,7 @@ export const NAVEGACION: EntradaNavegacion[] = [
     titulo: "Inicio",
     href: RUTA_INICIO,
     icono: Home,
-    nivelMinimo: "almacen",
+    permiso: null,
     descripcion: "Resumen y accesos del sistema",
     disponible: true,
   },
@@ -51,7 +50,7 @@ export const NAVEGACION: EntradaNavegacion[] = [
     titulo: "Cotizar",
     href: "/cotizar/nueva",
     icono: Calculator,
-    nivelMinimo: "almacen",
+    permiso: "calculo:ejecutar",
     descripcion: "Calcular despiece y costeo por medidas",
     disponible: true,
   },
@@ -59,7 +58,7 @@ export const NAVEGACION: EntradaNavegacion[] = [
     titulo: "Plantillas",
     href: "/plantillas",
     icono: LayoutTemplate,
-    nivelMinimo: "maestro",
+    permiso: "plantillas:gestionar",
     descripcion: "Diseños, tipos y reglas de cálculo",
     disponible: true,
   },
@@ -67,7 +66,7 @@ export const NAVEGACION: EntradaNavegacion[] = [
     titulo: "Catálogo",
     href: "/catalogo",
     icono: Boxes,
-    nivelMinimo: "admin",
+    permiso: "catalogo:gestionar",
     descripcion: "Materiales, insumos y precios",
     disponible: false,
   },
@@ -75,7 +74,7 @@ export const NAVEGACION: EntradaNavegacion[] = [
     titulo: "Parámetros",
     href: "/parametros",
     icono: SlidersHorizontal,
-    nivelMinimo: "admin",
+    permiso: "variables:gestionar",
     descripcion: "Variables y estándares de mano de obra",
     disponible: false,
   },
@@ -83,12 +82,12 @@ export const NAVEGACION: EntradaNavegacion[] = [
     titulo: "Producción",
     href: "/produccion",
     icono: Factory,
-    nivelMinimo: "almacen",
+    permiso: "despiece:ver",
     descripcion: "Órdenes y listas de corte",
     disponible: false,
   },
 ];
 
-export function navegacionPara(rol: Rol): EntradaNavegacion[] {
-  return NAVEGACION.filter((entrada) => NIVEL[rol] >= NIVEL[entrada.nivelMinimo]);
+export function navegacionPara(usuario: { permisos: readonly string[] }): EntradaNavegacion[] {
+  return NAVEGACION.filter((entrada) => entrada.permiso === null || puede(usuario, entrada.permiso));
 }

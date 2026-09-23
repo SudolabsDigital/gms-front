@@ -32,7 +32,7 @@ export function ErpBarraMovil({ usuario }: { usuario: Usuario }) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [saliendo, setSaliendo] = useState(false);
-  const entradas = navegacionPara(usuario.rol);
+  const entradas = navegacionPara(usuario);
 
   async function cerrarSesion() {
     setSaliendo(true);

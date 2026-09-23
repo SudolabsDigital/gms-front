@@ -30,7 +30,7 @@ export function ErpSidebar({ usuario }: { usuario: Usuario }) {
   const pathname = usePathname();
   const router = useRouter();
   const [saliendo, setSaliendo] = useState(false);
-  const entradas = navegacionPara(usuario.rol);
+  const entradas = navegacionPara(usuario);
 
   async function cerrarSesion() {
     setSaliendo(true);

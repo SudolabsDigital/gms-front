@@ -25,7 +25,7 @@ export const metadata: Metadata = {
  */
 export default async function InicioPage() {
   const usuario = await exigirUsuario();
-  const entradas = navegacionPara(usuario.rol).filter(
+  const entradas = navegacionPara(usuario).filter(
     (entrada) => entrada.href !== "/inicio",
   );
 

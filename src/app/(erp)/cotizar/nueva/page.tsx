@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { CotizadorPanel } from "@/features/cotizar/components/cotizador-panel";
 import type { Tipo } from "@/features/cotizar/types";
 import { apiGet } from "@/lib/api-server";
+import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default async function NuevaCotizacionPage() {
   return (
     <CotizadorPanel
       tipos={tipos}
-      puedeVerDinero={usuario.permisos.ver_dinero}
+      puedeVerDinero={puede(usuario, "costeo:ver")}
     />
   );
 }

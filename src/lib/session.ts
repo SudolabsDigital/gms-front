@@ -21,21 +21,14 @@ export const NOMBRE_COOKIE_SESION = "gms_sesion";
 /** 8 horas: una jornada de taller. Al día siguiente se vuelve a entrar. */
 const DURACION_SESION_SEGUNDOS = 60 * 60 * 8;
 
-export type Rol = "admin" | "maestro" | "almacen";
-
 export type Usuario = {
   id: number;
   nombre: string;
   email: string;
-  rol: Rol;
+  /** Solo para mostrarse. Sin `rol`: si nada puede leerlo, nada puede decidir con él (`PER-I09`) */
   rol_etiqueta: string;
-  nivel: number;
-  permisos: {
-    ver_dinero: boolean;
-    gestionar_catalogo: boolean;
-    gestionar_plantillas: boolean;
-    gestionar_usuarios: boolean;
-  };
+  /** Ya resueltos por el servidor y ordenados; se preguntan con `puede()` de `@/lib/permisos` */
+  permisos: string[];
 };
 
 export async function guardarSesion(token: string): Promise<void> {
@@ -81,8 +74,8 @@ export type EstadoSesion =
 /**
  * Identidad REAL del usuario, resuelta contra el backend.
  *
- * El proxy solo comprueba que exista la cookie (chequeo optimista). El rol se pregunta
- * aquí, porque el token de Sanctum es opaco: no lleva el rol dentro y no se puede
+ * El proxy solo comprueba que exista la cookie (chequeo optimista). Los permisos se
+ * preguntan aquí, porque el token de Sanctum es opaco: no los lleva dentro y no se pueden
  * deducir sin consultar.
  *
  * `cache()` de React: una sola consulta a `auth/me` por petición, aunque la pidan el

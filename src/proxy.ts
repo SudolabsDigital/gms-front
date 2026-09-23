@@ -8,9 +8,9 @@ import { NextResponse, type NextRequest } from "next/server";
  * esqueleto de una página protegida antes de rebotar. Nada más.
  *
  * La autorización real vive en Laravel: quien llame a la API con curl no pasa por aquí.
- * Y el ROL tampoco se puede comprobar en este punto, porque el token de Sanctum es
+ * Y los PERMISOS tampoco se pueden comprobar en este punto, porque el token de Sanctum es
  * opaco y la documentación de Next desaconseja consultar la base de datos en el proxy
- * (se ejecuta en cada ruta, incluidas las prefetched). El rol se resuelve en el layout
+ * (se ejecuta en cada ruta, incluidas las prefetched). Se resuelven en el layout
  * del ERP, que sí pregunta al backend.
  */
 
