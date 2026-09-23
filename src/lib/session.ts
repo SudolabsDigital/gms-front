@@ -1,6 +1,8 @@
 import "server-only";
 
+import { cache } from "react";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { urlDelBackend } from "@/lib/env";
 
@@ -61,17 +63,35 @@ export async function borrarSesion(): Promise<void> {
   almacen.delete(NOMBRE_COOKIE_SESION);
 }
 
+/** Adonde se manda una sesión muerta: borra la cookie y lleva al login (route handler). */
+export const RUTA_SESION_VENCIDA = "/api/auth/sesion-vencida";
+
+/**
+ * Tres respuestas, no dos. Hasta el 2026-09-23 «Laravel caído» y «token muerto» salían
+ * las dos como `null`, y las dos acababan en un bucle `/inicio ↔ /login`: el layout
+ * mandaba al login y el proxy, que ve la cookie, devolvía a `/inicio`. Se distinguen
+ * porque se resuelven al revés: el token muerto se borra; con el backend caído la
+ * sesión sigue siendo buena y borrarla echaría al usuario por un corte ajeno.
+ */
+export type EstadoSesion =
+  | { estado: "valida"; usuario: Usuario }
+  | { estado: "invalida" }
+  | { estado: "sin_backend" };
+
 /**
  * Identidad REAL del usuario, resuelta contra el backend.
  *
  * El proxy solo comprueba que exista la cookie (chequeo optimista). El rol se pregunta
  * aquí, porque el token de Sanctum es opaco: no lleva el rol dentro y no se puede
- * deducir sin consultar. Devuelve `null` si la sesión ya no es válida.
+ * deducir sin consultar.
+ *
+ * `cache()` de React: una sola consulta a `auth/me` por petición, aunque la pidan el
+ * layout y la página, que Next renderiza EN PARALELO.
  */
-export async function obtenerUsuario(): Promise<Usuario | null> {
+export const estadoDeSesion = cache(async (): Promise<EstadoSesion> => {
   const token = await leerToken();
 
-  if (!token) return null;
+  if (!token) return { estado: "invalida" };
 
   try {
     const respuesta = await fetch(urlDelBackend("/api/v1/auth/me"), {
@@ -83,13 +103,37 @@ export async function obtenerUsuario(): Promise<Usuario | null> {
       cache: "no-store",
     });
 
-    if (!respuesta.ok) return null;
+    // 401 token caducado o revocado · 403 cuenta desactivada: la sesión no vale
+    if (respuesta.status === 401 || respuesta.status === 403) return { estado: "invalida" };
+    // Cualquier otro fallo es del servidor, no de la sesión
+    if (!respuesta.ok) return { estado: "sin_backend" };
 
     const datos = (await respuesta.json()) as { usuario: Usuario };
 
-    return datos.usuario;
+    return { estado: "valida", usuario: datos.usuario };
   } catch {
-    // El backend caído no debe reventar la página: se trata como sesión no válida
-    return null;
+    // Red caída o `BACKEND_URL` sin definir: no se sabe nada de la sesión
+    return { estado: "sin_backend" };
   }
+});
+
+/**
+ * El usuario de una página del ERP, NUNCA `null`.
+ *
+ * La usan el layout y cada página que necesite al usuario: como se renderizan en
+ * paralelo, que el layout redirija no impide que la página se ejecute, y una página que
+ * asumía «el layout ya lo comprobó» reventaba con `usuario!` sobre `null`. Aquí cada
+ * una sale por su cuenta:
+ *   - sesión muerta → a `RUTA_SESION_VENCIDA`, que borra la cookie (un Server Component
+ *     no puede) y lleva al login;
+ *   - backend caído → error, que pinta `(erp)/error.tsx` con «Reintentar».
+ */
+export async function exigirUsuario(): Promise<Usuario> {
+  const sesion = await estadoDeSesion();
+
+  if (sesion.estado === "valida") return sesion.usuario;
+
+  if (sesion.estado === "invalida") redirect(RUTA_SESION_VENCIDA);
+
+  throw new Error("El servidor no respondió al comprobar la sesión.");
 }

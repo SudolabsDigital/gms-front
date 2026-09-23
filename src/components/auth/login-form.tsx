@@ -31,6 +31,7 @@ export function LoginForm() {
   const router = useRouter();
   const parametros = useSearchParams();
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
+  const sesionVencida = parametros.get("motivo") === "vencida";
 
   const form = useForm<Credenciales>({
     resolver: zodResolver(schema),
@@ -99,6 +100,14 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+
+        {/* Llegó desde una sesión muerta (`/api/auth/sesion-vencida`): sin esto, el usuario
+            que estaba trabajando aparece en el login sin saber por qué */}
+        {sesionVencida && !errorGeneral ? (
+          <p role="status" className="bg-muted rounded-md border px-3 py-2 text-sm">
+            Su sesión terminó. Ingrese de nuevo para continuar.
+          </p>
+        ) : null}
 
         {errorGeneral ? (
           <p

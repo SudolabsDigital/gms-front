@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { RefreshCw, ServerCrash } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { AvisoSinServidor } from "@/components/erp/aviso-sin-servidor";
 
 /**
  * Cuando el ERP no puede pintar la página.
@@ -31,34 +29,5 @@ export default function Error({
     console.error("[ERP] fallo al renderizar la página:", error);
   }, [error]);
 
-  return (
-    <div className="mx-auto w-full max-w-lg py-10">
-      <Card>
-        <CardContent className="flex flex-col items-center gap-4 px-6 py-10 text-center">
-          <div className="bg-muted text-muted-foreground rounded-full p-3">
-            <ServerCrash className="size-6" />
-          </div>
-
-          <div className="space-y-1">
-            <p className="font-medium">No se pudo cargar esta página</p>
-            <p className="text-muted-foreground text-sm text-pretty">
-              El sistema no obtuvo respuesta del servidor. Suele ser pasajero: vuelva a
-              intentarlo. Si sigue igual, avise a soporte.
-            </p>
-          </div>
-
-          <Button onClick={() => unstable_retry()} variant="brand">
-            <RefreshCw className="size-4" />
-            Reintentar
-          </Button>
-
-          {error.digest ? (
-            <p className="text-muted-foreground/70 font-mono text-xs">
-              Referencia: {error.digest}
-            </p>
-          ) : null}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <AvisoSinServidor onReintentar={() => unstable_retry()} referencia={error.digest} />;
 }

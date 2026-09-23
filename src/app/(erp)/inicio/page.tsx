@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/comunes/page-header";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { obtenerUsuario } from "@/lib/session";
+import { exigirUsuario } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "Inicio · GMS Integra",
@@ -24,15 +24,15 @@ export const metadata: Metadata = {
  * explica el sistema entero mejor que cualquier manual.
  */
 export default async function InicioPage() {
-  const usuario = await obtenerUsuario();
-  const entradas = navegacionPara(usuario!.rol).filter(
+  const usuario = await exigirUsuario();
+  const entradas = navegacionPara(usuario.rol).filter(
     (entrada) => entrada.href !== "/inicio",
   );
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
       <PageHeader
-        titulo={`Hola, ${usuario!.nombre.split(" ")[0]}`}
+        titulo={`Hola, ${usuario.nombre.split(" ")[0]}`}
         descripcion="GMS Integra calcula ventanas y mamparas a medida: usted da las medidas y el sistema devuelve el plano, la lista de corte y el precio."
       />
 

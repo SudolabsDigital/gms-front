@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { CotizadorPanel } from "@/features/cotizar/components/cotizador-panel";
 import type { Tipo } from "@/features/cotizar/types";
 import { apiGet } from "@/lib/api-server";
-import { obtenerUsuario } from "@/lib/session";
+import { exigirUsuario } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "Cotizar · GMS Integra",
@@ -18,14 +18,15 @@ export const metadata: Metadata = {
  * modelo tiene que ganarse el sitio, y la navegación ya está resuelta a la izquierda.
  */
 export default async function NuevaCotizacionPage() {
-  // El layout ya garantizó que hay sesión; aquí solo se necesitan los permisos
-  const usuario = await obtenerUsuario();
+  // El layout se renderiza EN PARALELO con la página: no garantiza nada aquí. Cada página
+  // que necesita al usuario lo exige por su cuenta (la consulta se hace una vez por petición)
+  const usuario = await exigirUsuario();
   const tipos = await apiGet<Tipo[]>("/tipos");
 
   return (
     <CotizadorPanel
       tipos={tipos}
-      puedeVerDinero={usuario?.permisos.ver_dinero ?? false}
+      puedeVerDinero={usuario.permisos.ver_dinero}
     />
   );
 }

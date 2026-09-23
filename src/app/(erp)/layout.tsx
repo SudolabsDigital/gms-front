@@ -1,26 +1,32 @@
-import { redirect } from "next/navigation";
-
 import { ErpBarraMovil } from "@/components/erp/erp-barra-movil";
 import { ErpSidebar } from "@/components/erp/erp-sidebar";
-import { obtenerUsuario } from "@/lib/session";
+import { ErpSinServidor } from "@/components/erp/aviso-sin-servidor";
+import { estadoDeSesion, exigirUsuario } from "@/lib/session";
 
 /**
  * Guard REAL del ERP.
  *
  * El proxy solo comprobó que existiera una cookie. Aquí se pregunta al backend quién es
- * el usuario: si el token caducó, se revocó o la cuenta se desactivó, la sesión no vale
- * y se vuelve al login. También es donde se conoce el ROL, que el proxy no puede saber.
+ * el usuario: si el token caducó, se revocó o la cuenta se desactivó, `exigirUsuario`
+ * borra la cookie y lleva al login; si el backend no responde, pinta `error.tsx`. También
+ * es donde se conoce el ROL, que el proxy no puede saber.
  */
 export default async function ErpLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const usuario = await obtenerUsuario();
-
-  if (!usuario) {
-    redirect("/login");
+  // Sin servidor no se sabe quién es el usuario, pero la sesión sigue siendo buena: ni se
+  // borra ni se redirige. Se avisa aquí porque `error.tsx` no atrapa lo que falla en su layout
+  if ((await estadoDeSesion()).estado === "sin_backend") {
+    return (
+      <div className="bg-background flex min-h-svh px-4">
+        <ErpSinServidor />
+      </div>
+    );
   }
+
+  const usuario = await exigirUsuario();
 
   /*
    * Fondo OPACO, a diferencia de la landing.
