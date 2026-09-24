@@ -96,6 +96,21 @@ export function erroresPorCampo(error: RespuestaError): Record<string, string[]>
   return porCampo;
 }
 
+/**
+ * Los errores por campo sin los de `claves`: al corregir un campo, su error se retira. Devuelve el mismo
+ * objeto si no había nada que quitar, para no provocar un render de más en cada tecla.
+ */
+export function sinErrores(
+  errores: Record<string, string[]>,
+  claves: readonly string[],
+): Record<string, string[]> {
+  if (!claves.some((clave) => clave in errores)) return errores;
+
+  const resto = { ...errores };
+  for (const clave of claves) delete resto[clave];
+  return resto;
+}
+
 function cumpleElContrato(cuerpo: unknown): cuerpo is RespuestaError {
   if (typeof cuerpo !== "object" || cuerpo === null) return false;
 

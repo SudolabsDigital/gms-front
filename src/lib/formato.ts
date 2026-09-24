@@ -64,6 +64,42 @@ export function porcentaje(valor: number | null | undefined, decimales = 1): str
   return `${numero(valor, decimales)} %`;
 }
 
+/**
+ * Las fechas del ERP se leen en la hora de Huancayo, no en la del servidor (UTC) ni en la del
+ * navegador: así el servidor y el navegador pintan lo mismo y no hay desajuste de hidratación.
+ */
+const ZONA = "America/Lima";
+
+/** «23/09/2026 15:04» */
+export function fechaHora(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString(LOCALE, {
+    timeZone: ZONA,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+/**
+ * «hoy», «ayer», «hace 9 días»: cuánto lleva algo en su etapa (`proyectos/51-ui`). Por DÍAS de
+ * calendario en Huancayo, a propósito: los minutos cambiarían entre el render del servidor y el del
+ * navegador, y a quien mira una lista de trabajo le importa el día, no el minuto.
+ */
+export function haceDias(iso: string | null | undefined, ahora: Date = new Date()): string {
+  if (!iso) return "—";
+
+  const dia = (fecha: Date) => fecha.toLocaleDateString("en-CA", { timeZone: ZONA });
+  const dias = Math.round((Date.parse(dia(ahora)) - Date.parse(dia(new Date(iso)))) / 86_400_000);
+
+  if (dias <= 0) return "hoy";
+  if (dias === 1) return "ayer";
+  return `hace ${numero(dias, 0)} días`;
+}
+
 /** Cantidad con su sustantivo concordado: «1 panel», «5 paneles». */
 export function plural(cantidad: number, singular: string, plural: string): string {
   return `${numero(cantidad, 0)} ${cantidad === 1 ? singular : plural}`;

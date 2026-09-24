@@ -2,6 +2,7 @@ import {
   Boxes,
   Calculator,
   Factory,
+  FolderKanban,
   Home,
   LayoutTemplate,
   SlidersHorizontal,
@@ -44,6 +45,14 @@ export const NAVEGACION: EntradaNavegacion[] = [
     icono: Home,
     permiso: null,
     descripcion: "Resumen y accesos del sistema",
+    disponible: true,
+  },
+  {
+    titulo: "Proyectos",
+    href: "/proyectos",
+    icono: FolderKanban,
+    permiso: "proyectos:ver",
+    descripcion: "Del lead al proyecto entregado",
     disponible: true,
   },
   {

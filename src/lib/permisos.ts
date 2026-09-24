@@ -15,6 +15,9 @@ export type PermisoDelFront =
   | "costeo:ver"
   | "despiece:ver"
   | "plantillas:gestionar"
+  | "proyectos:avanzar"
+  | "proyectos:crear"
+  | "proyectos:ver"
   | "variables:gestionar";
 
 export function puede(

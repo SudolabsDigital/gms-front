@@ -15,15 +15,18 @@ src/features/nombre-feature/
 └── index.ts         # Punto de entrada público (exporta lo necesario)
 ```
 
-## Características Iniciales del ERP
+## Las features que existen
 
-Hemos estructurado las siguientes carpetas de dominio:
+Medido el 2026-09-23. Esta lista se mantiene con el código: una carpeta nueva se añade aquí el día que nace.
 
-1. **`dashboard`**: Panel general del ERP, métricas clave (proyectos activos, stock crítico) e indicadores.
-2. **`projects`**: Gestión de proyectos de instalación de mamparas y ventanas de aluminio, control de medidas, y estados de taller.
-3. **`quotes`**: Creación de cotizaciones, precios de materiales (vidrio/aluminio) y presupuestos para clientes.
-4. **`inventory`**: Control de stock de perfiles de aluminio, vidrios (espesor, tipo), empaquetaduras y accesorios.
-5. **`clients`**: Registro de clientes, contactos y su historial de pedidos.
+| Carpeta | Qué contiene |
+|---|---|
+| `cotizar/` | El cotizador CAD: plano, despiece, compra y costeo del cálculo en seco |
+| `plantillas/` | El compositor de tipos de un diseño |
+| `proyectos/` | Del lead al proyecto entregado: lista por etapa, alta con el cliente al vuelo, ficha, etapas e historia (tajada A) |
+
+*(Hasta esa fecha esta sección anunciaba `dashboard`, `projects`, `quotes`, `inventory` y `clients`, que nunca
+existieron. No todas usan todavía las cinco subcarpetas de arriba: se crean cuando hacen falta, no antes.)*
 
 ---
 
