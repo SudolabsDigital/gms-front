@@ -125,7 +125,8 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={abrir}>
+      {/* 44 px en el móvil, como el resto de la cabecera de la ficha (`52-brief-ficha`) */}
+      <Button variant="outline" size="sm" className="h-11 md:h-8" onClick={abrir}>
         <Pencil className="size-4" />
         Editar datos
       </Button>

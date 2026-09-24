@@ -20,6 +20,33 @@ export const ETAPAS: Record<Etapa, string> = {
 export const ETAPAS_EN_CURSO: Etapa[] = ["lead", "cotizado", "aprobado", "produccion", "instalacion"];
 export const ETAPAS_CERRADAS: Etapa[] = ["entregado", "perdido", "anulado"];
 
+/** El camino de un proyecto que llega a buen puerto: lo que dibuja la línea de etapas de la ficha */
+export const CAMINO: Etapa[] = ["lead", "cotizado", "aprobado", "produccion", "instalacion", "entregado"];
+
+/** Cómo se llega a cada etapa: lo que la línea dice de un paso que aún no se alcanzó (`51-ui` § la ficha) */
+export const COMO_SE_LLEGA: Record<Etapa, string> = {
+  lead: "Nace al registrar el proyecto.",
+  cotizado: "Se llega al emitir la cotización.",
+  aprobado: "Se llega al registrar la aprobación del cliente.",
+  produccion: "Se llega con la medición en obra confirmada.",
+  instalacion: "Se llega al terminar la producción.",
+  entregado: "Se llega al terminar la instalación.",
+  perdido: "Se marca con un motivo.",
+  anulado: "Se anula con un motivo.",
+};
+
+/** Lo siguiente que hay que hacer en cada etapa: la primera línea de la pestaña Resumen */
+export const QUE_FALTA: Record<Etapa, string> = {
+  lead: "Armar la cotización y enviársela al cliente.",
+  cotizado: "Que el cliente apruebe la cotización vigente, o recotizar.",
+  aprobado: "Confirmar en obra las medidas de la cotización aprobada. Después, producción.",
+  produccion: "Fabricar con la lista de corte y pasar a instalación.",
+  instalacion: "Instalar y marcar el proyecto como entregado.",
+  entregado: "Cobrar el saldo, si queda.",
+  perdido: "Nada: el proyecto se cerró. La historia dice por qué.",
+  anulado: "Nada: el proyecto se anuló. La historia dice por qué.",
+};
+
 export const ORIGENES: Record<Origen, string> = {
   whatsapp: "WhatsApp",
   portal: "Portal web",

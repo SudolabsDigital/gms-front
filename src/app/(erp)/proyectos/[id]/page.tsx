@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FileText, MessageCircle, Phone, Wallet } from "lucide-react";
+import { FileText, MessageCircle, Phone, Ruler, Wallet } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
@@ -9,13 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { AccionesEtapa } from "@/features/proyectos/components/acciones-etapa";
+import { DatosProyecto } from "@/features/proyectos/components/datos-proyecto";
 import { EditarProyecto } from "@/features/proyectos/components/editar-proyecto";
 import { HistoriaProyecto } from "@/features/proyectos/components/historia-proyecto";
-import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
-import { ORIGENES, esCerrada } from "@/features/proyectos/textos";
+import { LineaDeEtapas } from "@/features/proyectos/components/linea-de-etapas";
+import { PestanasFicha } from "@/features/proyectos/components/pestanas-ficha";
+import { pestanaInicial } from "@/features/proyectos/pestanas";
+import { ETAPAS, QUE_FALTA } from "@/features/proyectos/textos";
 import type { ProyectoFicha } from "@/features/proyectos/types";
 import { ApiError, apiGet } from "@/lib/api-server";
-import { fechaHora, haceDias } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -23,18 +26,38 @@ export const metadata: Metadata = {
   title: "Proyecto · GMS Integra",
 };
 
+type Parametros = Promise<{ [clave: string]: string | string[] | undefined }>;
+
+/** Lo que aún no existe se ve rotulado, sin fingir que funciona (`51-ui`) */
+function Pendiente({ icono: Icono, titulo, children }: { icono: LucideIcon; titulo: string; children: React.ReactNode }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Icono className="size-4" />
+          {titulo}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-muted-foreground text-sm">{children}</CardContent>
+    </Card>
+  );
+}
+
 /**
- * La ficha del proyecto (`proyectos/51-ui` § la ficha).
+ * La ficha del proyecto (`proyectos/51-ui` § la ficha, decisión 23 y su brief `proyectos/52-brief-ficha`).
  *
- * Móvil: secciones apiladas —Etapa · Cotización vigente · Cobros y saldo · Historia · Datos— con la
- * acción principal en una barra fija. Escritorio: dos columnas, el documento y los datos a la
- * izquierda; etapa, cobros e historia a la derecha. Un solo árbol para los dos: las columnas del
- * escritorio son `display: contents` en el móvil, así cada tarjeta ordena por su cuenta sin duplicar
- * nada.
- *
- * Cotización y cobros llegan con las tajadas B y C: se ven, rotulados, sin fingir que funcionan.
+ * De arriba abajo: la cabecera con el contacto, la **línea de etapas** —en qué va, desde cuándo, cuánto— y las
+ * **pestañas por asunto**, que abren en la que pide la etapa (`?pestana=` manda si viene). En el escritorio, la
+ * acción de la etapa vive en un riel a la derecha; en el móvil, en la barra fija, y el resto de acciones debajo
+ * del contenido.
  */
-export default async function FichaProyectoPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function FichaProyectoPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Parametros;
+}) {
   const usuario = await exigirUsuario();
 
   if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="proyectos" />;
@@ -49,11 +72,17 @@ export default async function FichaProyectoPage({ params }: { params: Promise<{ 
     throw error;
   }
 
+  const crudo = (await searchParams).pestana;
+  const inicial = pestanaInicial(typeof crudo === "string" ? crudo : undefined, proyecto.etapa);
+
   const whatsapp = enlaceParaEscribirA(proyecto.cliente.telefono);
   const telefono = proyecto.cliente.telefono?.replace(/[^\d+]/g, "");
+  const cerrado = proyecto.etapa === "perdido" || proyecto.etapa === "anulado";
+  // Sin `costeo:ver` la clave `saldo` no viaja (`CAL-04`): entonces la línea no habla de dinero
+  const veDinero = "saldo" in proyecto;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 pb-28 md:pb-0">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-28 md:pb-0">
       <PageHeader
         migas={[
           { etiqueta: "Inicio", href: RUTA_INICIO },
@@ -62,131 +91,95 @@ export default async function FichaProyectoPage({ params }: { params: Promise<{ 
         ]}
         titulo={proyecto.nombre}
         descripcion={`${proyecto.codigo} · ${proyecto.cliente.nombre}`}
-        acciones={puede(usuario, "proyectos:crear") ? <EditarProyecto proyecto={proyecto} /> : null}
+        acciones={
+          <>
+            {whatsapp ? (
+              <Button asChild variant="outline" className="text-whatsapp h-11 md:h-8">
+                <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="size-4" />
+                  WhatsApp
+                </a>
+              </Button>
+            ) : null}
+            {telefono ? (
+              <Button asChild variant="outline" className="h-11 md:hidden">
+                <a href={`tel:${telefono}`}>
+                  <Phone className="size-4" />
+                  Llamar
+                </a>
+              </Button>
+            ) : null}
+            {puede(usuario, "proyectos:crear") ? <EditarProyecto proyecto={proyecto} /> : null}
+          </>
+        }
       />
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
-        {/* Columna izquierda en el escritorio; en el móvil sus tarjetas se ordenan con el resto */}
-        <div className="contents md:flex md:min-w-0 md:flex-1 md:flex-col md:gap-4">
-          <Card className="order-2 md:order-none">
+      <LineaDeEtapas
+        etapa={proyecto.etapa}
+        etapaDesde={proyecto.etapa_desde}
+        creado={proyecto.created_at}
+        historia={proyecto.historia}
+        total={veDinero ? (proyecto.vigente?.total ?? null) : undefined}
+        saldo={veDinero ? proyecto.saldo : undefined}
+      />
+
+      <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:items-start lg:grid-cols-[minmax(0,1fr)_24rem]">
+        <PestanasFicha
+          inicial={inicial}
+          paneles={{
+            resumen: (
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Qué falta</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm">{QUE_FALTA[proyecto.etapa]}</CardContent>
+                </Card>
+                <DatosProyecto proyecto={proyecto} />
+              </>
+            ),
+            cotizacion: (
+              <Pendiente icono={FileText} titulo="Cotización">
+                {cerrado
+                  ? "El proyecto se cerró sin cotización."
+                  : "Todavía no hay cotización. Se arma con el cotizador conectado al proyecto, que llega en la próxima entrega: agregar ítems, emitir, ver sus versiones y registrar la aprobación del cliente."}
+              </Pendiente>
+            ),
+            obra: (
+              <Pendiente icono={Ruler} titulo="Medición en obra">
+                {cerrado
+                  ? "El proyecto se cerró antes de medir en obra."
+                  : "Antes de producir, cada medida de la cotización aprobada se confirma en obra. Llega con la entrega de medición y producción."}
+              </Pendiente>
+            ),
+            cobros: (
+              <Pendiente icono={Wallet} titulo="Cobros">
+                {cerrado
+                  ? "El proyecto se cerró sin cobros."
+                  : "Los cobros —anticipo, parciales y saldo— se registran cuando haya una cotización aprobada. Llegan con la entrega de cobros."}
+              </Pendiente>
+            ),
+            historia: (
+              <Card>
+                <CardContent className="pt-6">
+                  <HistoriaProyecto eventos={proyecto.historia} />
+                </CardContent>
+              </Card>
+            ),
+          }}
+        />
+
+        {/* El riel de la etapa: a la derecha en el escritorio; debajo del contenido en el móvil */}
+        <aside className="md:sticky md:top-4">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <FileText className="size-4" />
-                Cotización vigente
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground text-sm">
-              {esCerrada(proyecto.etapa)
-                ? "El proyecto se cerró sin cotización."
-                : "Todavía no hay cotización. Se arma con el cotizador conectado al proyecto, que llega en la próxima entrega: agregar ítems, emitir y registrar la aprobación del cliente."}
-            </CardContent>
-          </Card>
-
-          <Card className="order-5 md:order-none">
-            <CardHeader>
-              <CardTitle className="text-base">Datos</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 text-sm">
-              <div className="flex flex-col gap-2">
-                <div>
-                  <p className="font-medium">{proyecto.cliente.nombre}</p>
-                  <p className="text-muted-foreground">
-                    {[proyecto.cliente.telefono, proyecto.cliente.documento].filter(Boolean).join(" · ") ||
-                      "Sin teléfono ni documento"}
-                  </p>
-                </div>
-                {whatsapp || telefono ? (
-                  <div className="flex gap-2">
-                    {whatsapp ? (
-                      <Button asChild variant="outline" className="h-11 flex-1 md:h-8 md:flex-none">
-                        <a href={whatsapp} target="_blank" rel="noopener noreferrer">
-                          <MessageCircle className="size-4" />
-                          WhatsApp
-                        </a>
-                      </Button>
-                    ) : null}
-                    {telefono ? (
-                      <Button asChild variant="outline" className="h-11 flex-1 md:hidden">
-                        <a href={`tel:${telefono}`}>
-                          <Phone className="size-4" />
-                          Llamar
-                        </a>
-                      </Button>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
-                <dt className="text-muted-foreground">Obra</dt>
-                <dd>{[proyecto.direccion_obra, proyecto.distrito].filter(Boolean).join(", ") || "—"}</dd>
-                <dt className="text-muted-foreground">Llegó por</dt>
-                <dd>
-                  {ORIGENES[proyecto.origen]}
-                  {proyecto.enlace_origen ? (
-                    <>
-                      {" · "}
-                      <a
-                        href={proyecto.enlace_origen}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary break-all underline-offset-4 hover:underline"
-                      >
-                        lo que vio
-                      </a>
-                    </>
-                  ) : null}
-                </dd>
-                <dt className="text-muted-foreground">Responsable</dt>
-                <dd>{proyecto.responsable?.nombre ?? "—"}</dd>
-                <dt className="text-muted-foreground">Registrado</dt>
-                <dd>{fechaHora(proyecto.created_at)}</dd>
-              </dl>
-
-              {proyecto.notas ? <p className="bg-muted/40 rounded-md p-3 whitespace-pre-line">{proyecto.notas}</p> : null}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Columna derecha en el escritorio */}
-        <div className="contents md:flex md:w-80 md:shrink-0 md:flex-col md:gap-4 lg:w-96">
-          <Card className="order-1 md:order-none">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-2 text-base">
-                Etapa
-                <InsigniaEtapa etapa={proyecto.etapa} />
-              </CardTitle>
-              <p className="text-muted-foreground text-sm">
-                Desde {haceDias(proyecto.etapa_desde)} · {fechaHora(proyecto.etapa_desde)}
-              </p>
+              <CardTitle className="text-base">{cerrado ? ETAPAS[proyecto.etapa] : `${ETAPAS[proyecto.etapa]} · qué sigue`}</CardTitle>
             </CardHeader>
             <CardContent>
               <AccionesEtapa proyecto={proyecto} puedeAvanzar={puede(usuario, "proyectos:avanzar")} />
             </CardContent>
           </Card>
-
-          <Card className="order-3 md:order-none">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Wallet className="size-4" />
-                Cobros y saldo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground text-sm">
-              Los cobros —anticipo, parciales y saldo— se registran cuando haya una cotización aprobada. Llegan
-              con la entrega de cobros.
-            </CardContent>
-          </Card>
-
-          <Card className="order-4 md:order-none">
-            <CardHeader>
-              <CardTitle className="text-base">Historia</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <HistoriaProyecto eventos={proyecto.historia} />
-            </CardContent>
-          </Card>
-        </div>
+        </aside>
       </div>
     </div>
   );
