@@ -5,11 +5,13 @@ import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  // El tema FORZADO manda: con `theme` («system») Sonner seguía al sistema operativo y, en modo oscuro,
+  // pintaba la descripción en gris claro sobre el fondo blanco del sitio (1,2:1, sesión 24)
+  const { forcedTheme, resolvedTheme } = useTheme()
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={(forcedTheme ?? resolvedTheme ?? "light") as ToasterProps["theme"]}
       className="toaster group"
       icons={{
         success: (

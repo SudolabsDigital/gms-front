@@ -67,7 +67,9 @@ export function PageHeader({
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 space-y-1">
-          <h1 className="truncate text-2xl font-semibold tracking-tight">{titulo}</h1>
+          {/* Se parte en líneas, no se trunca: en el móvil el título es el nombre del proyecto y cortarlo
+              escondía lo que lo identifica (sesión 24) */}
+          <h1 className="text-2xl font-semibold tracking-tight break-words text-balance">{titulo}</h1>
           {descripcion ? (
             <p className="text-muted-foreground max-w-2xl text-sm">{descripcion}</p>
           ) : null}
