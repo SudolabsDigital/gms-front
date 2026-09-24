@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FileText, Lock, MessageCircle, Phone, Wallet } from "lucide-react";
+import { FileText, MessageCircle, Phone, Wallet } from "lucide-react";
 
-import { EmptyState } from "@/components/comunes/empty-state";
 import { PageHeader } from "@/components/comunes/page-header";
+import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,17 +37,7 @@ export const metadata: Metadata = {
 export default async function FichaProyectoPage({ params }: { params: Promise<{ id: string }> }) {
   const usuario = await exigirUsuario();
 
-  if (!puede(usuario, "proyectos:ver")) {
-    return (
-      <div className="mx-auto w-full max-w-5xl">
-        <EmptyState
-          icono={Lock}
-          titulo="Sin acceso a proyectos"
-          descripcion="Su usuario no tiene permiso para consultar proyectos. Si lo necesita, pídaselo al administrador."
-        />
-      </div>
-    );
-  }
+  if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="proyectos" />;
 
   const { id } = await params;
   let proyecto: ProyectoFicha;

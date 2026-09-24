@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
+import { AvisoDeError } from "@/components/comunes/aviso-de-error";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { pedir } from "@/lib/api-cliente";
+import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
 const schema = z.object({
   email: z.email("Ingrese un correo válido"),
@@ -49,7 +50,7 @@ export function LoginForm() {
     if (!respuesta.ok) {
       // El cliente ya trae el mensaje adecuado a cada caso: credenciales, límite de intentos
       // o sin conexión
-      setErrorGeneral(respuesta.error.detalles[0].mensaje);
+      setErrorGeneral(mensajeDeError(respuesta.error));
 
       return;
     }
@@ -109,14 +110,7 @@ export function LoginForm() {
           </p>
         ) : null}
 
-        {errorGeneral ? (
-          <p
-            role="alert"
-            className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm"
-          >
-            {errorGeneral}
-          </p>
-        ) : null}
+        {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
 
         <Button type="submit" variant="brand" className="mt-2 w-full" disabled={enviando}>
           {enviando ? (

@@ -5,15 +5,17 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BuscadorCliente, type ClienteElegido } from "@/features/proyectos/components/buscador-cliente";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
-import { ORIGENES } from "@/features/proyectos/textos";
+import { SelectorDeOrigen } from "@/features/proyectos/components/selector-origen";
 import type { Origen, ProyectoFicha } from "@/features/proyectos/types";
-import { erroresPorCampo, pedir, sinErrores } from "@/lib/api-cliente";
+import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 import { cn } from "@/lib/utils";
 
 type Formulario = {
@@ -92,7 +94,7 @@ export function AltaProyecto() {
       const porCampo = erroresPorCampo(respuesta.error);
       setErrores(porCampo);
       // Lo que no tiene campo —sin conexión, un 5xx— va arriba, con el mensaje real
-      if (Object.keys(porCampo).length === 0) setErrorGeneral(respuesta.error.detalles[0].mensaje);
+      if (Object.keys(porCampo).length === 0) setErrorGeneral(mensajeDeError(respuesta.error));
       if (porCampo.direccion_obra || porCampo.distrito || porCampo.notas) setMasDatos(true);
       return;
     }
@@ -115,12 +117,12 @@ export function AltaProyecto() {
         Nuevo proyecto
       </Button>
 
-      <div className="bg-background/95 fixed inset-x-0 bottom-0 z-30 border-t p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+      <BarraFijaMovil>
         <Button variant="brand" className="h-11 w-full" onClick={() => setAbierto(true)}>
           <Plus className="size-4" />
           Nuevo proyecto
         </Button>
-      </div>
+      </BarraFijaMovil>
 
       <PanelResponsivo
         abierto={abierto}
@@ -129,11 +131,7 @@ export function AltaProyecto() {
         descripcion="Lo mínimo para no perder el lead. El resto se completa después, en la ficha."
       >
         <form onSubmit={guardar} className="flex flex-col gap-4" noValidate>
-          {errorGeneral ? (
-            <p role="alert" className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm">
-              {errorGeneral}
-            </p>
-          ) : null}
+          {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
 
           <BuscadorCliente
             valor={datos.cliente}
@@ -155,28 +153,7 @@ export function AltaProyecto() {
             {errorDe("nombre") ? <p className="text-destructive text-sm">{errorDe("nombre")}</p> : null}
           </div>
 
-          <fieldset className="space-y-1.5">
-            <legend className="text-sm font-medium">Cómo llegó</legend>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(ORIGENES) as Origen[]).map((origen) => (
-                <button
-                  key={origen}
-                  type="button"
-                  aria-pressed={datos.origen === origen}
-                  onClick={() => campo("origen", origen)}
-                  className={cn(
-                    "h-11 rounded-md border px-3 text-sm transition-colors md:h-8",
-                    datos.origen === origen
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "hover:bg-muted/60",
-                  )}
-                >
-                  {ORIGENES[origen]}
-                </button>
-              ))}
-            </div>
-            {errorDe("origen") ? <p className="text-destructive text-sm">{errorDe("origen")}</p> : null}
-          </fieldset>
+          <SelectorDeOrigen valor={datos.origen} alCambiar={(origen) => campo("origen", origen)} error={errorDe("origen")} />
 
           <div className="space-y-1.5">
             <Label htmlFor="proyecto-enlace">Enlace de lo que vio (opcional)</Label>

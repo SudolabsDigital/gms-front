@@ -5,16 +5,17 @@ import { useRouter } from "next/navigation";
 import { Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
+import { AvisoDeError } from "@/components/comunes/aviso-de-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BuscadorCliente, type ClienteElegido } from "@/features/proyectos/components/buscador-cliente";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
-import { CAMPOS, ORIGENES } from "@/features/proyectos/textos";
+import { SelectorDeOrigen } from "@/features/proyectos/components/selector-origen";
+import { CAMPOS } from "@/features/proyectos/textos";
 import type { Origen, ProyectoFicha } from "@/features/proyectos/types";
-import { erroresPorCampo, pedir, sinErrores } from "@/lib/api-cliente";
-import { cn } from "@/lib/utils";
+import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 
 type Campos = {
   nombre: string;
@@ -97,7 +98,8 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
 
     setEnviando(true);
     setErrorGeneral(null);
-    const respuesta = await pedir<ProyectoFicha>(`/api/v1/proyectos/${proyecto.id}`, {
+    // Un 409 trae en `actual` la ficha como está ahora: con ella se dice QUÉ cambió
+    const respuesta = await pedir<ProyectoFicha, ProyectoFicha>(`/api/v1/proyectos/${proyecto.id}`, {
       method: "PATCH",
       body: JSON.stringify({ ...cambios, updated_at: proyecto.updated_at }),
     });
@@ -105,12 +107,12 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
 
     if (!respuesta.ok) {
       if (respuesta.error.estado === 409) {
-        setConflicto(camposQueCambiaron(original, respuesta.error));
+        setConflicto(camposQueCambiaron(original, respuesta.error.actual));
         return;
       }
       const porCampo = erroresPorCampo(respuesta.error);
       setErrores(porCampo);
-      if (Object.keys(porCampo).length === 0) setErrorGeneral(respuesta.error.detalles[0].mensaje);
+      if (Object.keys(porCampo).length === 0) setErrorGeneral(mensajeDeError(respuesta.error));
       return;
     }
 
@@ -155,11 +157,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
           </div>
         ) : (
           <form onSubmit={guardar} className="flex flex-col gap-4" noValidate>
-            {errorGeneral ? (
-              <p role="alert" className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm">
-                {errorGeneral}
-              </p>
-            ) : null}
+            {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
 
             <div className="space-y-1.5">
               <Label htmlFor="editar-nombre">Nombre</Label>
@@ -175,25 +173,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
 
             <BuscadorCliente valor={cliente} alCambiar={elegirCliente} permitirNuevo={false} error={errorDe("cliente_id")} />
 
-            <fieldset className="space-y-1.5">
-              <legend className="text-sm font-medium">Cómo llegó</legend>
-              <div className="flex flex-wrap gap-2">
-                {(Object.keys(ORIGENES) as Origen[]).map((origen) => (
-                  <button
-                    key={origen}
-                    type="button"
-                    aria-pressed={datos.origen === origen}
-                    onClick={() => campo("origen", origen)}
-                    className={cn(
-                      "h-11 rounded-md border px-3 text-sm md:h-8",
-                      datos.origen === origen ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted/60",
-                    )}
-                  >
-                    {ORIGENES[origen]}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
+            <SelectorDeOrigen valor={datos.origen} alCambiar={(origen) => campo("origen", origen)} error={errorDe("origen")} />
 
             {(
               [
@@ -232,8 +212,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
 }
 
 /** Qué campos difieren entre lo que se leyó y lo que el servidor tiene ahora (`actual` del 409) */
-function camposQueCambiaron(leido: Campos, error: object): string[] {
-  const actual = (error as { actual?: ProyectoFicha }).actual;
+function camposQueCambiaron(leido: Campos, actual: ProyectoFicha | undefined): string[] {
   if (!actual) return [];
 
   const ahora = camposDe(actual);

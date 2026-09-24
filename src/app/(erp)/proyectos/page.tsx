@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { FolderKanban, Lock, Search } from "lucide-react";
+import { FolderKanban, Search } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
 import { PageHeader } from "@/components/comunes/page-header";
+import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { Input } from "@/components/ui/input";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
@@ -41,17 +42,7 @@ function leerFiltro(crudo: Awaited<Parametros>): FiltroLista & { pagina: number 
 export default async function ProyectosPage({ searchParams }: { searchParams: Parametros }) {
   const usuario = await exigirUsuario();
 
-  if (!puede(usuario, "proyectos:ver")) {
-    return (
-      <div className="mx-auto w-full max-w-5xl">
-        <EmptyState
-          icono={Lock}
-          titulo="Sin acceso a proyectos"
-          descripcion="Su usuario no tiene permiso para consultar proyectos. Si lo necesita, pídaselo al administrador."
-        />
-      </div>
-    );
-  }
+  if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="proyectos" />;
 
   const filtro = leerFiltro(await searchParams);
   const consulta = urlDeLista(filtro).replace(/^\/proyectos\??/, "");

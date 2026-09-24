@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
-import { pedir } from "@/lib/api-cliente";
+import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
 /**
  * La acción principal de cada etapa (`proyectos/51-ui` § la ficha). Lo que llega en la tajada B y
@@ -93,7 +95,7 @@ export function AccionesEtapa({ proyecto, puedeAvanzar }: { proyecto: ProyectoFi
         router.refresh();
         return;
       }
-      setError(respuesta.error.detalles[0].mensaje);
+      setError(mensajeDeError(respuesta.error));
       return;
     }
 
@@ -145,9 +147,7 @@ export function AccionesEtapa({ proyecto, puedeAvanzar }: { proyecto: ProyectoFi
       </div>
 
       {botonPrincipal ? (
-        <div className="bg-background/95 fixed inset-x-0 bottom-0 z-30 border-t p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
-          {botonPrincipal}
-        </div>
+        <BarraFijaMovil>{botonPrincipal}</BarraFijaMovil>
       ) : null}
 
       <PanelResponsivo
@@ -175,11 +175,7 @@ export function AccionesEtapa({ proyecto, puedeAvanzar }: { proyecto: ProyectoFi
             </div>
           ) : null}
 
-          {error ? (
-            <p role="alert" className="border-destructive/30 bg-destructive/5 text-destructive rounded-md border px-3 py-2 text-sm">
-              {error}
-            </p>
-          ) : null}
+          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
 
           <Button
             variant={exigeMotivo ? "destructive" : "brand"}

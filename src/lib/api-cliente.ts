@@ -29,10 +29,17 @@ export type RespuestaError = {
   detalles: DetalleError[];
 };
 
-/** El error tal como lo recibe la pantalla: el contrato más el estado HTTP (0 = sin conexión). */
-export type ErrorApi = RespuestaError & { estado: number };
+/**
+ * El error tal como lo recibe la pantalla: el contrato más el estado HTTP (0 = sin conexión).
+ *
+ * `actual` solo llega en un 409 (`CONFLICTO_DE_VERSION`): el registro como está AHORA, con la forma de su
+ * Resource, para que la pantalla diga qué cambió. Quien llama declara esa forma en `pedir<T, TActual>`.
+ */
+export type ErrorApi<TActual = unknown> = RespuestaError & { estado: number; actual?: TActual };
 
-export type ResultadoApi<T> = { ok: true; datos: T } | { ok: false; error: ErrorApi };
+export type ResultadoApi<T, TActual = unknown> =
+  | { ok: true; datos: T }
+  | { ok: false; error: ErrorApi<TActual> };
 
 const MENSAJE_POR_ESTADO: Record<number, string> = {
   0: "No hay conexión con el servidor. Verifique su red e inténtelo de nuevo.",
@@ -47,10 +54,10 @@ const MENSAJE_POR_ESTADO: Record<number, string> = {
  */
 type OpcionesDePeticion = Omit<RequestInit, "headers"> & { headers?: Record<string, string> };
 
-export async function pedir<T>(
+export async function pedir<T, TActual = unknown>(
   ruta: string,
   init?: OpcionesDePeticion,
-): Promise<ResultadoApi<T>> {
+): Promise<ResultadoApi<T, TActual>> {
   let respuesta: Response;
 
   try {
@@ -75,9 +82,18 @@ export async function pedir<T>(
   return {
     ok: false,
     error: cumpleElContrato(cuerpo)
-      ? { ...cuerpo, estado: respuesta.status }
+      ? // El único sitio donde se afirma la forma de `actual`: aquí entra el JSON, y quien pide la declaró
+        { ...(cuerpo as RespuestaError & { actual?: TActual }), estado: respuesta.status }
       : errorGenerico(respuesta.status, `ERROR_HTTP_${respuesta.status}`),
   };
+}
+
+/**
+ * El mensaje que se le enseña a la persona cuando el error no es de un campo. El contrato garantiza al
+ * menos un detalle —`pedir` lo asegura también para una caída de red o un 502 en HTML—.
+ */
+export function mensajeDeError(error: RespuestaError): string {
+  return error.detalles[0].mensaje;
 }
 
 /**
@@ -119,7 +135,8 @@ function cumpleElContrato(cuerpo: unknown): cuerpo is RespuestaError {
   return typeof error === "string" && Array.isArray(detalles) && detalles.length > 0;
 }
 
-function errorGenerico(estado: number, codigo: string): ErrorApi {
+/** `never`: un error que fabrica este cliente —sin red, un 502 en HTML— nunca trae `actual` */
+function errorGenerico(estado: number, codigo: string): ErrorApi<never> {
   const mensaje =
     MENSAJE_POR_ESTADO[estado] ?? `La petición falló (${estado}). Inténtelo de nuevo.`;
 

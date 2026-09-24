@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
 import type { ListaProyectos, ProyectoFila } from "@/features/proyectos/types";
-import { pedir } from "@/lib/api-cliente";
+import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { haceDias, moneda } from "@/lib/formato";
 
 /**
@@ -45,7 +45,7 @@ export function ListaProyectos({
     setCargando(false);
 
     if (!respuesta.ok) {
-      setFallo(respuesta.error.detalles[0].mensaje);
+      setFallo(mensajeDeError(respuesta.error));
       return;
     }
 

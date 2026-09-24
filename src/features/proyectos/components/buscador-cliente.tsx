@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Cliente, ListaClientes } from "@/features/proyectos/types";
-import { pedir } from "@/lib/api-cliente";
+import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
 /** El cliente elegido: uno que ya existe, o uno nuevo que se crea junto con el proyecto */
 export type ClienteElegido =
@@ -54,7 +54,7 @@ export function BuscadorCliente({
         setResultados(respuesta.datos.datos);
         setFallo(null);
       } else {
-        setFallo(respuesta.error.detalles[0].mensaje);
+        setFallo(mensajeDeError(respuesta.error));
       }
     }, 250);
 
