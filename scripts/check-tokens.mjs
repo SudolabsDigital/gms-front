@@ -109,6 +109,32 @@ const INVARIANTES = [
     umbral: 0,
     salida: "Lee el dato de `@/config/site-config`: `telefonoVisible()`, `enlaceDeLlamada()`, `direccionCompleta()`, `horarioVisible()`, `siteConfig.redes`… Es la única copia de los datos de la empresa.",
   },
+  {
+    id: "INV-E01",
+    nombre: "el dinero se formatea en lib/formato",
+    // `G-32` (2026-09-24, tajada B.1): la primera pantalla del ERP con importes compuestos llega con la
+    // cotización. «El motor existe una sola vez, en PHP» era texto; SofTana lo sostiene con una prueba
+    // («ninguna plantilla formatea moneda ni calcula un importe»). Medido antes de declararla: 0 fuera
+    // de `formato.ts`.
+    patron: /\bS\/\s?\$\{|["'`]S\/\s|\bcurrency\s*:|minimumFractionDigits|maximumFractionDigits|toFixed\(2\)|Intl\.NumberFormat/g,
+    exentos: ["src/lib/formato.ts"],
+    umbral: 0,
+    salida: "Usa `moneda()` de `@/lib/formato` (o `FilaMonto`). Un importe formateado a mano es un segundo criterio de redondeo y de símbolo.",
+  },
+  {
+    id: "INV-E02",
+    nombre: "el ERP no compone importes: los compone el servidor",
+    // `G-32`: el total, el IGV y la línea los calcula la API (`proyectos/50-api` § el borrador). Aquí se
+    // busca aritmética sobre una propiedad de dinero —`doc.subtotal * 2`, `a + item.subtotal`—, solo en
+    // el ERP y sin `meta.total`, que es un recuento de paginación. Medido antes de declararla: 0.
+    // Límite declarado: un importe desestructurado a una variable suelta (`const { total } = doc`) no
+    // se ve. La regla la sostiene también la revisión.
+    patron: /(?<!meta)\.(?:subtotal|total|total_vigente|igv|descuento|transporte|monto|saldo|precio_unitario|mano_obra|material|margen_pct)(?:\s*\?\?\s*[\w.]+)?\)?\s*[-+*/](?![-+=/*])|[-+*/]\s*(?!meta\.)[\w$]+(?:\??\.[\w$]+)*\??\.(?:subtotal|total|total_vigente|igv|descuento|transporte|monto|saldo|precio_unitario|mano_obra|material|margen_pct)\b/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Pide el importe a la API: si falta uno, se añade al Resource del servidor. El front solo lo pinta (`CAL-01`, `G-32`).",
+  },
 ];
 
 /**
@@ -307,6 +333,8 @@ const resultados = INVARIANTES.map((inv) => {
   for (const archivo of archivos) {
     const rel = rutaRelativa(archivo);
     if (inv.exentos.includes(rel)) continue;
+    // `solo` acota una regla a una parte del árbol: la del dinero no mira el portal, donde «total» cuenta
+    if (inv.solo && !inv.solo.some((prefijo) => rel.startsWith(prefijo))) continue;
 
     const lineas = readFileSync(archivo, "utf8").split("\n");
     lineas.forEach((linea, i) => {
