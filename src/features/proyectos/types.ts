@@ -1,3 +1,5 @@
+import type { Geometria } from "@/features/cotizar/types";
+
 /**
  * Las formas que devuelve la API de proyectos (`proyectos/50-api`).
  *
@@ -104,3 +106,43 @@ export type ProyectoFicha = {
 };
 
 export type Advertencia = { codigo: string; mensaje: string };
+
+/** Una línea del documento (`proyectos/50-api` § el borrador). `subtotal` es costo de línea, sin margen */
+export type ItemCotizacion = {
+  id: string;
+  tipo: { id: string; codigo: string; nombre: string };
+  ancho_cm: number;
+  alto_cm: number;
+  cantidad: number;
+  ubicacion: string | null;
+  geometria: Geometria | null;
+  advertencias: Advertencia[];
+  subtotal?: number;
+};
+
+/**
+ * El documento entero: la misma forma al leer y en cada escritura. Las claves de dinero no viajan sin
+ * `costeo:ver` (`PRY-I15`), por eso son opcionales.
+ */
+export type Cotizacion = {
+  id: string;
+  proyecto_id: string;
+  version: number;
+  estado: "borrador" | "emitida" | "aprobada" | "anulada";
+  vigente: boolean;
+  numero: string | null;
+  vence_at: string | null;
+  validez_dias: number | null;
+  validez_por_omision: number;
+  updated_at: string;
+  items: ItemCotizacion[];
+  margen_pct?: number;
+  transporte?: number;
+  descuento?: number;
+  descuento_motivo?: string | null;
+  subtotal?: number;
+  igv?: number;
+  total?: number;
+  igv_pct: number;
+  avisos: Advertencia[];
+};

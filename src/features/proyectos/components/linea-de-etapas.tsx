@@ -15,6 +15,8 @@ type Props = {
   /** `undefined`: quien mira no ve dinero y la clave no viajó (`CAL-04`); `null`: aún no hay cotización */
   total?: number | null;
   saldo?: number | null;
+  /** La versión en borrador, si la hay: sin vigente, el proyecto no está «sin cotización» (B.1) */
+  borrador?: number | null;
 };
 
 /**
@@ -25,7 +27,7 @@ type Props = {
  * **No mueve la etapa**: la etapa la mueve la acción principal, por su máquina en el servidor. Las fechas salen
  * de la historia —el último evento que entró en cada etapa, porque recotizar puede volver atrás—, no se guardan.
  */
-export function LineaDeEtapas({ etapa, etapaDesde, creado, historia, total, saldo }: Props) {
+export function LineaDeEtapas({ etapa, etapaDesde, creado, historia, total, saldo, borrador = null }: Props) {
   const [elegida, setElegida] = useState<Etapa | null>(null);
 
   // Perdido y anulado no están en el camino: la línea marca el paso desde el que se cerró
@@ -101,7 +103,10 @@ export function LineaDeEtapas({ etapa, etapaDesde, creado, historia, total, sald
         </p>
         {total !== undefined ? (
           <p className="text-muted-foreground flex gap-4">
-            {total === null ? (
+            {total === null && borrador !== null ? (
+              // El borrador no tiene total que enseñar: el cliente aún no lo vio
+              <span>Cotización v{borrador} en borrador</span>
+            ) : total === null ? (
               // «todavía» promete algo que en un proyecto cerrado ya no pasará
               <span>{cerrado ? "Sin cotización" : "Sin cotización todavía"}</span>
             ) : (

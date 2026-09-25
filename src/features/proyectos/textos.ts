@@ -92,7 +92,11 @@ export function tituloDeEvento(evento: Evento): string {
     return `${ETAPAS[evento.etapa_anterior]} → ${ETAPAS[evento.etapa_nueva]}`;
   }
 
-  return EVENTOS[evento.tipo] ?? evento.tipo;
+  // «Cotización iniciada · v2»: la versión viaja en `datos` (`TipoEvento::clavesSinDinero`)
+  const version = evento.tipo.startsWith("cotizacion_") ? evento.datos?.version : undefined;
+  const titulo = EVENTOS[evento.tipo] ?? evento.tipo;
+
+  return typeof version === "number" ? `${titulo} · v${version}` : titulo;
 }
 
 export function esCerrada(etapa: Etapa): boolean {

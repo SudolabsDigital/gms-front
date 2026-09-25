@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { AccionesEtapa } from "@/features/proyectos/components/acciones-etapa";
+import { CotizacionBorrador } from "@/features/proyectos/components/cotizacion-borrador";
+import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
 import { DatosProyecto } from "@/features/proyectos/components/datos-proyecto";
 import { EditarProyecto } from "@/features/proyectos/components/editar-proyecto";
 import { HistoriaProyecto } from "@/features/proyectos/components/historia-proyecto";
@@ -17,7 +19,7 @@ import { LineaDeEtapas } from "@/features/proyectos/components/linea-de-etapas";
 import { PestanasFicha } from "@/features/proyectos/components/pestanas-ficha";
 import { pestanaInicial } from "@/features/proyectos/pestanas";
 import { ETAPAS, QUE_FALTA } from "@/features/proyectos/textos";
-import type { ProyectoFicha } from "@/features/proyectos/types";
+import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
 import { ApiError, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -72,6 +74,11 @@ export default async function FichaProyectoPage({
     throw error;
   }
 
+  // El borrador se lee entero aquí, en el mismo render: cambiar de pestaña sigue siendo instantáneo
+  const idBorrador = proyecto.versiones.find((v) => v.estado === "borrador")?.id;
+  const borrador = idBorrador ? await apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(idBorrador)}`) : null;
+  const puedeCotizar = puede(usuario, "cotizaciones:crear");
+
   const crudo = (await searchParams).pestana;
   const inicial = pestanaInicial(typeof crudo === "string" ? crudo : undefined, proyecto.etapa);
 
@@ -121,6 +128,7 @@ export default async function FichaProyectoPage({
         historia={proyecto.historia}
         total={veDinero ? (proyecto.vigente?.total ?? null) : undefined}
         saldo={veDinero ? proyecto.saldo : undefined}
+        borrador={borrador?.version ?? null}
       />
 
       <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:items-start lg:grid-cols-[minmax(0,1fr)_24rem]">
@@ -138,11 +146,23 @@ export default async function FichaProyectoPage({
                 <DatosProyecto proyecto={proyecto} />
               </>
             ),
-            cotizacion: (
+            cotizacion: borrador ? (
+              <CotizacionBorrador cotizacion={borrador} puedeEditar={puedeCotizar} />
+            ) : (
               <Pendiente icono={FileText} titulo="Cotización">
-                {cerrado
-                  ? "El proyecto se cerró sin cotización."
-                  : "Todavía no hay cotización. Se arma con el cotizador conectado al proyecto, que llega en la próxima entrega: agregar ítems, emitir, ver sus versiones y registrar la aprobación del cliente."}
+                {cerrado ? (
+                  "El proyecto se cerró sin cotización."
+                ) : proyecto.etapa === "lead" && puedeCotizar ? (
+                  <div className="flex flex-col items-start gap-3">
+                    <p>
+                      Todavía no hay cotización. Se arma en el cotizador: cada ventana se calcula y se agrega al proyecto
+                      con su cantidad y dónde va.
+                    </p>
+                    <CotizarProyecto proyectoId={proyecto.id} className="h-11 md:h-9" />
+                  </div>
+                ) : (
+                  "Todavía no hay cotización. Emitirla, ver sus versiones y registrar la aprobación del cliente llegan con la próxima entrega."
+                )}
               </Pendiente>
             ),
             obra: (
@@ -176,7 +196,7 @@ export default async function FichaProyectoPage({
               <CardTitle className="text-base">{cerrado ? ETAPAS[proyecto.etapa] : `${ETAPAS[proyecto.etapa]} · qué sigue`}</CardTitle>
             </CardHeader>
             <CardContent>
-              <AccionesEtapa proyecto={proyecto} puedeAvanzar={puede(usuario, "proyectos:avanzar")} />
+              <AccionesEtapa proyecto={proyecto} puedeAvanzar={puede(usuario, "proyectos:avanzar")} puedeCotizar={puedeCotizar} />
             </CardContent>
           </Card>
         </aside>

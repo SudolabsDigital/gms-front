@@ -13,6 +13,7 @@ export type PermisoDelFront =
   | "calculo:ejecutar"
   | "catalogo:gestionar"
   | "costeo:ver"
+  | "cotizaciones:crear"
   | "despiece:ver"
   | "plantillas:gestionar"
   | "proyectos:avanzar"

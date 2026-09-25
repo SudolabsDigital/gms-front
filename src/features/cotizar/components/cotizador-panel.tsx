@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertTriangle, Info, LayoutTemplate } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, ArrowLeft, Info, LayoutTemplate } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
 import { PanelError } from "@/components/comunes/panel-error";
@@ -11,6 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { AgregarAlProyecto, type DestinoDeCotizacion } from "@/features/cotizar/components/agregar-al-proyecto";
 import { BarraControles } from "@/features/cotizar/components/barra-controles";
 import { ResultadoCalculo } from "@/features/cotizar/components/resultado-calculo";
 import type { Despiece, Tipo } from "@/features/cotizar/types";
@@ -26,15 +28,21 @@ import { pedir, type ErrorApi } from "@/lib/api-cliente";
 export function CotizadorPanel({
   tipos,
   puedeVerDinero,
+  destino: destinoInicial = null,
 }: {
   tipos: Tipo[];
   puedeVerDinero: boolean;
+  /** Con proyecto, tras calcular aparece «Agregar al proyecto» (tajada B.1). Sin él, cálculo en seco */
+  destino?: DestinoDeCotizacion | null;
 }) {
+  const [destino, setDestino] = useState(destinoInicial);
   const [tipoId, setTipoId] = useState<string>(tipos[0]?.id ?? "");
   const [ancho, setAncho] = useState<string>(String(tipos[0]?.ancho_default ?? 300));
   const [alto, setAlto] = useState<string>(String(tipos[0]?.alto_default ?? 170));
 
   const [resultado, setResultado] = useState<Despiece | null>(null);
+  /** Las entradas del resultado a la vista: lo que «Agregar al proyecto» manda, aunque la barra ya diga otra cosa */
+  const [calculado, setCalculado] = useState<{ tipoId: string; ancho: string; alto: string } | null>(null);
   const [errores, setErrores] = useState<ErrorApi | null>(null);
   const [calculando, iniciarCalculo] = useTransition();
 
@@ -54,12 +62,15 @@ export function CotizadorPanel({
     setAncho(String(nuevoTipo?.ancho_default ?? 300));
     setAlto(String(nuevoTipo?.alto_default ?? 170));
     setResultado(null);
+    setCalculado(null);
     setErrores(null);
     setInsumoResaltado(null);
   }
 
   function calcular() {
     if (!tipoId) return;
+
+    const entradas = { tipoId, ancho, alto };
 
     iniciarCalculo(async () => {
       setErrores(null);
@@ -71,12 +82,14 @@ export function CotizadorPanel({
 
       if (!respuesta.ok) {
         setResultado(null);
+        setCalculado(null);
         setErrores(respuesta.error);
 
         return;
       }
 
       setResultado(respuesta.datos);
+      setCalculado(entradas);
     });
   }
 
@@ -94,6 +107,8 @@ export function CotizadorPanel({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
+      {destino ? <CabeceraDestino destino={destino} /> : null}
+
       <BarraControles
         tipos={tipos}
         tipoId={tipoId}
@@ -144,6 +159,17 @@ export function CotizadorPanel({
         />
       ) : null}
 
+      {resultado && destino && calculado ? (
+        <AgregarAlProyecto
+          destino={destino}
+          // Lo que se ve en el plano, no lo que está escrito ahora en la barra (`G-40`)
+          tipoId={calculado.tipoId}
+          ancho={calculado.ancho}
+          alto={calculado.alto}
+          alAgregar={(documento) => setDestino({ ...destino, items: documento.items.length })}
+        />
+      ) : null}
+
       {resultado ? (
         <ResultadoCalculo
           despiece={resultado}
@@ -157,6 +183,29 @@ export function CotizadorPanel({
           Escriba las medidas del vano y presione «Calcular».
         </p>
       )}
+    </div>
+  );
+}
+
+/**
+ * Para quién se cotiza, y el camino de vuelta. El cotizador se queda tras agregar (`52-brief-ficha` § 10):
+ * un trabajo trae varias ventanas seguidas, y la vuelta a la ficha está siempre a un toque.
+ */
+function CabeceraDestino({ destino }: { destino: DestinoDeCotizacion }) {
+  return (
+    <div className="bg-muted/40 flex flex-col gap-2 rounded-lg border px-3 py-2 md:flex-row md:items-center md:justify-between">
+      <p className="min-w-0 text-sm">
+        <span className="text-muted-foreground">Cotizando para </span>
+        <span className="font-mono">{destino.codigo}</span>
+        <span className="text-muted-foreground"> · v{destino.version} borrador · </span>
+        <span className="font-medium break-words">{destino.nombre}</span>
+      </p>
+      <Button asChild variant="outline" size="sm" className="h-11 shrink-0 md:h-8">
+        <Link href={`/proyectos/${destino.proyectoId}?pestana=cotizacion`}>
+          <ArrowLeft className="size-4" />
+          Volver al proyecto ({destino.items} {destino.items === 1 ? "ítem" : "ítems"})
+        </Link>
+      </Button>
     </div>
   );
 }

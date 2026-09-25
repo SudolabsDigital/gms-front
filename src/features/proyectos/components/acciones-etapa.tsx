@@ -10,6 +10,7 @@ import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
@@ -21,8 +22,7 @@ import { mensajeDeError, pedir } from "@/lib/api-cliente";
  * ve INERTE y rotulado, nunca como un botón que lleva a un error: el mismo criterio del menú del ERP.
  */
 const PRINCIPAL_PENDIENTE: Partial<Record<Etapa, { etiqueta: string; llega: string }>> = {
-  lead: { etiqueta: "Cotizar", llega: "Llega con la cotización del proyecto" },
-  cotizado: { etiqueta: "Registrar aprobación", llega: "Llega con la cotización del proyecto" },
+  cotizado: { etiqueta: "Registrar aprobación", llega: "Llega con la aprobación de la cotización" },
   aprobado: { etiqueta: "Confirmar medición", llega: "Llega con la medición en obra" },
   produccion: { etiqueta: "Imprimir lista de corte", llega: "Llega con las listas del taller" },
 };
@@ -47,7 +47,16 @@ const VERBO: Partial<Record<Etapa, string>> = {
  * Los botones de etapa. Salen de `transiciones`, que calcula el servidor: aquí no hay grafo. Pedirla
  * es un `POST /etapa` con la versión leída; un 409 dice que alguien cambió el proyecto y recarga.
  */
-export function AccionesEtapa({ proyecto, puedeAvanzar }: { proyecto: ProyectoFicha; puedeAvanzar: boolean }) {
+export function AccionesEtapa({
+  proyecto,
+  puedeAvanzar,
+  puedeCotizar,
+}: {
+  proyecto: ProyectoFicha;
+  puedeAvanzar: boolean;
+  /** `cotizaciones:crear`: en `lead`, la acción principal es cotizar (tajada B.1) */
+  puedeCotizar: boolean;
+}) {
   const router = useRouter();
   const [pidiendo, setPidiendo] = useState<Etapa | null>(null);
   const [motivo, setMotivo] = useState("");
@@ -58,7 +67,10 @@ export function AccionesEtapa({ proyecto, puedeAvanzar }: { proyecto: ProyectoFi
     ? proyecto.transiciones.filter((etapa) => !NO_SE_OFRECEN_AUN.includes(etapa))
     : [];
   const pendiente = PRINCIPAL_PENDIENTE[proyecto.etapa];
-  const principalDirecta = !pendiente ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+  // En lead lo siguiente no es una etapa que se pida: `cotizado` lo mueve el documento al emitirse
+  const cotizar = proyecto.etapa === "lead" && puedeCotizar;
+  const hayBorrador = proyecto.versiones.some((v) => v.estado === "borrador");
+  const principalDirecta = !pendiente && !cotizar ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
   const secundarias = posibles.filter((e) => e !== principalDirecta);
 
   function abrir(etapa: Etapa) {
@@ -109,7 +121,9 @@ export function AccionesEtapa({ proyecto, puedeAvanzar }: { proyecto: ProyectoFi
 
   const exigeMotivo = pidiendo !== null && CON_MOTIVO.includes(pidiendo);
 
-  const botonPrincipal = pendiente ? (
+  const botonPrincipal = cotizar ? (
+    <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
+  ) : pendiente ? (
     <div className="flex flex-col gap-1">
       <Button variant="brand" className="h-11 w-full md:h-9" disabled>
         {pendiente.etiqueta}
