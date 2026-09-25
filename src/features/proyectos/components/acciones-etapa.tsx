@@ -10,20 +10,21 @@ import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AprobarCotizacion } from "@/features/proyectos/components/aprobar-cotizacion";
 import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
 import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
+import { RecotizarProyecto } from "@/features/proyectos/components/recotizar-proyecto";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
 /**
- * La acción principal de cada etapa (`proyectos/51-ui` § la ficha). Lo que llega en la tajada B y
- * siguientes —cotizar, registrar la aprobación, confirmar la medición, imprimir la lista de corte— se
- * ve INERTE y rotulado, nunca como un botón que lleva a un error: el mismo criterio del menú del ERP.
+ * La acción principal de cada etapa (`proyectos/51-ui` § la ficha). Lo que llega en las tajadas siguientes
+ * —confirmar la medición, imprimir la lista de corte— se ve INERTE y rotulado, nunca como un botón que lleva a
+ * un error: el mismo criterio del menú del ERP. Registrar la aprobación llegó con B.3.
  */
 const PRINCIPAL_PENDIENTE: Partial<Record<Etapa, { etiqueta: string; llega: string }>> = {
-  cotizado: { etiqueta: "Registrar aprobación", llega: "Llega con la aprobación de la cotización" },
   aprobado: { etiqueta: "Confirmar medición", llega: "Llega con la medición en obra" },
   produccion: { etiqueta: "Imprimir lista de corte", llega: "Llega con las listas del taller" },
 };
@@ -52,12 +53,15 @@ export function AccionesEtapa({
   proyecto,
   puedeAvanzar,
   puedeCotizar,
+  puedeAprobar,
   emitible = null,
 }: {
   proyecto: ProyectoFicha;
   puedeAvanzar: boolean;
-  /** `cotizaciones:crear`: en `lead`, la acción principal es cotizar (tajada B.1) */
+  /** `cotizaciones:crear`: en `lead`, la acción principal es cotizar (tajada B.1); en `cotizado` y `aprobado`, recotizar (B.3) */
   puedeCotizar: boolean;
+  /** `cotizaciones:aprobar`: en `cotizado`, la acción principal es registrar la aprobación (B.3) */
+  puedeAprobar: boolean;
   /** El borrador que ya se puede emitir —con ítems y con `cotizaciones:emitir`—: entonces la principal es emitir (B.2) */
   emitible?: string | null;
 }) {
@@ -74,7 +78,20 @@ export function AccionesEtapa({
   // En lead lo siguiente no es una etapa que se pida: `cotizado` lo mueve el documento al emitirse
   const cotizar = proyecto.etapa === "lead" && puedeCotizar;
   const hayBorrador = proyecto.versiones.some((v) => v.estado === "borrador");
-  const principalDirecta = !pendiente && !cotizar ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+  const vigente = proyecto.vigente;
+  // En cotizado lo siguiente tampoco se pide: `aprobado` lo mueve el documento al registrar el sí (B.3)
+  const aprobar = proyecto.etapa === "cotizado" && puedeAprobar && vigente?.estado === "emitida" ? vigente : null;
+  // Recotizar solo existe hasta `aprobado` (`10-modelo`): después lo que cambia es obra, no oferta
+  const recotizar =
+    puedeCotizar && vigente && (proyecto.etapa === "cotizado" || proyecto.etapa === "aprobado") ? (
+      <RecotizarProyecto
+        proyectoId={proyecto.id}
+        etapa={proyecto.etapa}
+        versionVigente={vigente.version}
+        hayBorrador={hayBorrador}
+      />
+    ) : null;
+  const principalDirecta = !pendiente && !cotizar && !aprobar ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
   const secundarias = posibles.filter((e) => e !== principalDirecta);
 
   function abrir(etapa: Etapa) {
@@ -125,7 +142,9 @@ export function AccionesEtapa({
 
   const exigeMotivo = pidiendo !== null && CON_MOTIVO.includes(pidiendo);
 
-  const botonPrincipal = cotizar && emitible ? (
+  const botonPrincipal = aprobar ? (
+    <AprobarCotizacion vigente={aprobar} />
+  ) : cotizar && emitible ? (
     <EmitirCotizacion cotizacionId={emitible} />
   ) : cotizar ? (
     <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
@@ -147,6 +166,7 @@ export function AccionesEtapa({
       <div className="flex flex-col gap-2">
         {/* En el escritorio la principal va aquí; en el móvil, en la barra fija de abajo */}
         <div className="hidden md:block">{botonPrincipal}</div>
+        {recotizar}
         {secundarias.map((etapa) => (
           <Button
             key={etapa}
@@ -157,7 +177,7 @@ export function AccionesEtapa({
             {VERBO[etapa] ?? ETAPAS[etapa]}
           </Button>
         ))}
-        {!botonPrincipal && secundarias.length === 0 ? (
+        {!botonPrincipal && !recotizar && secundarias.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {proyecto.transiciones.length === 0
               ? "Proyecto cerrado: su etapa ya no cambia."
@@ -176,7 +196,10 @@ export function AccionesEtapa({
         titulo={pidiendo ? `${VERBO[pidiendo] ?? ETAPAS[pidiendo]} · ${proyecto.codigo}` : ""}
         descripcion={
           exigeMotivo
-            ? "El proyecto se cierra y ya no vuelve a moverse. El motivo queda en la historia: es lo que dirá, dentro de meses, por qué se perdió."
+            ? `El proyecto se cierra y ya no vuelve a moverse. El motivo queda en la historia: es lo que dirá, dentro de meses, por qué se ${pidiendo === "anulado" ? "anuló" : "perdió"}.${
+                // Un documento no se anula suelto: se anula con su proyecto (decisión 26, `PRY-I29`)
+                pidiendo === "anulado" && vigente ? ` La cotización vigente (v${vigente.version}) queda anulada con el mismo motivo.` : ""
+              }`
             : `El proyecto pasa a ${pidiendo ? ETAPAS[pidiendo] : ""}.`
         }
       >

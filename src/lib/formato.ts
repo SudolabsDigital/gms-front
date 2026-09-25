@@ -100,6 +100,23 @@ export function haceDias(iso: string | null | undefined, ahora: Date = new Date(
   return `hace ${numero(dias, 0)} días`;
 }
 
+/** «2026-09-25»: el día de hoy en Huancayo, el formato de un `<input type="date">` y de la API */
+export function diaDeHoy(ahora: Date = new Date()): string {
+  return ahora.toLocaleDateString("en-CA", { timeZone: ZONA });
+}
+
+/** «2026-09-25» → «25/09/2026». Un día no pasa por `Date`: sería medianoche UTC, que en Lima es el día anterior */
+export function diaLegible(dia: string | null | undefined): string {
+  if (!dia) return "—";
+  const [anio, mes, d] = dia.split("-");
+  return `${d}/${mes}/${anio}`;
+}
+
+/** El día de Huancayo en que cae un instante: «2026-09-25» */
+export function diaDe(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-CA", { timeZone: ZONA });
+}
+
 /** Cantidad con su sustantivo concordado: «1 panel», «5 paneles». */
 export function plural(cantidad: number, singular: string, plural: string): string {
   return `${numero(cantidad, 0)} ${cantidad === 1 ? singular : plural}`;

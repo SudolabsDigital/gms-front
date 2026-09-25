@@ -13,7 +13,7 @@ import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
 import { rutaDelCotizador } from "@/features/proyectos/components/cotizar-proyecto";
 import { DocumentoCotizacion } from "@/features/proyectos/components/documento-cotizacion";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
-import type { Cotizacion, ItemCotizacion } from "@/features/proyectos/types";
+import type { Cotizacion, ItemCotizacion, Sustitucion } from "@/features/proyectos/types";
 import { medida, moneda } from "@/lib/formato";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
@@ -28,10 +28,13 @@ export function CotizacionBorrador({
   cotizacion,
   puedeEditar,
   puedeEmitir,
+  sustituye = null,
 }: {
   cotizacion: Cotizacion;
   puedeEditar: boolean;
   puedeEmitir: boolean;
+  /** Recotizando (B.3): la vigente a la que sustituirá al emitirse */
+  sustituye?: Sustitucion | null;
 }) {
   const router = useRouter();
   const [quitando, setQuitando] = useState<ItemCotizacion | null>(null);
@@ -70,9 +73,16 @@ export function CotizacionBorrador({
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-          <CardTitle className="text-base">
-            Cotización · v{cotizacion.version} <span className="text-muted-foreground font-normal">· borrador</span>
-          </CardTitle>
+          <div className="flex flex-col gap-1">
+            <CardTitle className="text-base">
+              Cotización · v{cotizacion.version} <span className="text-muted-foreground font-normal">· borrador</span>
+            </CardTitle>
+            {sustituye ? (
+              <p className="text-muted-foreground text-sm">
+                Recotiza la v{sustituye.version}, que sigue vigente hasta que emita esta.
+              </p>
+            ) : null}
+          </div>
           {cotizacion.items.length > 0 ? agregar : null}
         </CardHeader>
         <CardContent>
@@ -101,6 +111,7 @@ export function CotizacionBorrador({
           cotizacion={cotizacion}
           puedeEditar={puedeEditar}
           puedeEmitir={puedeEmitir}
+          sustituye={sustituye}
         />
       ) : null}
 

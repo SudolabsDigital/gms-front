@@ -1,6 +1,6 @@
 import { CAMPOS, ETAPAS, ORIGENES, tituloDeEvento } from "@/features/proyectos/textos";
 import type { Etapa, Evento, Origen } from "@/features/proyectos/types";
-import { fechaHora } from "@/lib/formato";
+import { diaLegible, fechaHora } from "@/lib/formato";
 
 /**
  * La historia del proyecto (`proyecto_eventos`, `PRY-09`): del más reciente al más antiguo, en el orden
@@ -21,6 +21,18 @@ export function HistoriaProyecto({ eventos }: { eventos: Evento[] }) {
             {evento.actor.nombre} · {fechaHora(evento.created_at)}
           </p>
           {evento.motivo ? <p className="mt-1 text-sm">«{evento.motivo}»</p> : null}
+          {/* El sí del cliente (B.3): el día que dio —puede ser anterior al registro— y cómo llegó */}
+          {evento.tipo === "cotizacion_aprobada" && evento.datos ? (
+            <p className="mt-1 text-sm">
+              Dijo que sí el {diaLegible(String(evento.datos.aprobada_el ?? ""))}
+              {typeof evento.datos.nota === "string" ? ` · «${evento.datos.nota}»` : ""}
+            </p>
+          ) : null}
+          {evento.tipo === "cotizacion_sustituida" && typeof evento.datos?.por_version === "number" ? (
+            <p className="text-muted-foreground mt-1 text-xs">
+              Por la v{evento.datos.por_version} · {String(evento.datos.por_numero ?? "")}
+            </p>
+          ) : null}
           {evento.tipo === "datos_editados" && evento.datos ? (
             <ul className="text-muted-foreground mt-1 space-y-0.5 text-xs">
               {Object.entries(evento.datos).map(([campo, valores]) => (

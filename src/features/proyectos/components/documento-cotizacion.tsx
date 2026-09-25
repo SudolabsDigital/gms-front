@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DesgloseCotizacion, type EstadoDelDesglose } from "@/features/proyectos/components/desglose-cotizacion";
 import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
-import type { Cotizacion, Desglose } from "@/features/proyectos/types";
+import type { Cotizacion, Desglose, Sustitucion } from "@/features/proyectos/types";
 import { moneda } from "@/lib/formato";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 
@@ -58,11 +58,13 @@ export function DocumentoCotizacion({
   cotizacion,
   puedeEditar,
   puedeEmitir,
+  sustituye = null,
 }: {
   cotizacion: Cotizacion;
   puedeEditar: boolean;
   /** `cotizaciones:emitir` */
   puedeEmitir: boolean;
+  sustituye?: Sustitucion | null;
 }) {
   const router = useRouter();
   const [datos, setDatos] = useState<Campos>(camposDe(cotizacion));
@@ -245,6 +247,7 @@ export function DocumentoCotizacion({
                   <EmitirCotizacion
                     cotizacionId={cotizacion.id}
                     hayCambiosSinGuardar={cambios.length > 0}
+                    sustituye={sustituye}
                     variante={cambios.length > 0 ? "outline" : "brand"}
                     className="h-11 md:h-9"
                   />

@@ -18,6 +18,7 @@ import { EditarProyecto } from "@/features/proyectos/components/editar-proyecto"
 import { HistoriaProyecto } from "@/features/proyectos/components/historia-proyecto";
 import { LineaDeEtapas } from "@/features/proyectos/components/linea-de-etapas";
 import { PestanasFicha } from "@/features/proyectos/components/pestanas-ficha";
+import { SelectorDeVersiones } from "@/features/proyectos/components/selector-de-versiones";
 import { pestanaInicial } from "@/features/proyectos/pestanas";
 import { ETAPAS, QUE_FALTA } from "@/features/proyectos/textos";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
@@ -75,15 +76,25 @@ export default async function FichaProyectoPage({
     throw error;
   }
 
+  const parametros = await searchParams;
+  const leerDocumento = (idDocumento: string) => apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(idDocumento)}`);
+
   // El borrador se lee entero aquí, en el mismo render: cambiar de pestaña sigue siendo instantáneo
   const idBorrador = proyecto.versiones.find((v) => v.estado === "borrador")?.id;
-  const borrador = idBorrador ? await apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(idBorrador)}`) : null;
-  // Sin borrador, la pestaña enseña la vigente emitida, de solo lectura (B.2)
-  const vigente = !borrador && proyecto.vigente ? await apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(proyecto.vigente.id)}`) : null;
+  const borrador = idBorrador ? await leerDocumento(idBorrador) : null;
+  // `?version=` abre una versión emitida concreta (B.3); sin él, el borrador o, si no hay, la vigente (B.2)
+  const pedida = proyecto.versiones.find((v) => v.estado !== "borrador" && String(v.version) === parametros.version);
+  const verEmitida = pedida ?? (!borrador ? proyecto.vigente : null);
+  const emitida = verEmitida ? await leerDocumento(verEmitida.id) : null;
+  const mostrada = emitida ?? borrador;
+  // Recotizando: a qué vigente sustituirá el borrador al emitirse, y si estaba aprobada (B.3)
+  const sustituye = borrador && proyecto.vigente
+    ? { version: proyecto.vigente.version, aprobada: proyecto.vigente.estado === "aprobada" }
+    : null;
   const puedeCotizar = puede(usuario, "cotizaciones:crear");
   const puedeEmitir = puede(usuario, "cotizaciones:emitir");
 
-  const crudo = (await searchParams).pestana;
+  const crudo = parametros.pestana;
   const inicial = pestanaInicial(typeof crudo === "string" ? crudo : undefined, proyecto.etapa);
 
   const whatsapp = enlaceParaEscribirA(proyecto.cliente.telefono);
@@ -150,10 +161,24 @@ export default async function FichaProyectoPage({
                 <DatosProyecto proyecto={proyecto} />
               </>
             ),
-            cotizacion: borrador ? (
-              <CotizacionBorrador cotizacion={borrador} puedeEditar={puedeCotizar} puedeEmitir={puedeEmitir} />
-            ) : vigente ? (
-              <CotizacionEmitida cotizacion={vigente} />
+            cotizacion: mostrada ? (
+              <div className="flex flex-col gap-4">
+                <SelectorDeVersiones
+                  proyectoId={proyecto.id}
+                  versiones={proyecto.versiones}
+                  elegida={mostrada.version}
+                />
+                {emitida ? (
+                  <CotizacionEmitida cotizacion={emitida} sustituidaPor={pedida?.sustituida_por ?? null} />
+                ) : borrador ? (
+                  <CotizacionBorrador
+                    cotizacion={borrador}
+                    puedeEditar={puedeCotizar}
+                    puedeEmitir={puedeEmitir}
+                    sustituye={sustituye}
+                  />
+                ) : null}
+              </div>
             ) : (
               <Pendiente icono={FileText} titulo="Cotización">
                 {cerrado ? (
@@ -167,7 +192,7 @@ export default async function FichaProyectoPage({
                     <CotizarProyecto proyectoId={proyecto.id} className="h-11 md:h-9" />
                   </div>
                 ) : (
-                  "Todavía no hay cotización. Emitirla, ver sus versiones y registrar la aprobación del cliente llegan con la próxima entrega."
+                  "Todavía no hay cotización."
                 )}
               </Pendiente>
             ),
@@ -206,6 +231,7 @@ export default async function FichaProyectoPage({
                 proyecto={proyecto}
                 puedeAvanzar={puede(usuario, "proyectos:avanzar")}
                 puedeCotizar={puedeCotizar}
+                puedeAprobar={puede(usuario, "cotizaciones:aprobar")}
                 // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
                 emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
               />

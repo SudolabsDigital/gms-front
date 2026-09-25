@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { AvisoDeError } from "@/components/comunes/aviso-de-error";
 import { Button } from "@/components/ui/button";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
-import type { Cotizacion } from "@/features/proyectos/types";
+import type { Cotizacion, Sustitucion } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { moneda } from "@/lib/formato";
 
@@ -23,11 +23,14 @@ import { moneda } from "@/lib/formato";
 export function EmitirCotizacion({
   cotizacionId,
   hayCambiosSinGuardar = false,
+  sustituye = null,
   variante = "brand",
   className,
 }: {
   cotizacionId: string;
   hayCambiosSinGuardar?: boolean;
+  /** Recotizando (B.3): a qué versión sustituye, y si estaba aprobada */
+  sustituye?: Sustitucion | null;
   variante?: "brand" | "outline";
   className?: string;
 }) {
@@ -71,7 +74,12 @@ export function EmitirCotizacion({
     }
 
     toast.success(`Emitida ${respuesta.datos.numero}`, {
-      description: "El documento quedó numerado y ya no cambia. El proyecto pasó a Cotizado.",
+      // La primera emisión solo ocurre en `lead`; las siguientes sustituyen a una vigente (B.3)
+      description: sustituye?.aprobada
+        ? `Sustituye a la v${sustituye.version}, que estaba aprobada: el proyecto volvió a Cotizado hasta que el cliente apruebe esta.`
+        : sustituye
+          ? `Sustituye a la v${sustituye.version}. El documento quedó numerado y ya no cambia.`
+          : "El documento quedó numerado y ya no cambia. El proyecto pasó a Cotizado.",
     });
     setAbierto(false);
     router.refresh();
@@ -112,6 +120,12 @@ export function EmitirCotizacion({
                   </div>
                 ) : null}
               </dl>
+              {sustituye ? (
+                <p className="bg-muted rounded-md px-3 py-2 text-sm">
+                  Sustituye a la v{sustituye.version}: deja de estar vigente y el cliente recibe este documento.
+                  {sustituye.aprobada ? " Estaba aprobada: el proyecto vuelve a Cotizado hasta que el cliente apruebe este." : ""}
+                </p>
+              ) : null}
               {hayCambiosSinGuardar ? (
                 <p className="text-muted-foreground text-sm">
                   Hay cambios sin guardar en el documento: se emite lo guardado, que es lo de arriba.

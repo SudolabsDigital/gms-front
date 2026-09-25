@@ -78,6 +78,10 @@ export type DocumentoResumen = {
   vigente: boolean;
   emitida_at: string | null;
   vence_at: string | null;
+  /** El día en que el cliente dijo que sí, `AAAA-MM-DD` (B.3) */
+  aprobada_el: string | null;
+  /** La versión que la sustituyó: «Sustituida por v3». La calcula el servidor (B.3) */
+  sustituida_por?: number | null;
   total?: number | null;
 };
 
@@ -107,6 +111,9 @@ export type ProyectoFicha = {
 
 export type Advertencia = { codigo: string; mensaje: string };
 
+/** A qué versión sustituirá el borrador al emitirse, y si estaba aprobada: entonces el proyecto vuelve a Cotizado (B.3) */
+export type Sustitucion = { version: number; aprobada: boolean };
+
 /** Una línea del documento (`proyectos/50-api` § el borrador). `subtotal` es costo de línea, sin margen */
 export type ItemCotizacion = {
   id: string;
@@ -134,6 +141,9 @@ export type Cotizacion = {
   vence_at: string | null;
   validez_dias: number | null;
   validez_por_omision: number;
+  /** El día en que el cliente dijo que sí, `AAAA-MM-DD`, y cómo llegó (B.3) */
+  aprobada_el: string | null;
+  aprobacion_nota: string | null;
   updated_at: string;
   items: ItemCotizacion[];
   margen_pct?: number;

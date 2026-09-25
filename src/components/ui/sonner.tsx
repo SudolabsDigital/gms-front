@@ -14,8 +14,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={(forcedTheme ?? resolvedTheme ?? "light") as ToasterProps["theme"]}
       className="toaster group"
       // En el móvil, por encima de la barra fija del ERP: el aviso de «Agregado» tapaba «Emitir», que es justo
-      // lo siguiente que se pulsa (recorrido de B.2). La barra mide ~68 px más el área segura
-      mobileOffset={{ bottom: "calc(5rem + env(safe-area-inset-bottom))" }}
+      // lo siguiente que se pulsa (recorrido de B.2). La barra publica su altura real —no es fija: en `aprobado`
+      // lleva un rótulo y un 5rem la tapaba 9 px (B.3)—; sin barra, el aviso queda sobre el área segura
+      mobileOffset={{ bottom: "calc(var(--alto-barra-fija, env(safe-area-inset-bottom)) + 0.75rem)" }}
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />
