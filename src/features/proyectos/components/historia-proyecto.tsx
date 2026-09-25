@@ -1,6 +1,6 @@
-import { CAMPOS, ETAPAS, ORIGENES, tituloDeEvento } from "@/features/proyectos/textos";
-import type { Etapa, Evento, Origen } from "@/features/proyectos/types";
-import { diaLegible, fechaHora } from "@/lib/formato";
+import { CAMPOS, ETAPAS, MEDIOS_COBRO, ORIGENES, TIPOS_COBRO, tituloDeEvento } from "@/features/proyectos/textos";
+import type { Etapa, Evento, MedioCobro, Origen, TipoCobro } from "@/features/proyectos/types";
+import { diaLegible, fechaHora, moneda } from "@/lib/formato";
 
 /**
  * La historia del proyecto (`proyecto_eventos`, `PRY-09`): del más reciente al más antiguo, en el orden
@@ -28,6 +28,10 @@ export function HistoriaProyecto({ eventos }: { eventos: Evento[] }) {
               {typeof evento.datos.nota === "string" ? ` · «${evento.datos.nota}»` : ""}
             </p>
           ) : null}
+          {/* Un cobro dice qué fue (C.1); el monto solo llega con `costeo:ver` (`TipoEvento::clavesSinDinero`) */}
+          {(evento.tipo === "cobro_registrado" || evento.tipo === "cobro_anulado") && evento.datos ? (
+            <p className="mt-1 text-sm">{describirCobro(evento.datos)}</p>
+          ) : null}
           {evento.tipo === "cotizacion_sustituida" && typeof evento.datos?.por_version === "number" ? (
             <p className="text-muted-foreground mt-1 text-xs">
               Por la v{evento.datos.por_version} · {String(evento.datos.por_numero ?? "")}
@@ -44,6 +48,17 @@ export function HistoriaProyecto({ eventos }: { eventos: Evento[] }) {
       ))}
     </ol>
   );
+}
+
+function describirCobro(datos: Record<string, unknown>): string {
+  const partes = [
+    TIPOS_COBRO[datos.tipo as TipoCobro] ?? String(datos.tipo ?? ""),
+    typeof datos.fecha === "string" ? diaLegible(datos.fecha) : null,
+    typeof datos.medio === "string" ? (MEDIOS_COBRO[datos.medio as MedioCobro] ?? datos.medio) : null,
+    typeof datos.monto === "string" ? moneda(Number(datos.monto)) : null,
+  ];
+
+  return partes.filter(Boolean).join(" · ");
 }
 
 function describirCambio(campo: string, valores: unknown): string {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FileText, MessageCircle, Phone, Ruler, Wallet } from "lucide-react";
+import { FileText, MessageCircle, Phone, Ruler } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/comunes/page-header";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { AccionesEtapa } from "@/features/proyectos/components/acciones-etapa";
+import { CobrosProyecto } from "@/features/proyectos/components/cobros-proyecto";
 import { CotizacionBorrador } from "@/features/proyectos/components/cotizacion-borrador";
 import { CotizacionEmitida } from "@/features/proyectos/components/cotizacion-emitida";
 import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
@@ -204,11 +205,11 @@ export default async function FichaProyectoPage({
               </Pendiente>
             ),
             cobros: (
-              <Pendiente icono={Wallet} titulo="Cobros">
-                {cerrado
-                  ? "El proyecto se cerró sin cobros."
-                  : "Los cobros —anticipo, parciales y saldo— se registran cuando haya una cotización aprobada. Llegan con la entrega de cobros."}
-              </Pendiente>
+              <CobrosProyecto
+                proyecto={proyecto}
+                puedeRegistrar={puede(usuario, "cobros:registrar")}
+                puedeAnular={puede(usuario, "cobros:anular")}
+              />
             ),
             historia: (
               <Card>
@@ -232,6 +233,7 @@ export default async function FichaProyectoPage({
                 puedeAvanzar={puede(usuario, "proyectos:avanzar")}
                 puedeCotizar={puedeCotizar}
                 puedeAprobar={puede(usuario, "cotizaciones:aprobar")}
+                puedeCobrar={puede(usuario, "cobros:registrar")}
                 // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
                 emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
               />

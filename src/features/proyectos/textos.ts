@@ -1,4 +1,4 @@
-import type { Etapa, Evento, Origen } from "@/features/proyectos/types";
+import type { Etapa, Evento, MedioCobro, Origen, TipoCobro } from "@/features/proyectos/types";
 
 /**
  * Cómo se NOMBRA cada cosa del módulo en pantalla. Solo nombres: qué etapa sigue a cuál lo decide el
@@ -55,6 +55,23 @@ export const ORIGENES: Record<Origen, string> = {
   feria: "Feria",
   otro: "Otro",
 };
+
+export const TIPOS_COBRO: Record<TipoCobro, string> = {
+  anticipo: "Anticipo",
+  parcial: "Parcial",
+  saldo: "Saldo",
+};
+
+export const MEDIOS_COBRO: Record<MedioCobro, string> = {
+  efectivo: "Efectivo",
+  transferencia: "Transferencia",
+  yape_plin: "Yape / Plin",
+  deposito: "Depósito",
+  otro: "Otro",
+};
+
+/** Las etapas en que se cobra: desde que el cliente aprueba (decisión 27). El servidor lo exige igual */
+export const ETAPAS_CON_COBROS: Etapa[] = ["aprobado", "produccion", "instalacion", "entregado"];
 
 /** Los campos que puede nombrar un evento `datos_editados` */
 export const CAMPOS: Record<string, string> = {

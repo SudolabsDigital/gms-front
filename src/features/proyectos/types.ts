@@ -85,6 +85,24 @@ export type DocumentoResumen = {
   total?: number | null;
 };
 
+export type TipoCobro = "anticipo" | "parcial" | "saldo";
+export type MedioCobro = "efectivo" | "transferencia" | "yape_plin" | "deposito" | "otro";
+
+/** Un cobro (C.1). Anulado, se sigue viendo con quién y por qué (`PRY-08`). `monto` no viaja sin `costeo:ver` */
+export type Cobro = {
+  id: string;
+  tipo: TipoCobro;
+  /** El día del cobro real, `AAAA-MM-DD` */
+  fecha: string;
+  medio: MedioCobro;
+  referencia: string | null;
+  anulado_at: string | null;
+  anulado_motivo: string | null;
+  anulado_por: Persona | null;
+  updated_at: string;
+  monto?: number;
+};
+
 export type ProyectoFicha = {
   id: string;
   codigo: string;
@@ -102,8 +120,11 @@ export type ProyectoFicha = {
   responsable: Persona | null;
   vigente: DocumentoResumen | null;
   versiones: DocumentoResumen[];
-  cobros: unknown[];
+  cobros: Cobro[];
+  /** Puede ser negativo: una recotización que bajó el total después de cobrar deja saldo a favor del cliente */
   saldo?: number | null;
+  /** `ANTICIPO_PCT` × total vigente, redondeado por el servidor (C.1): el front no compone importes */
+  anticipo_sugerido?: number | null;
   historia: Evento[];
   created_at: string;
   updated_at: string;

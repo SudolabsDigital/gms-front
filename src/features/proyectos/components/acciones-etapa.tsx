@@ -15,6 +15,7 @@ import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyect
 import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { RecotizarProyecto } from "@/features/proyectos/components/recotizar-proyecto";
+import { RegistrarCobro } from "@/features/proyectos/components/registrar-cobro";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
@@ -54,6 +55,7 @@ export function AccionesEtapa({
   puedeAvanzar,
   puedeCotizar,
   puedeAprobar,
+  puedeCobrar,
   emitible = null,
 }: {
   proyecto: ProyectoFicha;
@@ -62,6 +64,8 @@ export function AccionesEtapa({
   puedeCotizar: boolean;
   /** `cotizaciones:aprobar`: en `cotizado`, la acción principal es registrar la aprobación (B.3) */
   puedeAprobar: boolean;
+  /** `cobros:registrar`: desde `aprobado` se cobra; en `entregado` con saldo, cobrarlo es lo principal (C.1) */
+  puedeCobrar: boolean;
   /** El borrador que ya se puede emitir —con ítems y con `cotizaciones:emitir`—: entonces la principal es emitir (B.2) */
   emitible?: string | null;
 }) {
@@ -91,7 +95,15 @@ export function AccionesEtapa({
         hayBorrador={hayBorrador}
       />
     ) : null;
-  const principalDirecta = !pendiente && !cotizar && !aprobar ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+  // Cobrar (C.1, `51-ui`): el anticipo en `aprobado`, un cobro en obra, y el saldo como lo único que queda al entregar
+  const cobrosVivos = proyecto.cobros.some((c) => c.anulado_at === null);
+  const cobrarSaldo = proyecto.etapa === "entregado" && puedeCobrar && (proyecto.saldo ?? 0) > 0;
+  const cobrar =
+    puedeCobrar && (proyecto.etapa === "aprobado" || proyecto.etapa === "produccion" || proyecto.etapa === "instalacion") ? (
+      <RegistrarCobro proyecto={proyecto} etiqueta={cobrosVivos ? "Registrar cobro" : "Registrar anticipo"} />
+    ) : null;
+  const principalDirecta =
+    !pendiente && !cotizar && !aprobar && !cobrarSaldo ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
   const secundarias = posibles.filter((e) => e !== principalDirecta);
 
   function abrir(etapa: Etapa) {
@@ -144,6 +156,8 @@ export function AccionesEtapa({
 
   const botonPrincipal = aprobar ? (
     <AprobarCotizacion vigente={aprobar} />
+  ) : cobrarSaldo ? (
+    <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" className="h-11 w-full md:h-9" />
   ) : cotizar && emitible ? (
     <EmitirCotizacion cotizacionId={emitible} />
   ) : cotizar ? (
@@ -167,6 +181,7 @@ export function AccionesEtapa({
         {/* En el escritorio la principal va aquí; en el móvil, en la barra fija de abajo */}
         <div className="hidden md:block">{botonPrincipal}</div>
         {recotizar}
+        {cobrar}
         {secundarias.map((etapa) => (
           <Button
             key={etapa}
@@ -177,7 +192,7 @@ export function AccionesEtapa({
             {VERBO[etapa] ?? ETAPAS[etapa]}
           </Button>
         ))}
-        {!botonPrincipal && !recotizar && secundarias.length === 0 ? (
+        {!botonPrincipal && !recotizar && !cobrar && secundarias.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {proyecto.transiciones.length === 0
               ? "Proyecto cerrado: su etapa ya no cambia."
