@@ -62,7 +62,8 @@ export function BarraControles({
           Tipo de ventana
         </Label>
         <Select value={tipoId} onValueChange={alCambiarTipo}>
-          <SelectTrigger id="tipo" className="w-full">
+          {/* 44 px en el móvil: cotizar en obra es operación de primera (decisión 18) */}
+          <SelectTrigger id="tipo" className="w-full data-[size=default]:h-11 md:data-[size=default]:h-9">
             <SelectValue placeholder="Seleccione un tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +98,7 @@ export function BarraControles({
         />
       </div>
 
-      <Button onClick={alCalcular} disabled={calculando || bloqueado} variant="brand">
+      <Button onClick={alCalcular} disabled={calculando || bloqueado} variant="brand" className="h-11 md:h-9">
         {calculando ? (
           <>
             <Loader2 className="size-4 animate-spin" />
@@ -140,7 +141,7 @@ function CampoMedida({
           aria-invalid={juicio.estado === "error"}
           aria-describedby={juicio.mensaje ? `${id}-nota` : undefined}
           className={cn(
-            "w-28 pr-9 tabular-nums",
+            "h-11 w-28 pr-9 tabular-nums md:h-9",
             juicio.estado === "aviso" && "border-warning",
           )}
         />

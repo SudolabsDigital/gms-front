@@ -11,6 +11,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const PESTANAS_RESULTADO = [
+  { id: "modelo", etiqueta: "Modelo" },
+  { id: "medidas", etiqueta: "Medidas" },
+  { id: "perfiles", etiqueta: "Perfiles" },
+  { id: "despiece", etiqueta: "Despiece" },
+  { id: "compra", etiqueta: "Compra" },
+  { id: "costeo", etiqueta: "Costeo" },
+] as const;
 import { FilaMonto } from "@/components/comunes/fila-monto";
 import { StatTile } from "@/components/comunes/stat-tile";
 import { TerminoTecnico } from "@/components/comunes/termino-tecnico";
@@ -47,13 +56,22 @@ export function ResultadoCalculo({
 
   return (
     <Tabs defaultValue="modelo" className="flex min-h-0 flex-1 flex-col gap-4">
-      <TabsList className="w-full justify-start overflow-x-auto">
-        <TabsTrigger value="modelo">Modelo</TabsTrigger>
-        <TabsTrigger value="medidas">Medidas</TabsTrigger>
-        <TabsTrigger value="perfiles">Perfiles</TabsTrigger>
-        <TabsTrigger value="despiece">Despiece</TabsTrigger>
-        <TabsTrigger value="compra">Compra</TabsTrigger>
-        {conCosteo ? <TabsTrigger value="costeo">Costeo</TabsTrigger> : null}
+      {/*
+        Medido el 2026-09-24 a 390 px: con una fila, barra de desplazamiento visible, «Compra» cortada,
+        «Costeo» escondida y 8 px de alto; a 44 px en una fila, 395 px en 358 y la página entera desplazaba.
+        En el móvil van en tres columnas —el maestro, sin Costeo, ve 3 + 2—; «Costeo» es el dinero y no se
+        esconde tras un desplazamiento
+      */}
+      {/* `group-data-horizontal/tabs:h-auto`: la variante fija `h-8` con ese prefijo y un `h-auto` suelto no la pisa */}
+      <TabsList
+        variant="line"
+        className="grid w-full grid-cols-3 gap-0 border-b group-data-horizontal/tabs:h-auto md:flex md:justify-start md:gap-2"
+      >
+        {PESTANAS_RESULTADO.filter((p) => conCosteo || p.id !== "costeo").map((p) => (
+          <TabsTrigger key={p.id} value={p.id} className="h-11 px-1 md:h-9 md:flex-none md:px-3">
+            {p.etiqueta}
+          </TabsTrigger>
+        ))}
       </TabsList>
 
       {/* ── Modelo ─────────────────────────────────────────────────────────── */}
