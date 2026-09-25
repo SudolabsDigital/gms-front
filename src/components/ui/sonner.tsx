@@ -13,6 +13,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={(forcedTheme ?? resolvedTheme ?? "light") as ToasterProps["theme"]}
       className="toaster group"
+      // En el móvil, por encima de la barra fija del ERP: el aviso de «Agregado» tapaba «Emitir», que es justo
+      // lo siguiente que se pulsa (recorrido de B.2). La barra mide ~68 px más el área segura
+      mobileOffset={{ bottom: "calc(5rem + env(safe-area-inset-bottom))" }}
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />
