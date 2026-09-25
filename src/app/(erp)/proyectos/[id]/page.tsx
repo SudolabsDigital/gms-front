@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { AccionesEtapa } from "@/features/proyectos/components/acciones-etapa";
 import { CotizacionBorrador } from "@/features/proyectos/components/cotizacion-borrador";
+import { CotizacionEmitida } from "@/features/proyectos/components/cotizacion-emitida";
 import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
 import { DatosProyecto } from "@/features/proyectos/components/datos-proyecto";
 import { EditarProyecto } from "@/features/proyectos/components/editar-proyecto";
@@ -77,7 +78,10 @@ export default async function FichaProyectoPage({
   // El borrador se lee entero aquí, en el mismo render: cambiar de pestaña sigue siendo instantáneo
   const idBorrador = proyecto.versiones.find((v) => v.estado === "borrador")?.id;
   const borrador = idBorrador ? await apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(idBorrador)}`) : null;
+  // Sin borrador, la pestaña enseña la vigente emitida, de solo lectura (B.2)
+  const vigente = !borrador && proyecto.vigente ? await apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(proyecto.vigente.id)}`) : null;
   const puedeCotizar = puede(usuario, "cotizaciones:crear");
+  const puedeEmitir = puede(usuario, "cotizaciones:emitir");
 
   const crudo = (await searchParams).pestana;
   const inicial = pestanaInicial(typeof crudo === "string" ? crudo : undefined, proyecto.etapa);
@@ -147,7 +151,9 @@ export default async function FichaProyectoPage({
               </>
             ),
             cotizacion: borrador ? (
-              <CotizacionBorrador cotizacion={borrador} puedeEditar={puedeCotizar} />
+              <CotizacionBorrador cotizacion={borrador} puedeEditar={puedeCotizar} puedeEmitir={puedeEmitir} />
+            ) : vigente ? (
+              <CotizacionEmitida cotizacion={vigente} />
             ) : (
               <Pendiente icono={FileText} titulo="Cotización">
                 {cerrado ? (
@@ -196,7 +202,13 @@ export default async function FichaProyectoPage({
               <CardTitle className="text-base">{cerrado ? ETAPAS[proyecto.etapa] : `${ETAPAS[proyecto.etapa]} · qué sigue`}</CardTitle>
             </CardHeader>
             <CardContent>
-              <AccionesEtapa proyecto={proyecto} puedeAvanzar={puede(usuario, "proyectos:avanzar")} puedeCotizar={puedeCotizar} />
+              <AccionesEtapa
+                proyecto={proyecto}
+                puedeAvanzar={puede(usuario, "proyectos:avanzar")}
+                puedeCotizar={puedeCotizar}
+                // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
+                emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
+              />
             </CardContent>
           </Card>
         </aside>

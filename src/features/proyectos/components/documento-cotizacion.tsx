@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Cotizacion } from "@/features/proyectos/types";
+import { DesgloseCotizacion, type EstadoDelDesglose } from "@/features/proyectos/components/desglose-cotizacion";
+import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
+import type { Cotizacion, Desglose } from "@/features/proyectos/types";
 import { moneda } from "@/lib/formato";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 
@@ -41,6 +43,9 @@ function camposDe(c: Cotizacion): Campos {
   };
 }
 
+/** Los campos que cambian el total: los que se previsualizan en seco */
+const IMPORTES = ["margen_pct", "transporte", "descuento"] as const;
+
 /** «12,5» se escribe con coma en un teclado peruano; la API lee el punto. No es formatear: es leer lo escrito */
 const aNumero = (texto: string) => texto.trim().replace(",", ".");
 
@@ -49,7 +54,16 @@ const aNumero = (texto: string) => texto.trim().replace(",", ".");
  * (`proyectos/50-api` § el borrador). Solo se envía lo que cambió, con la versión leída; el servidor recompone
  * el total y lo devuelve. Aquí no se suma nada (`G-32`).
  */
-export function DocumentoCotizacion({ cotizacion, puedeEditar }: { cotizacion: Cotizacion; puedeEditar: boolean }) {
+export function DocumentoCotizacion({
+  cotizacion,
+  puedeEditar,
+  puedeEmitir,
+}: {
+  cotizacion: Cotizacion;
+  puedeEditar: boolean;
+  /** `cotizaciones:emitir` */
+  puedeEmitir: boolean;
+}) {
   const router = useRouter();
   const [datos, setDatos] = useState<Campos>(camposDe(cotizacion));
   const [errores, setErrores] = useState<Record<string, string[]>>({});
@@ -60,6 +74,55 @@ export function DocumentoCotizacion({ cotizacion, puedeEditar }: { cotizacion: C
   const original = camposDe(cotizacion);
   const cambios = (Object.keys(datos) as (keyof Campos)[]).filter((clave) => datos[clave].trim() !== original[clave].trim());
   const conDescuento = Number(aNumero(datos.descuento)) > 0;
+
+  // El desglose en vivo (decisión del usuario, B.2): lo que saldría con lo escrito, calculado en seco por el
+  // servidor con la misma función que guarda. Lo vacío no se manda: vale lo guardado
+  const importes = Object.fromEntries(
+    IMPORTES.filter((clave) => aNumero(datos[clave]) !== "").map((clave) => [clave, aNumero(datos[clave])]),
+  );
+  const claveDeImportes = JSON.stringify(importes);
+  const importesCambiaron = IMPORTES.some((clave) => datos[clave].trim() !== original[clave].trim());
+  const [previa, setPrevia] = useState<{ clave: string; desglose: Desglose } | null>(null);
+  const [erroresPrevios, setErroresPrevios] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    if (!importesCambiaron || !puedeEditar) return;
+
+    const control = new AbortController();
+    // 300 ms, como el cotizador: se pregunta cuando se deja de escribir, no en cada tecla
+    const espera = setTimeout(async () => {
+      const respuesta = await pedir<{ desglose: Desglose }>(`/api/v1/cotizaciones/${cotizacion.id}/totales`, {
+        method: "POST",
+        body: claveDeImportes,
+        signal: control.signal,
+      });
+      if (control.signal.aborted) return;
+
+      if (respuesta.ok) {
+        setPrevia({ clave: claveDeImportes, desglose: respuesta.datos.desglose });
+        setErroresPrevios({});
+      } else {
+        setPrevia(null);
+        setErroresPrevios(erroresPorCampo(respuesta.error));
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(espera);
+      control.abort();
+    };
+  }, [claveDeImportes, importesCambiaron, puedeEditar, cotizacion.id]);
+
+  const provisional = importesCambiaron && previa?.clave === claveDeImportes;
+  const desgloseVisible = provisional ? previa.desglose : cotizacion.desglose;
+  const hayErrorPrevio = Object.keys(erroresPrevios).length > 0;
+  const estadoDesglose: EstadoDelDesglose = provisional ? "sin-guardar" : importesCambiaron ? "desfasado" : "guardado";
+  const notaDesglose =
+    estadoDesglose !== "desfasado"
+      ? undefined
+      : hayErrorPrevio
+        ? "Corrija el campo marcado para ver el nuevo total. Arriba, lo guardado."
+        : "Calculando el nuevo total…";
 
   const campo = (clave: keyof Campos, valor: string) => {
     setDatos((actual) => ({ ...actual, [clave]: valor }));
@@ -102,7 +165,8 @@ export function DocumentoCotizacion({ cotizacion, puedeEditar }: { cotizacion: C
     router.refresh();
   }
 
-  const errorDe = (clave: string) => errores[clave]?.[0];
+  // El error de lo guardado manda; si no lo hay, el de la previsualización (p. ej. un descuento imposible)
+  const errorDe = (clave: string) => errores[clave]?.[0] ?? erroresPrevios[clave]?.[0];
 
   return (
     <Card>
@@ -165,14 +229,10 @@ export function DocumentoCotizacion({ cotizacion, puedeEditar }: { cotizacion: C
               </p>
             ))}
 
-            <div className="flex items-baseline justify-between border-t pt-3">
-              <span className="font-semibold">
-                Total <span className="text-muted-foreground text-xs font-normal">con IGV</span>
-              </span>
-              <span className="font-mono text-lg font-semibold tabular-nums">{moneda(cotizacion.total)}</span>
-            </div>
-            {cambios.length > 0 ? (
-              <p className="text-muted-foreground -mt-2 text-xs">El total se recalcula al guardar.</p>
+            {desgloseVisible ? (
+              <div className="border-t pt-3">
+                <DesgloseCotizacion desglose={desgloseVisible} estado={estadoDesglose} nota={notaDesglose} />
+              </div>
             ) : null}
 
             {puedeEditar ? (
@@ -181,12 +241,14 @@ export function DocumentoCotizacion({ cotizacion, puedeEditar }: { cotizacion: C
                   {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
                   Guardar
                 </Button>
-                <div className="flex flex-col items-center gap-1 md:items-end">
-                  <Button type="button" variant="outline" className="h-11 w-full md:h-9 md:w-auto" disabled>
-                    Emitir
-                  </Button>
-                  <span className="text-muted-foreground text-xs">Llega con la emisión</span>
-                </div>
+                {puedeEmitir ? (
+                  <EmitirCotizacion
+                    cotizacionId={cotizacion.id}
+                    hayCambiosSinGuardar={cambios.length > 0}
+                    variante={cambios.length > 0 ? "outline" : "brand"}
+                    className="h-11 md:h-9"
+                  />
+                ) : null}
               </div>
             ) : null}
           </form>

@@ -24,7 +24,15 @@ import { mensajeDeError, pedir } from "@/lib/api-cliente";
  * documento. **Nada de lo que se ve aquí se calcula aquí**: cada importe llega del servidor, que recompone
  * el documento en cada escritura (`G-32`, `INV-E02`). Sin `costeo:ver` no llega ni una cifra, y no se pinta.
  */
-export function CotizacionBorrador({ cotizacion, puedeEditar }: { cotizacion: Cotizacion; puedeEditar: boolean }) {
+export function CotizacionBorrador({
+  cotizacion,
+  puedeEditar,
+  puedeEmitir,
+}: {
+  cotizacion: Cotizacion;
+  puedeEditar: boolean;
+  puedeEmitir: boolean;
+}) {
   const router = useRouter();
   const [quitando, setQuitando] = useState<ItemCotizacion | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -92,6 +100,7 @@ export function CotizacionBorrador({ cotizacion, puedeEditar }: { cotizacion: Co
           key={cotizacion.updated_at}
           cotizacion={cotizacion}
           puedeEditar={puedeEditar}
+          puedeEmitir={puedeEmitir}
         />
       ) : null}
 
@@ -123,7 +132,7 @@ export function CotizacionBorrador({ cotizacion, puedeEditar }: { cotizacion: Co
 }
 
 /** Un ítem: el dibujo pequeño a la izquierda y el importe a la derecha, en el móvil y en el escritorio */
-function FilaItem({
+export function FilaItem({
   item,
   veDinero,
   puedeQuitar,
@@ -132,7 +141,8 @@ function FilaItem({
   item: ItemCotizacion;
   veDinero: boolean;
   puedeQuitar: boolean;
-  alQuitar: () => void;
+  /** Opcional: la emitida la pinta el servidor, que no puede pasar funciones */
+  alQuitar?: () => void;
 }) {
   const avisos = item.advertencias.filter((a) => a.codigo !== "PRECIO_DESACTUALIZADO");
 
@@ -171,7 +181,7 @@ function FilaItem({
             <span className="text-muted-foreground block text-xs">costo</span>
           </span>
         ) : null}
-        {puedeQuitar ? (
+        {puedeQuitar && alQuitar ? (
           <Button variant="ghost" size="sm" className="text-muted-foreground h-11 px-2 md:h-8" onClick={alQuitar}>
             <Trash2 className="size-4" />
             <span className="sr-only md:not-sr-only">Quitar</span>

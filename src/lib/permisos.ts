@@ -14,6 +14,7 @@ export type PermisoDelFront =
   | "catalogo:gestionar"
   | "costeo:ver"
   | "cotizaciones:crear"
+  | "cotizaciones:emitir"
   | "despiece:ver"
   | "plantillas:gestionar"
   | "proyectos:avanzar"

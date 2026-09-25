@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
+import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
@@ -51,11 +52,14 @@ export function AccionesEtapa({
   proyecto,
   puedeAvanzar,
   puedeCotizar,
+  emitible = null,
 }: {
   proyecto: ProyectoFicha;
   puedeAvanzar: boolean;
   /** `cotizaciones:crear`: en `lead`, la acción principal es cotizar (tajada B.1) */
   puedeCotizar: boolean;
+  /** El borrador que ya se puede emitir —con ítems y con `cotizaciones:emitir`—: entonces la principal es emitir (B.2) */
+  emitible?: string | null;
 }) {
   const router = useRouter();
   const [pidiendo, setPidiendo] = useState<Etapa | null>(null);
@@ -121,7 +125,9 @@ export function AccionesEtapa({
 
   const exigeMotivo = pidiendo !== null && CON_MOTIVO.includes(pidiendo);
 
-  const botonPrincipal = cotizar ? (
+  const botonPrincipal = cotizar && emitible ? (
+    <EmitirCotizacion cotizacionId={emitible} />
+  ) : cotizar ? (
     <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
   ) : pendiente ? (
     <div className="flex flex-col gap-1">

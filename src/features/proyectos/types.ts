@@ -144,5 +144,20 @@ export type Cotizacion = {
   igv?: number;
   total?: number;
   igv_pct: number;
+  /** Cómo se llega al total, compuesto por el servidor (B.2). Sin `costeo:ver` no viaja */
+  desglose?: Desglose | null;
   avisos: Advertencia[];
+};
+
+export type Desglose = {
+  costo_lineas: number;
+  transporte: number;
+  margen_pct: number;
+  margen_monto: number;
+  subtotal: number;
+  descuento: number;
+  base: number;
+  igv_pct: number;
+  igv: number;
+  total: number;
 };
