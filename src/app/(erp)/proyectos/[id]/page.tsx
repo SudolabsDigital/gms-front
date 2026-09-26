@@ -252,6 +252,7 @@ export default async function FichaProyectoPage({
                 puedeAprobar={puede(usuario, "cotizaciones:aprobar")}
                 puedeCobrar={puede(usuario, "cobros:registrar")}
                 puedeMedir={puede(usuario, "medicion:registrar")}
+                puedeVerCorte={puede(usuario, "despiece:ver")}
                 // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
                 emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
               />

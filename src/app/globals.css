@@ -465,3 +465,12 @@
     animation: none;
   }
 }
+
+/*
+ * Papel (tajada D, la lista de corte): la primera pieza del sitio pensada para imprimirse. A4 vertical con
+ * margen de 12 mm; lo que no es la hoja se oculta con `print:hidden` en su propio componente.
+ */
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}

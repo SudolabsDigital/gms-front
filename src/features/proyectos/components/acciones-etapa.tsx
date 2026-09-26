@@ -22,13 +22,10 @@ import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/typ
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
 /**
- * La acción principal de cada etapa (`proyectos/51-ui` § la ficha). Lo que llega en las tajadas siguientes
- * —imprimir la lista de corte, tajada D— se ve INERTE y rotulado, nunca como un botón que lleva a un error: el
- * mismo criterio del menú del ERP. Registrar la aprobación llegó con B.3; la medición en obra, con C.2.
+ * La lista de corte existe desde producción (`PRY-I34`): en `produccion` imprimirla es lo principal; en
+ * `instalacion` y `entregado` se reimprime (tajada D). Hasta D fue un botón INERTE y rotulado.
  */
-const PRINCIPAL_PENDIENTE: Partial<Record<Etapa, { etiqueta: string; llega: string }>> = {
-  produccion: { etiqueta: "Imprimir lista de corte", llega: "Llega con las listas del taller" },
-};
+const CON_LISTA_DE_CORTE: Etapa[] = ["produccion", "instalacion", "entregado"];
 
 /** Las que se piden con un motivo obligatorio (`P5`, `PRY-I04`) */
 const CON_MOTIVO: Etapa[] = ["perdido", "anulado"];
@@ -53,6 +50,7 @@ export function AccionesEtapa({
   puedeAprobar,
   puedeCobrar,
   puedeMedir,
+  puedeVerCorte,
   emitible = null,
 }: {
   proyecto: ProyectoFicha;
@@ -65,6 +63,8 @@ export function AccionesEtapa({
   puedeCobrar: boolean;
   /** `medicion:registrar`: en `aprobado`, sin medición confirmada, lo principal es medir en obra (C.2) */
   puedeMedir: boolean;
+  /** `despiece:ver`: la lista de corte, principal en `produccion` y secundaria después (tajada D) */
+  puedeVerCorte: boolean;
   /** El borrador que ya se puede emitir —con ítems y con `cotizaciones:emitir`—: entonces la principal es emitir (B.2) */
   emitible?: string | null;
 }) {
@@ -79,7 +79,8 @@ export function AccionesEtapa({
   const medida = proyecto.medicion?.estado === "confirmada";
   const posibles = puedeAvanzar ? proyecto.transiciones.filter((etapa) => etapa !== "produccion" || medida) : [];
   const confirmarMedicion = proyecto.etapa === "aprobado" && !medida && puedeMedir;
-  const pendiente = PRINCIPAL_PENDIENTE[proyecto.etapa];
+  const conCorte = puedeVerCorte && CON_LISTA_DE_CORTE.includes(proyecto.etapa);
+  const imprimirCorte = conCorte && proyecto.etapa === "produccion";
   // En lead lo siguiente no es una etapa que se pida: `cotizado` lo mueve el documento al emitirse
   const cotizar = proyecto.etapa === "lead" && puedeCotizar;
   const hayBorrador = proyecto.versiones.some((v) => v.estado === "borrador");
@@ -104,7 +105,15 @@ export function AccionesEtapa({
       <RegistrarCobro proyecto={proyecto} etiqueta={cobrosVivos ? "Registrar cobro" : "Registrar anticipo"} />
     ) : null;
   const principalDirecta =
-    !pendiente && !cotizar && !aprobar && !cobrarSaldo && !confirmarMedicion ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+    !imprimirCorte && !cotizar && !aprobar && !cobrarSaldo && !confirmarMedicion ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+  const hojaDeCorte = `/proyectos/${proyecto.id}/corte`;
+  // Después de producción la hoja se reimprime: secundaria, debajo de la principal
+  const reimprimirCorte =
+    conCorte && !imprimirCorte ? (
+      <Button asChild variant="outline" className="h-11 md:h-9">
+        <Link href={hojaDeCorte}>Lista de corte</Link>
+      </Button>
+    ) : null;
   const secundarias = posibles.filter((e) => e !== principalDirecta);
 
   function abrir(etapa: Etapa) {
@@ -170,13 +179,10 @@ export function AccionesEtapa({
     <EmitirCotizacion cotizacionId={emitible} />
   ) : cotizar ? (
     <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
-  ) : pendiente ? (
-    <div className="flex flex-col gap-1">
-      <Button variant="brand" className="h-11 w-full md:h-9" disabled>
-        {pendiente.etiqueta}
-      </Button>
-      <p className="text-muted-foreground text-center text-xs">{pendiente.llega}</p>
-    </div>
+  ) : imprimirCorte ? (
+    <Button asChild variant="brand" className="h-11 w-full md:h-9">
+      <Link href={hojaDeCorte}>Imprimir lista de corte</Link>
+    </Button>
   ) : principalDirecta ? (
     <Button variant="brand" className="h-11 w-full md:h-9" onClick={() => abrir(principalDirecta)}>
       {VERBO[principalDirecta] ?? ETAPAS[principalDirecta]}
@@ -189,6 +195,7 @@ export function AccionesEtapa({
         {/* En el escritorio la principal va aquí; en el móvil, en la barra fija de abajo */}
         <div className="hidden md:block">{botonPrincipal}</div>
         {recotizar}
+        {reimprimirCorte}
         {cobrar}
         {secundarias.map((etapa) => (
           <Button
@@ -200,7 +207,7 @@ export function AccionesEtapa({
             {VERBO[etapa] ?? ETAPAS[etapa]}
           </Button>
         ))}
-        {!botonPrincipal && !recotizar && !cobrar && secundarias.length === 0 ? (
+        {!botonPrincipal && !recotizar && !reimprimirCorte && !cobrar && secundarias.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {proyecto.transiciones.length === 0
               ? "Proyecto cerrado: su etapa ya no cambia."

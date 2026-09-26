@@ -46,13 +46,18 @@ export default async function ErpLayout({
    * plano. Esa información vive ahora al pie del riel, y por debajo de `md` —donde el
    * riel no existe— la reemplaza <ErpBarraMovil/>, que sí es navegación imprescindible.
    */
+  // En papel solo sale la página: la navegación no se imprime (lista de corte, tajada D)
   return (
     <div className="bg-background flex min-h-svh">
-      <ErpSidebar usuario={usuario} />
+      <div className="contents print:hidden">
+        <ErpSidebar usuario={usuario} />
+      </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <ErpBarraMovil usuario={usuario} />
-        <main className="flex min-h-0 flex-1 flex-col p-4 md:p-6">{children}</main>
+        <div className="contents print:hidden">
+          <ErpBarraMovil usuario={usuario} />
+        </div>
+        <main className="flex min-h-0 flex-1 flex-col p-4 md:p-6 print:p-0">{children}</main>
       </div>
     </div>
   );

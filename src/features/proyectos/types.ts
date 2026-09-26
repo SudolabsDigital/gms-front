@@ -216,3 +216,37 @@ export type Desglose = {
   igv: number;
   total: number;
 };
+
+/**
+ * La lista de corte (`GET proyectos/{id}/despiece`, tajada D). **Sin una clave de dinero para nadie**: la hoja va
+ * al banco del taller. Cada pieza llega en la sección de su clase, congelada al emitir.
+ */
+export type ListaDeCorte = {
+  proyecto: {
+    id: string;
+    codigo: string;
+    nombre: string;
+    cliente: string;
+    direccion_obra: string | null;
+    distrito: string | null;
+  };
+  cotizacion: { id: string; numero: string; version: number };
+  /** La medición confirmada que abrió producción */
+  medicion: { registrada_at: string | null };
+  items: ItemDeCorte[];
+};
+
+type InsumoCongelado = { codigo: string; nombre: string };
+
+export type ItemDeCorte = {
+  id: string;
+  secuencia: number;
+  ubicacion: string | null;
+  tipo: { codigo: string; nombre: string };
+  ancho_cm: number;
+  alto_cm: number;
+  cantidad: number;
+  perfiles: { insumo: InsumoCongelado; rol: string | null; regla: string | null; largo_cm: number; piezas: number }[];
+  vidrios: { insumo: InsumoCongelado; rol: string | null; regla: string | null; ancho_cm: number; alto_cm: number; piezas: number }[];
+  accesorios: { insumo: InsumoCongelado; rol: string | null; regla: string | null; unidades: number }[];
+};
