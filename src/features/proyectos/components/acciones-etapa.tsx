@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -22,26 +23,21 @@ import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
 /**
  * La acción principal de cada etapa (`proyectos/51-ui` § la ficha). Lo que llega en las tajadas siguientes
- * —confirmar la medición, imprimir la lista de corte— se ve INERTE y rotulado, nunca como un botón que lleva a
- * un error: el mismo criterio del menú del ERP. Registrar la aprobación llegó con B.3.
+ * —imprimir la lista de corte, tajada D— se ve INERTE y rotulado, nunca como un botón que lleva a un error: el
+ * mismo criterio del menú del ERP. Registrar la aprobación llegó con B.3; la medición en obra, con C.2.
  */
 const PRINCIPAL_PENDIENTE: Partial<Record<Etapa, { etiqueta: string; llega: string }>> = {
-  aprobado: { etiqueta: "Confirmar medición", llega: "Llega con la medición en obra" },
   produccion: { etiqueta: "Imprimir lista de corte", llega: "Llega con las listas del taller" },
 };
 
 /** Las que se piden con un motivo obligatorio (`P5`, `PRY-I04`) */
 const CON_MOTIVO: Etapa[] = ["perdido", "anulado"];
 
-/**
- * Producción no se ofrece todavía: exige la medición en obra confirmada (`P8`), cuya pantalla llega con
- * la tajada C. El servidor la rechazaría con `SIN_MEDICION_CONFIRMADA`; aquí no se pinta (`51-ui`).
- */
-const NO_SE_OFRECEN_AUN: Etapa[] = ["produccion"];
-
 const VERBO: Partial<Record<Etapa, string>> = {
   perdido: "Marcar perdido",
   anulado: "Anular proyecto",
+  // Nunca se había ofrecido hasta C.2, y salía el nombre de la etapa en vez del verbo (recorrido de C.2)
+  produccion: "Pasar a producción",
   instalacion: "Pasar a instalación",
   entregado: "Marcar entregado",
 };
@@ -56,6 +52,7 @@ export function AccionesEtapa({
   puedeCotizar,
   puedeAprobar,
   puedeCobrar,
+  puedeMedir,
   emitible = null,
 }: {
   proyecto: ProyectoFicha;
@@ -66,6 +63,8 @@ export function AccionesEtapa({
   puedeAprobar: boolean;
   /** `cobros:registrar`: desde `aprobado` se cobra; en `entregado` con saldo, cobrarlo es lo principal (C.1) */
   puedeCobrar: boolean;
+  /** `medicion:registrar`: en `aprobado`, sin medición confirmada, lo principal es medir en obra (C.2) */
+  puedeMedir: boolean;
   /** El borrador que ya se puede emitir —con ítems y con `cotizaciones:emitir`—: entonces la principal es emitir (B.2) */
   emitible?: string | null;
 }) {
@@ -75,9 +74,11 @@ export function AccionesEtapa({
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const posibles = puedeAvanzar
-    ? proyecto.transiciones.filter((etapa) => !NO_SE_OFRECEN_AUN.includes(etapa))
-    : [];
+  // Producción exige la última medición de la vigente confirmada (`P8`, `PRY-I25`): sin ella no se pinta, y el
+  // servidor la rechazaría con `SIN_MEDICION_CONFIRMADA`
+  const medida = proyecto.medicion?.estado === "confirmada";
+  const posibles = puedeAvanzar ? proyecto.transiciones.filter((etapa) => etapa !== "produccion" || medida) : [];
+  const confirmarMedicion = proyecto.etapa === "aprobado" && !medida && puedeMedir;
   const pendiente = PRINCIPAL_PENDIENTE[proyecto.etapa];
   // En lead lo siguiente no es una etapa que se pida: `cotizado` lo mueve el documento al emitirse
   const cotizar = proyecto.etapa === "lead" && puedeCotizar;
@@ -103,7 +104,7 @@ export function AccionesEtapa({
       <RegistrarCobro proyecto={proyecto} etiqueta={cobrosVivos ? "Registrar cobro" : "Registrar anticipo"} />
     ) : null;
   const principalDirecta =
-    !pendiente && !cotizar && !aprobar && !cobrarSaldo ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+    !pendiente && !cotizar && !aprobar && !cobrarSaldo && !confirmarMedicion ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
   const secundarias = posibles.filter((e) => e !== principalDirecta);
 
   function abrir(etapa: Etapa) {
@@ -154,7 +155,14 @@ export function AccionesEtapa({
 
   const exigeMotivo = pidiendo !== null && CON_MOTIVO.includes(pidiendo);
 
-  const botonPrincipal = aprobar ? (
+  // `#medir`: estando ya en Obra, la barra lleva al formulario en vez de no hacer nada
+  const botonPrincipal = confirmarMedicion ? (
+    <Button asChild variant="brand" className="h-11 w-full md:h-9">
+      <Link href={`/proyectos/${proyecto.id}?pestana=obra#medir`}>
+        {proyecto.medicion ? "Volver a medir" : "Confirmar medición"}
+      </Link>
+    </Button>
+  ) : aprobar ? (
     <AprobarCotizacion vigente={aprobar} />
   ) : cobrarSaldo ? (
     <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" className="h-11 w-full md:h-9" />

@@ -1,6 +1,6 @@
 import { CAMPOS, ETAPAS, MEDIOS_COBRO, ORIGENES, TIPOS_COBRO, tituloDeEvento } from "@/features/proyectos/textos";
-import type { Etapa, Evento, MedioCobro, Origen, TipoCobro } from "@/features/proyectos/types";
-import { diaLegible, fechaHora, moneda } from "@/lib/formato";
+import type { Etapa, Evento, ItemMedido, MedioCobro, Origen, TipoCobro } from "@/features/proyectos/types";
+import { diaLegible, fechaHora, medida, moneda } from "@/lib/formato";
 
 /**
  * La historia del proyecto (`proyecto_eventos`, `PRY-09`): del más reciente al más antiguo, en el orden
@@ -32,6 +32,10 @@ export function HistoriaProyecto({ eventos }: { eventos: Evento[] }) {
           {(evento.tipo === "cobro_registrado" || evento.tipo === "cobro_anulado") && evento.datos ? (
             <p className="mt-1 text-sm">{describirCobro(evento.datos)}</p>
           ) : null}
+          {/* La medición (C.2): qué versión se midió y qué no coincidió */}
+          {(evento.tipo === "medicion_confirmada" || evento.tipo === "medicion_con_diferencias") && evento.datos ? (
+            <p className="mt-1 text-sm">{describirMedicion(evento.datos)}</p>
+          ) : null}
           {evento.tipo === "cotizacion_sustituida" && typeof evento.datos?.por_version === "number" ? (
             <p className="text-muted-foreground mt-1 text-xs">
               Por la v{evento.datos.por_version} · {String(evento.datos.por_numero ?? "")}
@@ -48,6 +52,21 @@ export function HistoriaProyecto({ eventos }: { eventos: Evento[] }) {
       ))}
     </ol>
   );
+}
+
+function describirMedicion(datos: Record<string, unknown>): string {
+  const items = Array.isArray(datos.items) ? (datos.items as ItemMedido[]) : [];
+  const distintas = items.filter((i) => !i.coincide);
+  const version = typeof datos.version === "number" ? `v${datos.version} · ` : "";
+  const nota = typeof datos.nota === "string" ? ` · «${datos.nota}»` : "";
+
+  if (distintas.length === 0) return `${version}todas las cotas coinciden${nota}`;
+
+  const cuales = distintas
+    .map((i) => `${i.ubicacion ?? i.tipo}: ${medida(i.ancho_cotizado)} × ${medida(i.alto_cotizado)} → ${medida(i.ancho_medido)} × ${medida(i.alto_medido)}`)
+    .join("; ");
+
+  return `${version}${cuales}${nota}`;
 }
 
 function describirCobro(datos: Record<string, unknown>): string {

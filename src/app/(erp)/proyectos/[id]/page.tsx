@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { AccionesEtapa } from "@/features/proyectos/components/acciones-etapa";
 import { CobrosProyecto } from "@/features/proyectos/components/cobros-proyecto";
+import { MedicionEnObra } from "@/features/proyectos/components/medicion-en-obra";
 import { CotizacionBorrador } from "@/features/proyectos/components/cotizacion-borrador";
 import { CotizacionEmitida } from "@/features/proyectos/components/cotizacion-emitida";
 import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
@@ -88,6 +89,13 @@ export default async function FichaProyectoPage({
   const verEmitida = pedida ?? (!borrador ? proyecto.vigente : null);
   const emitida = verEmitida ? await leerDocumento(verEmitida.id) : null;
   const mostrada = emitida ?? borrador;
+  // La pestaña Obra mide la vigente (C.2): desde que se aprueba, o para enseñar la última medición después
+  const vigenteEnObra =
+    proyecto.vigente && (proyecto.etapa === "aprobado" || proyecto.medicion !== null)
+      ? emitida?.id === proyecto.vigente.id
+        ? emitida
+        : await leerDocumento(proyecto.vigente.id)
+      : null;
   // Recotizando: a qué vigente sustituirá el borrador al emitirse, y si estaba aprobada (B.3)
   const sustituye = borrador && proyecto.vigente
     ? { version: proyecto.vigente.version, aprobada: proyecto.vigente.estado === "aprobada" }
@@ -197,11 +205,20 @@ export default async function FichaProyectoPage({
                 )}
               </Pendiente>
             ),
-            obra: (
+            obra: vigenteEnObra ? (
+              // `key`: si la vigente cambia —recotizar y aprobar otra—, el formulario vuelve a partir de sus cotas
+              <MedicionEnObra
+                key={vigenteEnObra.id}
+                proyecto={proyecto}
+                vigente={vigenteEnObra}
+                puedeMedir={puede(usuario, "medicion:registrar")}
+                puedeRecotizar={puedeCotizar}
+              />
+            ) : (
               <Pendiente icono={Ruler} titulo="Medición en obra">
                 {cerrado
                   ? "El proyecto se cerró antes de medir en obra."
-                  : "Antes de producir, cada medida de la cotización aprobada se confirma en obra. Llega con la entrega de medición y producción."}
+                  : "Se mide en obra cuando el cliente aprueba la cotización: antes de cortar, cada cota se confirma en el sitio."}
               </Pendiente>
             ),
             cobros: (
@@ -234,6 +251,7 @@ export default async function FichaProyectoPage({
                 puedeCotizar={puedeCotizar}
                 puedeAprobar={puede(usuario, "cotizaciones:aprobar")}
                 puedeCobrar={puede(usuario, "cobros:registrar")}
+                puedeMedir={puede(usuario, "medicion:registrar")}
                 // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
                 emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
               />

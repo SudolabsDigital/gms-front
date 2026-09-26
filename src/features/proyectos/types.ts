@@ -103,6 +103,28 @@ export type Cobro = {
   monto?: number;
 };
 
+/** Un ítem de la medición en obra: la cota cotizada y la medida, comparadas por el servidor al milímetro (C.2) */
+export type ItemMedido = {
+  cotizacion_item_id: string;
+  tipo: string | null;
+  ubicacion: string | null;
+  cantidad: number;
+  ancho_cotizado: number;
+  alto_cotizado: number;
+  ancho_medido: number;
+  alto_medido: number;
+  coincide: boolean;
+};
+
+/** La última medición de la vigente, la que manda para pasar a producción (`PRY-I25`) */
+export type Medicion = {
+  estado: "confirmada" | "con_diferencias";
+  version: number | null;
+  registrada_at: string;
+  nota: string | null;
+  items: ItemMedido[];
+};
+
 export type ProyectoFicha = {
   id: string;
   codigo: string;
@@ -120,6 +142,8 @@ export type ProyectoFicha = {
   responsable: Persona | null;
   vigente: DocumentoResumen | null;
   versiones: DocumentoResumen[];
+  /** `null` si la vigente no se midió todavía (C.2) */
+  medicion: Medicion | null;
   cobros: Cobro[];
   /** Puede ser negativo: una recotización que bajó el total después de cobrar deja saldo a favor del cliente */
   saldo?: number | null;

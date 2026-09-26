@@ -17,6 +17,14 @@ export function PestanasFicha({ inicial, paneles }: { inicial: Pestana; paneles:
   const router = useRouter();
   const ruta = usePathname();
   const [activa, setActiva] = useState<Pestana>(inicial);
+  // Una acción que lleva a otra pestaña por la URL —recotizar desde Obra, B.3 y C.2— navega sin desmontar la
+  // ficha: sin esto la URL decía «cotización» y se seguía viendo Obra (recorrido de C.2). Patrón de React para
+  // ajustar el estado cuando cambia una prop, sin efecto
+  const [previa, setPrevia] = useState<Pestana>(inicial);
+  if (inicial !== previa) {
+    setPrevia(inicial);
+    setActiva(inicial);
+  }
 
   function cambiar(valor: string) {
     setActiva(valor as Pestana);
