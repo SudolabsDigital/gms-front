@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FolderKanban, Search } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
+import { FocoEnEscritorio } from "@/components/comunes/foco-en-escritorio";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
@@ -75,6 +76,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pa
             ) : null}
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
+              id="buscar-proyectos"
               type="search"
               name="buscar"
               defaultValue={filtro.buscar}
@@ -83,6 +85,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pa
               className="h-11 pl-9 md:h-9"
             />
           </form>
+          <FocoEnEscritorio id="buscar-proyectos" />
 
           <FiltroEtapas filtro={filtro} recuento={lista.meta.recuento_por_etapa} />
 

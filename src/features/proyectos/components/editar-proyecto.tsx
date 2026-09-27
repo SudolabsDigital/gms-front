@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Pencil } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +15,7 @@ import { SelectorDeOrigen } from "@/features/proyectos/components/selector-orige
 import { CAMPOS } from "@/features/proyectos/textos";
 import type { Origen, ProyectoFicha } from "@/features/proyectos/types";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
+import { notificar } from "@/lib/notificar";
 
 type Campos = {
   nombre: string;
@@ -116,7 +116,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
       return;
     }
 
-    toast.success("Datos guardados", { description: "El cambio quedó en la historia del proyecto." });
+    notificar({ tono: "exito", titulo: "Datos guardados", descripcion: "El cambio quedó en la historia del proyecto." });
     setAbierto(false);
     router.refresh();
   }
@@ -138,27 +138,26 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
         descripcion="Se pueden corregir en cualquier etapa. Cada cambio queda en la historia con lo que había antes."
       >
         {conflicto ? (
-          <div role="alert" className="flex flex-col gap-3">
-            <p className="text-sm font-medium">Alguien cambió este proyecto mientras lo tenía abierto.</p>
-            <p className="text-muted-foreground text-sm">
-              {conflicto.length > 0
-                ? `Cambió: ${conflicto.join(", ")}. Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo.`
-                : "Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo."}
-            </p>
-            <Button
-              variant="brand"
-              className="h-11 md:h-9"
-              onClick={() => {
-                setAbierto(false);
-                router.refresh();
-              }}
-            >
-              Recargar
-            </Button>
-          </div>
+          <Notificacion
+            tono="error"
+            titulo="Alguien cambió este proyecto mientras lo tenía abierto."
+            acciones={[
+              {
+                etiqueta: "Recargar",
+                onClick: () => {
+                  setAbierto(false);
+                  router.refresh();
+                },
+              },
+            ]}
+          >
+            {conflicto.length > 0
+              ? `Cambió: ${conflicto.join(", ")}. Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo.`
+              : "Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo."}
+          </Notificacion>
         ) : (
           <form onSubmit={guardar} className="flex flex-col gap-4" noValidate>
-            {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
+            {errorGeneral ? <Notificacion tono="error">{errorGeneral}</Notificacion> : null}
 
             <div className="space-y-1.5">
               <Label htmlFor="editar-nombre">Nombre</Label>
@@ -169,7 +168,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
                 maxLength={150}
                 onChange={(e) => campo("nombre", e.target.value)}
               />
-              {errorDe("nombre") ? <p className="text-destructive text-sm">{errorDe("nombre")}</p> : null}
+              {errorDe("nombre") ? <p className="text-destructive-fuerte text-sm">{errorDe("nombre")}</p> : null}
             </div>
 
             <BuscadorCliente valor={cliente} alCambiar={elegirCliente} permitirNuevo={false} error={errorDe("cliente_id")} />
@@ -192,7 +191,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
                   value={datos[clave]}
                   onChange={(e) => campo(clave, e.target.value)}
                 />
-                {errorDe(clave) ? <p className="text-destructive text-sm">{errorDe(clave)}</p> : null}
+                {errorDe(clave) ? <p className="text-destructive-fuerte text-sm">{errorDe(clave)}</p> : null}
               </div>
             ))}
 

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +13,7 @@ import { PanelResponsivo } from "@/features/proyectos/components/panel-responsiv
 import type { Cotizacion, DocumentoResumen } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { diaDe, diaDeHoy, diaLegible, moneda } from "@/lib/formato";
+import { notificar } from "@/lib/notificar";
 
 /**
  * «Registrar aprobación» (`proyectos/50-api` § aprobar, tajada B.3): el sí del cliente, con **el día en que lo
@@ -24,8 +24,18 @@ import { diaDe, diaDeHoy, diaLegible, moneda } from "@/lib/formato";
  * vencimiento, el servidor responde `COTIZACION_VENCIDA` y lo dice: lo que queda es recotizar, que está en las
  * acciones de la etapa (no se abre un panel encima de otro).
  */
-export function AprobarCotizacion({ vigente, className }: { vigente: DocumentoResumen; className?: string }) {
+export function AprobarCotizacion({
+  vigente,
+  variante = "brand",
+  className,
+}: {
+  vigente: DocumentoResumen;
+  /** Secundaria cuando lo principal es emitir la versión que se está recotizando (recorrido UX.0, R09) */
+  variante?: "brand" | "outline";
+  className?: string;
+}) {
   const router = useRouter();
+  const ruta = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [leida, setLeida] = useState<Cotizacion | null>(null);
   const [dia, setDia] = useState("");
@@ -71,16 +81,20 @@ export function AprobarCotizacion({ vigente, className }: { vigente: DocumentoRe
       return;
     }
 
-    toast.success(`Aprobada ${respuesta.datos.numero}`, {
-      description: "El proyecto pasó a Aprobado. Lo siguiente es confirmar las medidas en obra.",
+    notificar({
+      tono: "exito",
+      titulo: `Aprobada ${respuesta.datos.numero}`,
+      descripcion: "El proyecto pasó a Aprobado. Lo siguiente es confirmar las medidas en obra.",
     });
     setAbierto(false);
+    // Sin `?pestana=`, la ficha abre en la de lo siguiente —Obra—, no en la que había (recorrido UX.0, R11)
+    router.replace(ruta);
     router.refresh();
   }
 
   return (
     <>
-      <Button variant="brand" className={className ?? "h-11 w-full md:h-9"} onClick={abrir}>
+      <Button variant={variante} className={className ?? "h-11 w-full md:h-9"} onClick={abrir}>
         Registrar aprobación
       </Button>
 
@@ -91,7 +105,7 @@ export function AprobarCotizacion({ vigente, className }: { vigente: DocumentoRe
         descripcion="El cliente aceptó esta versión: el documento queda aprobado y el proyecto pasa a Aprobado."
       >
         <div className="flex flex-col gap-4">
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
           {leida ? (
             <>

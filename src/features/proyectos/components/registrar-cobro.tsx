@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +14,7 @@ import { MEDIOS_COBRO, TIPOS_COBRO } from "@/features/proyectos/textos";
 import type { MedioCobro, ProyectoFicha, TipoCobro } from "@/features/proyectos/types";
 import { erroresPorCampo, mensajeDeError, pedir } from "@/lib/api-cliente";
 import { diaDe, diaDeHoy, moneda } from "@/lib/formato";
+import { notificar } from "@/lib/notificar";
 
 /**
  * «Registrar cobro» (`proyectos/50-api` § cobros, tajada C.1): el dinero como hecho, con **el día en que se
@@ -28,11 +28,14 @@ export function RegistrarCobro({
   proyecto,
   etiqueta = "Registrar cobro",
   variante = "outline",
+  tipoInicial,
   className,
 }: {
   proyecto: ProyectoFicha;
   etiqueta?: string;
   variante?: "brand" | "outline";
+  /** El botón dice qué se cobra: «Registrar saldo» abría en «Parcial» con el monto vacío (recorrido UX.0, R07) */
+  tipoInicial?: TipoCobro;
   className?: string;
 }) {
   const router = useRouter();
@@ -56,7 +59,7 @@ export function RegistrarCobro({
 
   function abrir() {
     // El primero suele ser el anticipo; después, un parcial o el saldo
-    const inicial: TipoCobro = hayCobros ? "parcial" : "anticipo";
+    const inicial: TipoCobro = tipoInicial ?? (hayCobros ? "parcial" : "anticipo");
     setTipo(inicial);
     setMonto(sugerido(inicial));
     setFecha(diaDeHoy());
@@ -95,8 +98,11 @@ export function RegistrarCobro({
     }
 
     const saldo = respuesta.datos.saldo;
-    toast.success(`${TIPOS_COBRO[tipo]} registrado`, {
-      description: saldo !== undefined && saldo !== null ? `Queda un saldo de ${moneda(saldo)}.` : undefined,
+    notificar({
+      tono: "exito",
+      titulo: `${TIPOS_COBRO[tipo]} registrado`,
+      descripcion:
+        saldo === 0 ? "Pagado por completo." : saldo !== undefined && saldo !== null ? `Queda un saldo de ${moneda(saldo)}.` : undefined,
     });
     setAbierto(false);
     router.refresh();
@@ -121,7 +127,7 @@ export function RegistrarCobro({
         }
       >
         <div className="flex flex-col gap-4">
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
           <BotonesDeEleccion leyenda="Qué se cobra" opciones={TIPOS_COBRO} valor={tipo} alCambiar={elegirTipo} error={campo("tipo")} />
 
@@ -138,7 +144,7 @@ export function RegistrarCobro({
             {tipo === "anticipo" && proyecto.anticipo_sugerido ? (
               <p className="text-muted-foreground text-xs">Se propone el anticipo acordado: {moneda(proyecto.anticipo_sugerido)}.</p>
             ) : null}
-            {campo("monto") ? <p className="text-destructive text-sm">{campo("monto")}</p> : null}
+            {campo("monto") ? <p className="text-destructive-fuerte text-sm">{campo("monto")}</p> : null}
           </div>
 
           <div className="space-y-1.5">
@@ -153,7 +159,7 @@ export function RegistrarCobro({
               onChange={(e) => setFecha(e.target.value)}
               aria-invalid={campo("fecha") ? true : undefined}
             />
-            {campo("fecha") ? <p className="text-destructive text-sm">{campo("fecha")}</p> : null}
+            {campo("fecha") ? <p className="text-destructive-fuerte text-sm">{campo("fecha")}</p> : null}
           </div>
 
           <BotonesDeEleccion leyenda="Cómo pagó" opciones={MEDIOS_COBRO} valor={medio} alCambiar={setMedio} error={campo("medio")} />
@@ -167,7 +173,7 @@ export function RegistrarCobro({
               value={referencia}
               onChange={(e) => setReferencia(e.target.value)}
             />
-            {campo("referencia") ? <p className="text-destructive text-sm">{campo("referencia")}</p> : null}
+            {campo("referencia") ? <p className="text-destructive-fuerte text-sm">{campo("referencia")}</p> : null}
           </div>
 
           <Button variant="brand" className="h-11 md:h-9" onClick={registrar} disabled={enviando || monto.trim() === "" || fecha === ""}>

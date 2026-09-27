@@ -16,6 +16,12 @@ import type { ItemDeCorte, ListaDeCorte } from "@/features/proyectos/types";
 /** Las cantidades llegan con hasta tres decimales (`numeric(12,3)`) y se muestran sin redondear */
 const cifra = (valor: number) => numero(valor, 3);
 
+/**
+ * Una cota se corta con wincha: al milímetro más cercano (decisión 34). Redondea solo el papel; el motor y el costo
+ * siguen con las tres cifras, y tres paneles de 49.3 suman 147.9 donde el vano mide 148
+ */
+const cota = (cm: number) => numero(cm, 1);
+
 const CIFRA = "font-mono tabular-nums font-medium text-lg whitespace-nowrap print:text-xl";
 
 function Casilla() {
@@ -34,11 +40,29 @@ function Pieza({ codigo, nombre, detalle }: { codigo: string; nombre?: string; d
   );
 }
 
-function Seccion({ titulo, columnas, children }: { titulo: string; columnas: string[]; children: ReactNode }) {
+/**
+ * Una sección de un ítem. El encabezado dice DE QUÉ ÍTEM es («Sala · Perfiles y felpas») y el navegador lo repite en
+ * cada hoja: así un ítem puede partirse entre páginas sin que el maestro dude de qué ventana es la pieza (UX.0, R03).
+ */
+function Seccion({
+  item,
+  titulo,
+  columnas,
+  children,
+}: {
+  item: string;
+  titulo: string;
+  columnas: string[];
+  children: ReactNode;
+}) {
   return (
     <table className="mt-3 w-full border-collapse text-sm print:mt-1.5">
-      <caption className="text-left text-xs font-semibold tracking-wide uppercase">{titulo}</caption>
-      <thead className="print:table-header-group">
+      <thead>
+        <tr>
+          <th colSpan={columnas.length} scope="colgroup" className="pt-1 text-left text-xs font-semibold tracking-wide uppercase">
+            {item} · {titulo}
+          </th>
+        </tr>
         <tr className="border-foreground border-b text-xs">
           {columnas.map((columna, i) => (
             <th key={columna} scope="col" className={cn("py-1 font-medium", i === 0 ? "text-left" : "pl-3 text-right")}>
@@ -56,27 +80,51 @@ const FILA = "border-foreground border-b break-inside-avoid";
 const CELDA = "py-2 align-middle print:py-1";
 const CELDA_CIFRA = cn(CELDA, CIFRA, "pl-3 text-right");
 
-function Item({ item, orden }: { item: ItemDeCorte; orden: number }) {
+/**
+ * Lo que el taller debe saber antes de cortar: negro sobre blanco y con la palabra, porque en papel no hay color que
+ * lo distinga.
+ */
+function AvisosDelTaller({ avisos }: { avisos: ItemDeCorte["avisos"] }) {
+  if (avisos.length === 0) return null;
   return (
-    <section className="border-foreground mt-6 border-t-2 pt-3 break-inside-avoid print:mt-3 print:pt-2">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="text-xl font-semibold print:text-2xl">{item.ubicacion?.trim() || `Ítem ${orden}`}</h2>
-        <p className={cn(CIFRA, "text-base print:text-lg")}>
-          {cifra(item.ancho_cm)} × {cifra(item.alto_cm)} cm · {item.cantidad} {item.cantidad === 1 ? "unidad" : "unidades"}
+    <div className="border-foreground mt-2 border-2 px-3 py-2 text-sm">
+      <p className="font-semibold tracking-wide uppercase">Atención antes de cortar</p>
+      <ul className="mt-1 list-disc pl-5">
+        {avisos.map((aviso) => (
+          <li key={aviso.codigo}>{aviso.mensaje}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Item({ item, orden }: { item: ItemDeCorte; orden: number }) {
+  const nombre = item.ubicacion?.trim() || `Ítem ${orden}`;
+  // Los ítems fluyen entre hojas: exigir que cada uno entrara entero dejaba hojas medio vacías (recorrido UX.0, R03).
+  // Lo que no se parte es la fila, y la cabecera del ítem se queda con su primera tabla
+  return (
+    <section className="border-foreground mt-6 border-t-2 pt-3 print:mt-3 print:pt-2">
+      <div className="break-inside-avoid break-after-avoid">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="text-xl font-semibold print:text-2xl">{nombre}</h2>
+          <p className={cn(CIFRA, "text-base print:text-lg")}>
+            {cota(item.ancho_cm)} × {cota(item.alto_cm)} cm · {item.cantidad} {item.cantidad === 1 ? "unidad" : "unidades"}
+          </p>
+        </div>
+        <p className="text-sm">
+          {item.tipo.nombre} <span className="font-mono">({item.tipo.codigo})</span>
         </p>
+        <AvisosDelTaller avisos={item.avisos} />
       </div>
-      <p className="text-sm">
-        {item.tipo.nombre} <span className="font-mono">({item.tipo.codigo})</span>
-      </p>
 
       {item.perfiles.length > 0 ? (
-        <Seccion titulo="Perfiles y felpas" columnas={["Perfil", "Largo", "Piezas", "Cortado"]}>
+        <Seccion item={nombre} titulo="Perfiles y felpas" columnas={["Perfil", "Largo", "Piezas", "Cortado"]}>
           {item.perfiles.map((p) => (
             <tr key={`${p.insumo.codigo}-${p.largo_cm}`} className={FILA}>
               <td className={CELDA}>
                 <Pieza codigo={p.insumo.codigo} nombre={p.insumo.nombre} detalle={[p.rol, p.regla]} />
               </td>
-              <td className={CELDA_CIFRA}>{cifra(p.largo_cm)} cm</td>
+              <td className={CELDA_CIFRA}>{cota(p.largo_cm)} cm</td>
               <td className={CELDA_CIFRA}>{cifra(p.piezas)}</td>
               <td className={cn(CELDA, "pl-3 text-right")}>
                 <Casilla />
@@ -87,14 +135,14 @@ function Item({ item, orden }: { item: ItemDeCorte; orden: number }) {
       ) : null}
 
       {item.vidrios.length > 0 ? (
-        <Seccion titulo="Vidrios" columnas={["Vidrio", "Ancho × alto", "Piezas", "Cortado"]}>
+        <Seccion item={nombre} titulo="Vidrios" columnas={["Vidrio", "Ancho × alto", "Piezas", "Cortado"]}>
           {item.vidrios.map((v) => (
             <tr key={`${v.insumo.codigo}-${v.ancho_cm}-${v.alto_cm}`} className={FILA}>
               <td className={CELDA}>
                 <Pieza codigo={v.insumo.codigo} detalle={[v.rol, v.regla]} />
               </td>
               <td className={CELDA_CIFRA}>
-                {cifra(v.ancho_cm)} × {cifra(v.alto_cm)}
+                {cota(v.ancho_cm)} × {cota(v.alto_cm)}
               </td>
               <td className={CELDA_CIFRA}>{cifra(v.piezas)}</td>
               <td className={cn(CELDA, "pl-3 text-right")}>
@@ -106,7 +154,7 @@ function Item({ item, orden }: { item: ItemDeCorte; orden: number }) {
       ) : null}
 
       {item.accesorios.length > 0 ? (
-        <Seccion titulo="Accesorios" columnas={["Accesorio", "Unidades", "Listo"]}>
+        <Seccion item={nombre} titulo="Accesorios" columnas={["Accesorio", "Unidades", "Listo"]}>
           {item.accesorios.map((a) => (
             <tr key={a.insumo.codigo} className={FILA}>
               <td className={CELDA}>
@@ -131,6 +179,7 @@ function Item({ item, orden }: { item: ItemDeCorte; orden: number }) {
 export function HojaDeCorte({ lista }: { lista: ListaDeCorte }) {
   const { proyecto, cotizacion, medicion } = lista;
   const direccion = [proyecto.direccion_obra, proyecto.distrito].filter(Boolean).join(", ");
+  const incompleta = lista.items.some((item) => item.avisos.some((aviso) => aviso.codigo === "DESPIECE_INCOMPLETO"));
 
   return (
     <article className="bg-card text-card-foreground mx-auto w-full max-w-3xl p-4 sm:p-8 print:max-w-none print:p-0">
@@ -154,6 +203,11 @@ export function HojaDeCorte({ lista }: { lista: ListaDeCorte }) {
           <dt className="font-medium">Impreso</dt>
           <dd className="font-mono">{diaLegible(diaDeHoy())}</dd>
         </dl>
+        {incompleta ? (
+          <p className="border-foreground mt-3 border-2 px-3 py-2 text-sm font-semibold">
+            Esta hoja no trae todas las piezas: hay insumos sin regla de corte. Cada ítem afectado lo dice abajo.
+          </p>
+        ) : null}
       </header>
 
       {lista.items.map((item, i) => (

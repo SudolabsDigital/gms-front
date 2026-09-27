@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import type { Cotizacion } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
+import { notificar } from "@/lib/notificar";
 
 /** El cotizador en modo «para este proyecto»: tras calcular, el botón es «Agregar al proyecto» (`51-ui`) */
 export const rutaDelCotizador = (cotizacionId: string) => `/cotizar/nueva?cotizacion=${encodeURIComponent(cotizacionId)}`;
@@ -36,7 +36,7 @@ export function CotizarProyecto({
 
     if (!respuesta.ok) {
       setAbriendo(false);
-      toast.error("No se pudo abrir la cotización", { description: mensajeDeError(respuesta.error) });
+      notificar({ tono: "error", titulo: "No se pudo abrir la cotización", descripcion: mensajeDeError(respuesta.error) });
       return;
     }
 

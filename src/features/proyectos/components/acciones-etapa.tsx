@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,12 +13,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { AprobarCotizacion } from "@/features/proyectos/components/aprobar-cotizacion";
 import { CotizarProyecto } from "@/features/proyectos/components/cotizar-proyecto";
 import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
+import { RecotizarConMedidas } from "@/features/proyectos/components/medicion-en-obra";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { RecotizarProyecto } from "@/features/proyectos/components/recotizar-proyecto";
 import { RegistrarCobro } from "@/features/proyectos/components/registrar-cobro";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
+import { moneda } from "@/lib/formato";
+import { notificar, notificarConflicto } from "@/lib/notificar";
 
 /**
  * La lista de corte existe desde producción (`PRY-I34`): en `produccion` imprimirla es lo principal; en
@@ -39,9 +41,15 @@ const VERBO: Partial<Record<Etapa, string>> = {
   entregado: "Marcar entregado",
 };
 
+/** Las etapas en que un borrador con líneas se emite: entonces emitirlo es lo principal (B.2, y R09 del recorrido UX.0) */
+const CON_EMISION: Etapa[] = ["lead", "cotizado", "aprobado"];
+
 /**
  * Los botones de etapa. Salen de `transiciones`, que calcula el servidor: aquí no hay grafo. Pedirla
  * es un `POST /etapa` con la versión leída; un 409 dice que alguien cambió el proyecto y recarga.
+ *
+ * **La principal sigue al estado, no solo a la etapa** (recorrido UX.0): un borrador listo se emite antes que nada;
+ * una medición con diferencias se recotiza, no se vuelve a medir; el saldo se registra como saldo.
  */
 export function AccionesEtapa({
   proyecto,
@@ -69,6 +77,7 @@ export function AccionesEtapa({
   emitible?: string | null;
 }) {
   const router = useRouter();
+  const ruta = usePathname();
   const [pidiendo, setPidiendo] = useState<Etapa | null>(null);
   const [motivo, setMotivo] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -79,12 +88,18 @@ export function AccionesEtapa({
   const medida = proyecto.medicion?.estado === "confirmada";
   const posibles = puedeAvanzar ? proyecto.transiciones.filter((etapa) => etapa !== "produccion" || medida) : [];
   const confirmarMedicion = proyecto.etapa === "aprobado" && !medida && puedeMedir;
+  const emitirPrimero = emitible && CON_EMISION.includes(proyecto.etapa) ? emitible : null;
   const conCorte = puedeVerCorte && CON_LISTA_DE_CORTE.includes(proyecto.etapa);
   const imprimirCorte = conCorte && proyecto.etapa === "produccion";
   // En lead lo siguiente no es una etapa que se pida: `cotizado` lo mueve el documento al emitirse
   const cotizar = proyecto.etapa === "lead" && puedeCotizar;
   const hayBorrador = proyecto.versiones.some((v) => v.estado === "borrador");
   const vigente = proyecto.vigente;
+  // Con diferencias, lo siguiente es recotizar con las cotas de obra, no volver a medir (R08); si ya hay borrador, emitirlo
+  const recotizarConObra =
+    proyecto.etapa === "aprobado" && proyecto.medicion?.estado === "con_diferencias" && puedeCotizar && !hayBorrador
+      ? proyecto.medicion
+      : null;
   // En cotizado lo siguiente tampoco se pide: `aprobado` lo mueve el documento al registrar el sí (B.3)
   const aprobar = proyecto.etapa === "cotizado" && puedeAprobar && vigente?.estado === "emitida" ? vigente : null;
   // Recotizar solo existe hasta `aprobado` (`10-modelo`): después lo que cambia es obra, no oferta
@@ -100,12 +115,17 @@ export function AccionesEtapa({
   // Cobrar (C.1, `51-ui`): el anticipo en `aprobado`, un cobro en obra, y el saldo como lo único que queda al entregar
   const cobrosVivos = proyecto.cobros.some((c) => c.anulado_at === null);
   const cobrarSaldo = proyecto.etapa === "entregado" && puedeCobrar && (proyecto.saldo ?? 0) > 0;
+  // Con el saldo en cero no hay nada que cobrar (R16); sin `costeo:ver` el saldo no viaja y se ofrece igual
   const cobrar =
-    puedeCobrar && (proyecto.etapa === "aprobado" || proyecto.etapa === "produccion" || proyecto.etapa === "instalacion") ? (
+    puedeCobrar && proyecto.saldo !== 0 && (proyecto.etapa === "aprobado" || proyecto.etapa === "produccion" || proyecto.etapa === "instalacion") ? (
       <RegistrarCobro proyecto={proyecto} etiqueta={cobrosVivos ? "Registrar cobro" : "Registrar anticipo"} />
     ) : null;
   const principalDirecta =
-    !imprimirCorte && !cotizar && !aprobar && !cobrarSaldo && !confirmarMedicion ? posibles.find((e) => !CON_MOTIVO.includes(e)) : undefined;
+    !imprimirCorte && !cotizar && !aprobar && !cobrarSaldo && !confirmarMedicion && !emitirPrimero && !recotizarConObra
+      ? posibles.find((e) => !CON_MOTIVO.includes(e))
+      : undefined;
+  // Emitir la versión nueva pasa delante de aprobar la vigente, pero el sí de la vigente sigue a mano
+  const aprobarSecundaria = aprobar && emitirPrimero ? <AprobarCotizacion vigente={aprobar} variante="outline" className="h-11 md:h-9" /> : null;
   const hojaDeCorte = `/proyectos/${proyecto.id}/corte`;
   // Después de producción la hoja se reimprime: secundaria, debajo de la principal
   const reimprimirCorte =
@@ -143,9 +163,7 @@ export function AccionesEtapa({
 
     if (!respuesta.ok) {
       if (respuesta.error.estado === 409) {
-        toast.error("Alguien cambió este proyecto mientras lo tenía abierto.", {
-          description: "Se recargó con lo que hay ahora: revíselo antes de volver a intentarlo.",
-        });
+        notificarConflicto();
         setPidiendo(null);
         router.refresh();
         return;
@@ -154,18 +172,41 @@ export function AccionesEtapa({
       return;
     }
 
-    toast.success(`${proyecto.codigo}: ${ETAPAS[respuesta.datos.etapa]}`);
+    notificar({ tono: "exito", titulo: `${proyecto.codigo}: ${ETAPAS[respuesta.datos.etapa]}` });
     for (const aviso of respuesta.datos.advertencias) {
-      toast.warning(aviso.mensaje, { duration: 10_000 });
+      notificar({ tono: "advertencia", titulo: aviso.mensaje });
     }
     setPidiendo(null);
+    // Sin `?pestana=`, la ficha abre en la pestaña que pide la etapa nueva (R11)
+    router.replace(ruta);
     router.refresh();
   }
 
   const exigeMotivo = pidiendo !== null && CON_MOTIVO.includes(pidiendo);
 
+  // Lo que cambia al pedirla, dicho antes (R10, R12). Sin `costeo:ver` el saldo no viaja y no se menciona
+  const saldo = proyecto.saldo;
+  const queCambia: Partial<Record<Etapa, string>> = {
+    produccion: vigente ? `Se libera la lista de corte de la v${vigente.version}, con lo medido en obra.` : "",
+    instalacion: "El taller terminó: la lista de corte sigue disponible para reimprimir.",
+    entregado:
+      saldo === undefined || saldo === null
+        ? ""
+        : saldo > 0
+          ? `Queda un saldo de ${moneda(saldo)}: regístrelo cuando lo cobre.`
+          : "Está pagado por completo.",
+  };
+
   // `#medir`: estando ya en Obra, la barra lleva al formulario en vez de no hacer nada
-  const botonPrincipal = confirmarMedicion ? (
+  const botonPrincipal = emitirPrimero ? (
+    <EmitirCotizacion
+      cotizacionId={emitirPrimero}
+      // El mismo aviso que el pie del documento: qué versión deja de valer y si estaba aprobada (V06)
+      sustituye={vigente ? { version: vigente.version, aprobada: vigente.estado === "aprobada" } : null}
+    />
+  ) : recotizarConObra ? (
+    <RecotizarConMedidas proyectoId={proyecto.id} items={recotizarConObra.items} className="h-11 w-full md:h-9" />
+  ) : confirmarMedicion ? (
     <Button asChild variant="brand" className="h-11 w-full md:h-9">
       <Link href={`/proyectos/${proyecto.id}?pestana=obra#medir`}>
         {proyecto.medicion ? "Volver a medir" : "Confirmar medición"}
@@ -174,9 +215,7 @@ export function AccionesEtapa({
   ) : aprobar ? (
     <AprobarCotizacion vigente={aprobar} />
   ) : cobrarSaldo ? (
-    <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" className="h-11 w-full md:h-9" />
-  ) : cotizar && emitible ? (
-    <EmitirCotizacion cotizacionId={emitible} />
+    <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" tipoInicial="saldo" className="h-11 w-full md:h-9" />
   ) : cotizar ? (
     <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
   ) : imprimirCorte ? (
@@ -194,6 +233,7 @@ export function AccionesEtapa({
       <div className="flex flex-col gap-2">
         {/* En el escritorio la principal va aquí; en el móvil, en la barra fija de abajo */}
         <div className="hidden md:block">{botonPrincipal}</div>
+        {aprobarSecundaria}
         {recotizar}
         {reimprimirCorte}
         {cobrar}
@@ -207,7 +247,7 @@ export function AccionesEtapa({
             {VERBO[etapa] ?? ETAPAS[etapa]}
           </Button>
         ))}
-        {!botonPrincipal && !recotizar && !reimprimirCorte && !cobrar && secundarias.length === 0 ? (
+        {!botonPrincipal && !aprobarSecundaria && !recotizar && !reimprimirCorte && !cobrar && secundarias.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {proyecto.transiciones.length === 0
               ? "Proyecto cerrado: su etapa ya no cambia."
@@ -230,7 +270,7 @@ export function AccionesEtapa({
                 // Un documento no se anula suelto: se anula con su proyecto (decisión 26, `PRY-I29`)
                 pidiendo === "anulado" && vigente ? ` La cotización vigente (v${vigente.version}) queda anulada con el mismo motivo.` : ""
               }`
-            : `El proyecto pasa a ${pidiendo ? ETAPAS[pidiendo] : ""}.`
+            : `El proyecto pasa a ${pidiendo ? ETAPAS[pidiendo] : ""}. ${pidiendo ? (queCambia[pidiendo] ?? "") : ""}`.trim()
         }
       >
         <div className="flex flex-col gap-4">
@@ -248,7 +288,7 @@ export function AccionesEtapa({
             </div>
           ) : null}
 
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
           <Button
             variant={exigeMotivo ? "destructive" : "brand"}

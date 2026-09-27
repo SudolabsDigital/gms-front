@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import type { Cotizacion, Etapa } from "@/features/proyectos/types";
@@ -86,7 +86,7 @@ export function RecotizarProyecto({
             </p>
           ) : null}
 
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
           <Button variant="brand" className="h-11 md:h-9" onClick={recotizar} disabled={abriendo}>
             {abriendo ? <Loader2 className="size-4 animate-spin" /> : null}

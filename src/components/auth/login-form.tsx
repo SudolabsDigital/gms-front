@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,7 +110,7 @@ export function LoginForm() {
           </p>
         ) : null}
 
-        {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
+        {errorGeneral ? <Notificacion tono="error">{errorGeneral}</Notificacion> : null}
 
         <Button type="submit" variant="brand" className="mt-2 w-full" disabled={enviando}>
           {enviando ? (

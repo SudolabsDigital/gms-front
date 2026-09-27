@@ -108,6 +108,8 @@ export function BuscadorCliente({
             type="tel"
             inputMode="tel"
             autoComplete="tel"
+            // El nombre ya viene de lo buscado: lo siguiente es el teléfono (recorrido UX.0, R30)
+            autoFocus
             className="h-11 md:h-9"
             placeholder="964 123 456"
             value={valor.telefono}
@@ -115,7 +117,7 @@ export function BuscadorCliente({
             onChange={(e) => alCambiar({ ...valor, telefono: e.target.value })}
           />
         </div>
-        {error ? <p className="text-destructive text-sm">{error}</p> : null}
+        {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
       </fieldset>
     );
   }
@@ -178,8 +180,8 @@ export function BuscadorCliente({
         </ul>
       ) : null}
 
-      {fallo ? <p className="text-destructive text-sm">{fallo}</p> : null}
-      {error ? <p className="text-destructive text-sm">{error}</p> : null}
+      {fallo ? <p className="text-destructive-fuerte text-sm">{fallo}</p> : null}
+      {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
     </div>
   );
 }

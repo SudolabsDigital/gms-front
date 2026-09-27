@@ -53,7 +53,7 @@ export default async function InicioPage() {
           <Paso
             numero={3}
             titulo="Se lleva al taller"
-            descripcion="El despiece es la lista de corte y la compra es lo que el almacén debe pedir."
+            descripcion="Desde que el proyecto pasa a producción, su despiece se imprime como lista de corte para el banco."
           />
         </ol>
       </section>

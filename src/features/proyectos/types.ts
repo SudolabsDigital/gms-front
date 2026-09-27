@@ -1,4 +1,4 @@
-import type { Geometria } from "@/features/cotizar/types";
+import type { Advertencia as AdvertenciaDelMotor, Geometria } from "@/features/cotizar/types";
 
 /**
  * Las formas que devuelve la API de proyectos (`proyectos/50-api`).
@@ -168,7 +168,8 @@ export type ItemCotizacion = {
   cantidad: number;
   ubicacion: string | null;
   geometria: Geometria | null;
-  advertencias: Advertencia[];
+  /** Las del motor, congeladas en el snapshot: traen `nivel` (lo que cambia una decisión es `warn`) */
+  advertencias: AdvertenciaDelMotor[];
   subtotal?: number;
 };
 
@@ -246,6 +247,8 @@ export type ItemDeCorte = {
   ancho_cm: number;
   alto_cm: number;
   cantidad: number;
+  /** Lo que el taller debe saber de esta línea: qué falta cortar, qué medida verificar (R01 del recorrido UX.0) */
+  avisos: { codigo: string; mensaje: string }[];
   perfiles: { insumo: InsumoCongelado; rol: string | null; regla: string | null; largo_cm: number; piezas: number }[];
   vidrios: { insumo: InsumoCongelado; rol: string | null; regla: string | null; ancho_cm: number; alto_cm: number; piezas: number }[];
   accesorios: { insumo: InsumoCongelado; rol: string | null; regla: string | null; unidades: number }[];

@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Loader2, Plus } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +15,7 @@ import { PanelResponsivo } from "@/features/proyectos/components/panel-responsiv
 import { SelectorDeOrigen } from "@/features/proyectos/components/selector-origen";
 import type { Origen, ProyectoFicha } from "@/features/proyectos/types";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
+import { notificar } from "@/lib/notificar";
 import { cn } from "@/lib/utils";
 
 type Formulario = {
@@ -99,7 +99,15 @@ export function AltaProyecto() {
       return;
     }
 
-    toast.success(`${respuesta.datos.codigo} registrado`, { description: respuesta.datos.nombre });
+    // Se vuelve a la lista con el nuevo arriba (`51-ui`); lo siguiente es cotizar, así que el aviso lleva a la ficha
+    // sin buscar la fila (recorrido UX.0, R32)
+    const creado = respuesta.datos;
+    notificar({
+      tono: "exito",
+      titulo: `${creado.codigo} registrado`,
+      descripcion: creado.nombre,
+      accion: { etiqueta: "Abrir", onClick: () => router.push(`/proyectos/${creado.id}`) },
+    });
     setDatos(VACIO);
     setErrores({});
     setMasDatos(false);
@@ -131,7 +139,7 @@ export function AltaProyecto() {
         descripcion="Lo mínimo para no perder el lead. El resto se completa después, en la ficha."
       >
         <form onSubmit={guardar} className="flex flex-col gap-4" noValidate>
-          {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
+          {errorGeneral ? <Notificacion tono="error">{errorGeneral}</Notificacion> : null}
 
           <BuscadorCliente
             valor={datos.cliente}
@@ -150,7 +158,7 @@ export function AltaProyecto() {
               onChange={(e) => campo("nombre", e.target.value)}
               aria-invalid={Boolean(errorDe("nombre"))}
             />
-            {errorDe("nombre") ? <p className="text-destructive text-sm">{errorDe("nombre")}</p> : null}
+            {errorDe("nombre") ? <p className="text-destructive-fuerte text-sm">{errorDe("nombre")}</p> : null}
           </div>
 
           <SelectorDeOrigen valor={datos.origen} alCambiar={(origen) => campo("origen", origen)} error={errorDe("origen")} />
@@ -168,7 +176,7 @@ export function AltaProyecto() {
               aria-invalid={Boolean(errorDe("enlace_origen"))}
             />
             {errorDe("enlace_origen") ? (
-              <p className="text-destructive text-sm">{errorDe("enlace_origen")}</p>
+              <p className="text-destructive-fuerte text-sm">{errorDe("enlace_origen")}</p>
             ) : null}
           </div>
 
@@ -195,7 +203,7 @@ export function AltaProyecto() {
                     onChange={(e) => campo("direccion_obra", e.target.value)}
                   />
                   {errorDe("direccion_obra") ? (
-                    <p className="text-destructive text-sm">{errorDe("direccion_obra")}</p>
+                    <p className="text-destructive-fuerte text-sm">{errorDe("direccion_obra")}</p>
                   ) : null}
                 </div>
                 <div className="space-y-1.5">
@@ -221,10 +229,13 @@ export function AltaProyecto() {
             ) : null}
           </div>
 
-          <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando}>
-            {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
-            Registrar proyecto
-          </Button>
+          {/* Pegado al pie mientras se desplaza: con «Más datos» abierto quedaba 146 px fuera de la vista (UX.0, R31) */}
+          <div className="bg-background sticky bottom-0 -mb-1 pt-2 pb-1">
+            <Button type="submit" variant="brand" className="h-11 w-full md:h-9" disabled={enviando}>
+              {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
+              Registrar proyecto
+            </Button>
+          </div>
         </form>
       </PanelResponsivo>
     </>

@@ -91,7 +91,7 @@ export function ListaProyectos({
             {cargando ? <Loader2 className="size-4 animate-spin" /> : null}
             Cargar más ({meta.total - filas.length} restantes)
           </Button>
-          {fallo ? <p className="text-destructive mt-2 text-sm">{fallo}</p> : null}
+          {fallo ? <p className="text-destructive-fuerte mt-2 text-sm">{fallo}</p> : null}
         </div>
       ) : null}
 

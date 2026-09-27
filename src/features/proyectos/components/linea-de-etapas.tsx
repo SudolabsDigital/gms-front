@@ -95,7 +95,7 @@ export function LineaDeEtapas({ etapa, etapaDesde, creado, historia, total, sald
 
       <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
         <p>
-          <span className={cn("font-semibold", cerrado && "text-destructive")}>{ETAPAS[etapa]}</span>
+          <span className={cn("font-semibold", cerrado && "text-destructive-fuerte")}>{ETAPAS[etapa]}</span>
           <span className="text-muted-foreground">
             {" "}
             · desde el {fechaHora(etapaDesde).slice(0, 10)}, {haceDias(etapaDesde)}

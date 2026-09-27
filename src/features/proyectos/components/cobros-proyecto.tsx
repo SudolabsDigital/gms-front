@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -16,6 +15,7 @@ import { ETAPAS_CON_COBROS, MEDIOS_COBRO, TIPOS_COBRO } from "@/features/proyect
 import type { Cobro, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { diaLegible, moneda } from "@/lib/formato";
+import { notificar } from "@/lib/notificar";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,7 +41,8 @@ export function CobrosProyecto({
   const veDinero = proyecto.saldo !== undefined;
   const total = proyecto.vigente?.total;
   const saldo = proyecto.saldo;
-  const cobra = puedeRegistrar && ETAPAS_CON_COBROS.includes(proyecto.etapa);
+  // Con el saldo en cero no hay nada que cobrar: cualquier cobro lo pasaría (`COBRO_EXCEDE_SALDO`, recorrido UX.0, R16)
+  const cobra = puedeRegistrar && ETAPAS_CON_COBROS.includes(proyecto.etapa) && saldo !== 0;
 
   async function anular() {
     if (!anulando) return;
@@ -59,7 +60,7 @@ export function CobrosProyecto({
       return;
     }
 
-    toast.success(`${TIPOS_COBRO[anulando.tipo]} anulado`, { description: "Sigue en la lista, tachado, con el motivo." });
+    notificar({ tono: "exito", titulo: `${TIPOS_COBRO[anulando.tipo]} anulado`, descripcion: "Sigue en la lista, tachado, con el motivo." });
     setAnulando(null);
     router.refresh();
   }
@@ -164,7 +165,7 @@ export function CobrosProyecto({
               placeholder="Se cargó dos veces · El monto estaba mal · Rebotó la transferencia…"
             />
           </div>
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
           <Button variant="destructive" className="h-11 md:h-9" onClick={anular} disabled={enviando || motivo.trim() === ""}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Anular cobro

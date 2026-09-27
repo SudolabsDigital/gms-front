@@ -37,7 +37,7 @@ export function BotonesDeEleccion<T extends string>({
           </button>
         ))}
       </div>
-      {error ? <p className="text-destructive text-sm">{error}</p> : null}
+      {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
     </fieldset>
   );
 }

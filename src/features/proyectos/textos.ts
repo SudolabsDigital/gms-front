@@ -42,7 +42,7 @@ export const QUE_FALTA: Record<Etapa, string> = {
   aprobado: "Confirmar en obra las medidas de la cotización aprobada. Después, producción.",
   produccion: "Fabricar con la lista de corte y pasar a instalación.",
   instalacion: "Instalar y marcar el proyecto como entregado.",
-  entregado: "Cobrar el saldo, si queda.",
+  entregado: "Cobrar el saldo.",
   perdido: "Nada: el proyecto se cerró. La historia dice por qué.",
   anulado: "Nada: el proyecto se anuló. La historia dice por qué.",
 };
@@ -72,6 +72,9 @@ export const MEDIOS_COBRO: Record<MedioCobro, string> = {
 
 /** Las etapas en que se cobra: desde que el cliente aprueba (decisión 27). El servidor lo exige igual */
 export const ETAPAS_CON_COBROS: Etapa[] = ["aprobado", "produccion", "instalacion", "entregado"];
+
+/** Entregado y sin saldo: «Qué falta» decía «Cobrar el saldo, si queda» con el saldo en cero (recorrido UX.0, R06) */
+export const ENTREGADO_Y_PAGADO = "Nada: el proyecto está entregado y pagado.";
 
 /** Los campos que puede nombrar un evento `datos_editados` */
 export const CAMPOS: Record<string, string> = {

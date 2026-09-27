@@ -92,7 +92,9 @@ export const NAVEGACION: EntradaNavegacion[] = [
     href: "/produccion",
     icono: Factory,
     permiso: "despiece:ver",
-    descripcion: "Órdenes y listas de corte",
+    // La lista de corte ya existe, en la ficha de cada proyecto (tajada D); lo que falta aquí es la vista del taller
+    // con todas las órdenes. Decía «Órdenes y listas de corte» con «Pronto» (recorrido UX.0, R25)
+    descripcion: "Órdenes de todos los proyectos",
     disponible: false,
   },
 ];

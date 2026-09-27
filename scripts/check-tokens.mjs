@@ -135,6 +135,37 @@ const INVARIANTES = [
     umbral: 0,
     salida: "Pide el importe a la API: si falta uno, se añade al Resource del servidor. El front solo lo pinta (`CAL-01`, `G-32`).",
   },
+  {
+    id: "INV-N01",
+    nombre: "los avisos flotantes por notificar()",
+    // Decisión 33 (2026-09-26): 19 llamadas a `toast` en 15 archivos, cada una con su título, su duración y su tono.
+    // Migradas el mismo día; `notificar()` es el único que habla con Sonner.
+    patron: /from\s+["']sonner["']/g,
+    exentos: ["src/components/ui/sonner.tsx", "src/lib/notificar.ts"],
+    umbral: 0,
+    salida: "Usa `notificar({ tono, titulo, descripcion, accion })` de `@/lib/notificar`: el tono, la duración y los iconos se deciden ahí.",
+  },
+  {
+    id: "INV-N02",
+    nombre: "los avisos en pantalla por <Notificacion>",
+    // Había `AvisoDeError`, `PanelError` y cuatro maneras de pintar advertencias; el texto rojo medía 3,54:1. Los
+    // dos avisos de conflicto hechos a mano se migraron el mismo día. Los de `ui/` son de shadcn.
+    patron: /role=\{?["']alert["']\}?/g,
+    solo: ["src/features/", "src/app/", "src/components/comunes/", "src/components/erp/"],
+    exentos: ["src/components/comunes/notificacion.tsx"],
+    umbral: 0,
+    salida: "Usa `<Notificacion tono=… titulo=… detalles=… acciones=…>` de `@/components/comunes/notificacion`: contraste medido, icono y palabra.",
+  },
+  {
+    id: "INV-N03",
+    nombre: "el texto de error en el tono fuerte",
+    // `#ef4444` como texto da 3,76:1 sobre blanco. El 2026-09-26 había 30 usos (errores bajo el campo, badge, etiqueta
+    // de formulario, menú); pasaron a `text-destructive-fuerte` (decisión 32). El tinte (`bg-destructive/10`) no es texto
+    patron: /\btext-destructive(?![-\w/])/g,
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `text-destructive-fuerte` (6,47:1). `--destructive` es para tintes y filetes, no para letras.",
+  },
 ];
 
 /**

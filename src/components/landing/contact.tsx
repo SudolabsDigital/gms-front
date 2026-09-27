@@ -3,12 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { MapPin, Phone, Mail, Clock, MessageCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { notificar } from "@/lib/notificar";
 import {
   direccionCompleta,
   enlaceDeCorreo,
@@ -100,8 +100,10 @@ Hola GMS Integra, he completado el formulario web y deseo coordinar una cotizaci
     const waUrl = enlaceDeWhatsApp(message);
     window.open(waUrl, "_blank");
 
-    toast.success("¡Solicitud enviada a WhatsApp!", {
-      description: "Se ha abierto WhatsApp con tus datos para atención inmediata por nuestro maestro de taller.",
+    notificar({
+      tono: "exito",
+      titulo: "¡Solicitud enviada a WhatsApp!",
+      descripcion: "Se ha abierto WhatsApp con tus datos para atención inmediata por nuestro maestro de taller.",
     });
     form.reset();
   }

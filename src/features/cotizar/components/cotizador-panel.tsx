@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, Info, LayoutTemplate } from "lucide-react";
+import { ArrowLeft, Info, LayoutTemplate } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
-import { PanelError } from "@/components/comunes/panel-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -57,10 +57,15 @@ export function CotizadorPanel({
    */
   function seleccionarTipo(nuevoTipoId: string) {
     const nuevoTipo = tipos.find((t) => t.id === nuevoTipoId);
+    const anterior = tipos.find((t) => t.id === tipoId);
+    // Una medida escrita a mano se respeta; solo la vacía o la que seguía siendo la del tipo anterior toma la del nuevo.
+    // Antes, elegir el tipo después de escribir las medidas las borraba sin avisar (recorrido UX.0, R20)
+    const sinTocar = (valor: string, delAnterior: number | null | undefined) =>
+      valor.trim() === "" || (delAnterior !== null && delAnterior !== undefined && valor === String(delAnterior));
 
     setTipoId(nuevoTipoId);
-    setAncho(String(nuevoTipo?.ancho_default ?? 300));
-    setAlto(String(nuevoTipo?.alto_default ?? 170));
+    if (sinTocar(ancho, anterior?.ancho_default)) setAncho(String(nuevoTipo?.ancho_default ?? 300));
+    if (sinTocar(alto, anterior?.alto_default)) setAlto(String(nuevoTipo?.alto_default ?? 170));
     setResultado(null);
     setCalculado(null);
     setErrores(null);
@@ -104,6 +109,8 @@ export function CotizadorPanel({
   }
 
   const advertencias = resultado?.advertencias ?? [];
+  const graves = advertencias.filter((a) => a.nivel === "warn");
+  const notas = advertencias.filter((a) => a.nivel !== "warn");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -121,41 +128,40 @@ export function CotizadorPanel({
         alCalcular={calcular}
       />
 
-      {advertencias.length > 0 ? (
+      {/* Lo que cambia una decisión —despiece incompleto, precios sin actualizar— se ve; lo informativo se pliega.
+          Seis avisos iguales en cada cálculo escondían el grave entre los demás (recorrido UX.0, R22) */}
+      {graves.length > 0 ? (
+        <Notificacion
+          tono="advertencia"
+          titulo={graves.length === 1 ? "El motor avisa" : `El motor avisa de ${graves.length} cosas`}
+          detalles={graves.map((a) => ({ mensaje: a.mensaje }))}
+        />
+      ) : null}
+
+      {notas.length > 0 ? (
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="text-muted-foreground self-start">
-              <AlertTriangle className="text-primary size-4" />
-              {advertencias.length === 1
-                ? "1 advertencia del motor"
-                : `${advertencias.length} advertencias del motor`}
+              <Info className="size-4" />
+              {notas.length === 1 ? "1 nota técnica del cálculo" : `${notas.length} notas técnicas del cálculo`}
             </Button>
           </PopoverTrigger>
 
           <PopoverContent align="start" className="w-96">
-            <ul className="flex flex-col gap-3">
-              {advertencias.map((advertencia, indice) => (
-                <li key={indice} className="flex gap-2.5 text-sm">
-                  {advertencia.nivel === "warn" ? (
-                    <AlertTriangle className="text-primary mt-0.5 size-4 shrink-0" />
-                  ) : (
-                    <Info className="text-muted-foreground mt-0.5 size-4 shrink-0" />
-                  )}
-                  <p className="text-muted-foreground">{advertencia.mensaje}</p>
-                </li>
-              ))}
-            </ul>
+            <Notificacion tono="info" detalles={notas.map((a) => ({ mensaje: a.mensaje }))} className="border-0 bg-transparent p-0" />
           </PopoverContent>
         </Popover>
       ) : null}
 
       {errores ? (
-        <PanelError
-          error={errores}
+        <Notificacion
+          tono="error"
           // Solo un 422 es el motor rechazando una medida; lo demás es que el cálculo no llegó
           // a hacerse, y decir «rechazado» ante una caída de red le atribuye al motor un juicio
           // que no emitió
           titulo={errores.estado === 422 ? "El cálculo fue rechazado" : "No se pudo calcular"}
+          // El código es lo que se cita al reportarlo; el mensaje es lo que resuelve la situación
+          detalles={errores.detalles.map((d) => ({ codigo: d.codigo, mensaje: d.mensaje }))}
         />
       ) : null}
 

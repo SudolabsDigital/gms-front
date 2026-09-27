@@ -41,6 +41,17 @@
   --success: #10b981;
   --warning: #f59e0b;
 
+  /* Estados FUERTES (decisión 32, 2026-09-26): los brillantes no dan contraste —advertencia 2,15:1 y éxito 2,54:1
+     como icono, y el texto de error 3,54:1 sobre su fondo—. Estos van en el icono, el filete y la palabra de estado
+     de una notificación; el brillante queda para el tinte de fondo. Medidos sobre su tinte al 10 %: 5,66 · 4,65 ·
+     6,49:1. El éxito es un verde distinto del de WhatsApp, que es solo de sus acciones */
+  --destructive-fuerte: #b91c1c;
+  --warning-fuerte: #b45309;
+  --success-fuerte: #166534;
+  /* El texto del botón destructivo: la clase existía en `ui/button` y el token no, así que heredaba el color de
+     alrededor (hallado el 2026-09-26). Blanco sobre `--destructive-fuerte`: 6,47:1 */
+  --destructive-foreground: #ffffff;
+
   /* MARCA extra — cian radiante y azul eléctrico */
   /* ACENTO DEL PORTAL PUBLICO. Era #00c9ff hasta el 2026-09-12.
      El cian daba 1,94:1 sobre blanco -ni el minimo de elementos graficos, que es 3:1- y no
@@ -136,6 +147,10 @@
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-destructive-fuerte: var(--destructive-fuerte);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning-fuerte: var(--warning-fuerte);
+  --color-success-fuerte: var(--success-fuerte);
   --color-brand: var(--brand);
   --color-brand-linea: var(--brand-linea);
   --color-superficie-profunda: var(--superficie-profunda);

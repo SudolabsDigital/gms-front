@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Cotizacion } from "@/features/proyectos/types";
 import { medida } from "@/lib/formato";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
+import { notificar } from "@/lib/notificar";
 
 /** El proyecto para el que se cotiza: lo que el cotizador necesita saber de él, y nada más */
 export type DestinoDeCotizacion = {
@@ -74,8 +74,10 @@ export function AgregarAlProyecto({
     }
 
     const n = respuesta.datos.items.length;
-    toast.success(`Agregado a ${destino.codigo}`, {
-      description: `${n} ${n === 1 ? "ítem" : "ítems"} en la cotización v${destino.version}.`,
+    notificar({
+      tono: "exito",
+      titulo: `Agregado a ${destino.codigo}`,
+      descripcion: `${n} ${n === 1 ? "ítem" : "ítems"} en la cotización v${destino.version}.`,
     });
     setCantidad("1");
     setUbicacion("");
@@ -116,9 +118,9 @@ export function AgregarAlProyecto({
           />
         </div>
         {errorDe("cantidad") || errorDe("ubicacion") ? (
-          <p className="text-destructive col-span-2 text-sm">{errorDe("cantidad") ?? errorDe("ubicacion")}</p>
+          <p className="text-destructive-fuerte col-span-2 text-sm">{errorDe("cantidad") ?? errorDe("ubicacion")}</p>
         ) : null}
-        {errorGeneral ? <AvisoDeError className="col-span-2">{errorGeneral}</AvisoDeError> : null}
+        {errorGeneral ? <Notificacion tono="error" className="col-span-2">{errorGeneral}</Notificacion> : null}
         <p className="text-muted-foreground col-span-2 text-xs">
           Se agrega lo que se ve en el plano:{" "}
           <span className="font-mono">

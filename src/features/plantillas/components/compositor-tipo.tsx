@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Minus, Plus, RotateCcw } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { COLOR_CORREDIZO } from "@/lib/catalogo-visual";
+import { notificar } from "@/lib/notificar";
 import { cn } from "@/lib/utils";
 import { erroresPorCampo, pedir } from "@/lib/api-cliente";
 
@@ -102,13 +102,15 @@ export function CompositorTipo({
           ({ campo }) => campo === null || !CAMPOS_CON_ERROR_VISIBLE.includes(campo),
         );
 
-        toast.error(sinSitio?.mensaje ?? "Revise los datos del tipo.");
+        notificar({ tono: "error", titulo: sinSitio?.mensaje ?? "Revise los datos del tipo." });
 
         return;
       }
 
-      toast.success(`Tipo ${codigo} creado`, {
-        description: "Ya se puede cotizar: hereda las reglas del diseño.",
+      notificar({
+        tono: "exito",
+        titulo: `Tipo ${codigo} creado`,
+        descripcion: "Ya se puede cotizar: hereda las reglas del diseño.",
       });
 
       router.refresh();
@@ -186,7 +188,7 @@ export function CompositorTipo({
           </div>
 
           {sinCorrediza ? (
-            <p className="text-destructive text-sm">
+            <p className="text-destructive-fuerte text-sm">
               Un Puente Escondido requiere al menos una hoja corrediza.
             </p>
           ) : (
@@ -216,7 +218,7 @@ export function CompositorTipo({
               className="font-mono"
             />
             {errores.codigo ? (
-              <p className="text-destructive text-xs">{errores.codigo[0]}</p>
+              <p className="text-destructive-fuerte text-xs">{errores.codigo[0]}</p>
             ) : null}
           </div>
 

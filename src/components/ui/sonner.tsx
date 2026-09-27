@@ -17,18 +17,20 @@ const Toaster = ({ ...props }: ToasterProps) => {
       // lo siguiente que se pulsa (recorrido de B.2). La barra publica su altura real —no es fija: en `aprobado`
       // lleva un rótulo y un 5rem la tapaba 9 px (B.3)—; sin barra, el aviso queda sobre el área segura
       mobileOffset={{ bottom: "calc(var(--alto-barra-fija, env(safe-area-inset-bottom)) + 0.75rem)" }}
+      // Los mismos iconos y tonos FUERTES que `<Notificacion>` (decisión 32): un aviso flotante y uno en la pantalla
+      // se leen igual. Se llama siempre por `notificar()`, no a `toast` directo (`INV-N01`)
       icons={{
         success: (
-          <CircleCheckIcon className="size-4" />
+          <CircleCheckIcon className="text-success-fuerte size-4" />
         ),
         info: (
-          <InfoIcon className="size-4" />
+          <InfoIcon className="text-primary size-4" />
         ),
         warning: (
-          <TriangleAlertIcon className="size-4" />
+          <TriangleAlertIcon className="text-warning-fuerte size-4" />
         ),
         error: (
-          <OctagonXIcon className="size-4" />
+          <OctagonXIcon className="text-destructive-fuerte size-4" />
         ),
         loading: (
           <Loader2Icon className="size-4 animate-spin" />

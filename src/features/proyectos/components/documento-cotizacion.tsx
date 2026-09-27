@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBorradorEnEdicion } from "@/features/proyectos/components/borrador-en-edicion";
 import { DesgloseCotizacion, type EstadoDelDesglose } from "@/features/proyectos/components/desglose-cotizacion";
 import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
 import type { Cotizacion, Desglose, Sustitucion } from "@/features/proyectos/types";
 import { moneda } from "@/lib/formato";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
+import { notificar } from "@/lib/notificar";
 
 type Campos = {
   margen_pct: string;
@@ -76,6 +77,8 @@ export function DocumentoCotizacion({
   const original = camposDe(cotizacion);
   const cambios = (Object.keys(datos) as (keyof Campos)[]).filter((clave) => datos[clave].trim() !== original[clave].trim());
   const conDescuento = Number(aNumero(datos.descuento)) > 0;
+  // Como «Marcar perdido»: sin motivo el botón no se habilita; el servidor lo exige igual (`P7`, recorrido UX.0, R29)
+  const faltaMotivo = conDescuento && datos.descuento_motivo.trim() === "";
 
   // El desglose en vivo (decisión del usuario, B.2): lo que saldría con lo escrito, calculado en seco por el
   // servidor con la misma función que guarda. Lo vacío no se manda: vale lo guardado
@@ -133,7 +136,12 @@ export function DocumentoCotizacion({
 
   async function guardar(evento: React.FormEvent) {
     evento.preventDefault();
-    if (cambios.length === 0) return;
+    if (await guardarCambios()) router.refresh();
+  }
+
+  /** `true` si no quedó nada sin guardar. Refrescar lo decide quien llama: «Emitir» lo hace al cerrar su diálogo */
+  async function guardarCambios(): Promise<boolean> {
+    if (cambios.length === 0) return true;
 
     const cuerpo = Object.fromEntries(
       cambios.map((clave) => {
@@ -155,17 +163,30 @@ export function DocumentoCotizacion({
     if (!respuesta.ok) {
       if (respuesta.error.estado === 409) {
         setConflicto(queCambio(cotizacion, respuesta.error.actual));
-        return;
+        return false;
       }
       const porCampo = erroresPorCampo(respuesta.error);
       setErrores(porCampo);
       if (Object.keys(porCampo).length === 0) setErrorGeneral(mensajeDeError(respuesta.error));
-      return;
+      return false;
     }
 
-    toast.success("Documento guardado", { description: `Total: ${moneda(respuesta.datos.total)}` });
-    router.refresh();
+    notificar({ tono: "exito", titulo: "Documento guardado", descripcion: `Total: ${moneda(respuesta.datos.total)}` });
+    return true;
   }
+
+  // «Emitir», esté en el pie o en el riel, guarda esto antes de confirmar (V02, V03). La función cambia en cada
+  // render; lo publicado no, para no re-renderizar la ficha en cada tecla
+  const guardarRef = useRef(guardarCambios);
+  guardarRef.current = guardarCambios;
+  const publicar = useBorradorEnEdicion()?.publicar;
+  const hayCambios = puedeEditar && cambios.length > 0;
+
+  useEffect(() => {
+    if (!publicar) return;
+    publicar(hayCambios ? { cotizacionId: cotizacion.id, guardar: () => guardarRef.current() } : null);
+    return () => publicar(null);
+  }, [publicar, hayCambios, cotizacion.id]);
 
   // El error de lo guardado manda; si no lo hay, el de la previsualización (p. ej. un descuento imposible)
   const errorDe = (clave: string) => errores[clave]?.[0] ?? erroresPrevios[clave]?.[0];
@@ -177,20 +198,18 @@ export function DocumentoCotizacion({
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {conflicto ? (
-          <div role="alert" className="flex flex-col gap-3">
-            <p className="text-sm font-medium">Alguien cambió esta cotización mientras la tenía abierta.</p>
-            <p className="text-muted-foreground text-sm">
-              {conflicto.length > 0
-                ? `Cambió: ${conflicto.join(", ")}. Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo.`
-                : "Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo."}
-            </p>
-            <Button variant="brand" className="h-11 md:h-9" onClick={() => router.refresh()}>
-              Recargar
-            </Button>
-          </div>
+          <Notificacion
+            tono="error"
+            titulo="Alguien cambió esta cotización mientras la tenía abierta."
+            acciones={[{ etiqueta: "Recargar", onClick: () => router.refresh() }]}
+          >
+            {conflicto.length > 0
+              ? `Cambió: ${conflicto.join(", ")}. Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo.`
+              : "Recargue para ver lo que hay ahora y vuelva a aplicar lo suyo."}
+          </Notificacion>
         ) : (
           <form onSubmit={guardar} className="flex flex-col gap-4" noValidate>
-            {errorGeneral ? <AvisoDeError>{errorGeneral}</AvisoDeError> : null}
+            {errorGeneral ? <Notificacion tono="error">{errorGeneral}</Notificacion> : null}
 
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <CampoNumero id="margen_pct" etiqueta="Margen" unidad="%" valor={datos.margen_pct} error={errorDe("margen_pct")} deshabilitado={!puedeEditar} alCambiar={(v) => campo("margen_pct", v)} />
@@ -218,18 +237,23 @@ export function DocumentoCotizacion({
                   value={datos.descuento_motivo}
                   placeholder="Cierre por WhatsApp · Cliente frecuente…"
                   disabled={!puedeEditar}
+                  aria-invalid={errorDe("descuento_motivo") ? true : undefined}
+                  aria-describedby="descuento_motivo-ayuda"
                   onChange={(e) => campo("descuento_motivo", e.target.value)}
                 />
-                {errorDe("descuento_motivo") ? <p className="text-destructive text-sm">{errorDe("descuento_motivo")}</p> : null}
+                {errorDe("descuento_motivo") ? (
+                  <p id="descuento_motivo-ayuda" className="text-destructive-fuerte text-sm">{errorDe("descuento_motivo")}</p>
+                ) : (
+                  <p id="descuento_motivo-ayuda" className="text-muted-foreground text-xs">
+                    Obligatorio con descuento: el documento dice cuánto se bajó y por qué.
+                  </p>
+                )}
               </div>
             ) : null}
 
-            {cotizacion.avisos.map((aviso) => (
-              <p key={aviso.codigo} className="text-muted-foreground flex gap-2 text-sm">
-                <AlertTriangle className="text-primary mt-0.5 size-4 shrink-0" />
-                {aviso.mensaje}
-              </p>
-            ))}
+            {cotizacion.avisos.length > 0 ? (
+              <Notificacion tono="advertencia" detalles={cotizacion.avisos.map((a) => ({ mensaje: a.mensaje }))} />
+            ) : null}
 
             {desgloseVisible ? (
               <div className="border-t pt-3">
@@ -239,14 +263,13 @@ export function DocumentoCotizacion({
 
             {puedeEditar ? (
               <div className="flex flex-col gap-2 md:flex-row md:justify-end">
-                <Button type="submit" variant={cambios.length > 0 ? "brand" : "outline"} className="h-11 md:h-9" disabled={enviando || cambios.length === 0}>
+                <Button type="submit" variant={cambios.length > 0 ? "brand" : "outline"} className="h-11 md:h-9" disabled={enviando || cambios.length === 0 || faltaMotivo}>
                   {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
                   Guardar
                 </Button>
                 {puedeEmitir ? (
                   <EmitirCotizacion
                     cotizacionId={cotizacion.id}
-                    hayCambiosSinGuardar={cambios.length > 0}
                     sustituye={sustituye}
                     variante={cambios.length > 0 ? "outline" : "brand"}
                     className="h-11 md:h-9"
@@ -295,7 +318,7 @@ function CampoNumero({
         aria-invalid={error ? true : undefined}
         onChange={(e) => alCambiar(e.target.value)}
       />
-      {error ? <p className="text-destructive text-sm">{error}</p> : null}
+      {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
     </div>
   );
 }

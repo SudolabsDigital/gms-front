@@ -158,7 +158,7 @@ function CampoMedida({
           id={`${id}-nota`}
           className={cn(
             "flex max-w-56 items-start gap-1 text-[11px] leading-tight",
-            juicio.estado === "error" ? "text-destructive" : "text-muted-foreground",
+            juicio.estado === "error" ? "text-destructive-fuerte" : "text-muted-foreground",
           )}
         >
           {juicio.estado !== "ok" ? (

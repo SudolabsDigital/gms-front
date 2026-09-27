@@ -3,10 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
@@ -16,6 +15,7 @@ import { PanelResponsivo } from "@/features/proyectos/components/panel-responsiv
 import type { Cotizacion, ItemCotizacion, Sustitucion } from "@/features/proyectos/types";
 import { medida, moneda } from "@/lib/formato";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
+import { notificar } from "@/lib/notificar";
 
 /**
  * La cotización en borrador, dentro de su pestaña (`proyectos/52-brief-ficha` § 10, tajada B.1).
@@ -55,7 +55,7 @@ export function CotizacionBorrador({
       return;
     }
 
-    toast.success("Ítem quitado", { description: `${quitando.tipo.nombre} · ${quitando.ubicacion ?? "sin ubicación"}` });
+    notificar({ tono: "exito", titulo: "Ítem quitado", descripcion: `${quitando.tipo.nombre} · ${quitando.ubicacion ?? "sin ubicación"}` });
     setQuitando(null);
     router.refresh();
   }
@@ -131,7 +131,7 @@ export function CotizacionBorrador({
         }
       >
         <div className="flex flex-col gap-4">
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
           <Button variant="destructive" className="h-11 md:h-9" onClick={quitar} disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
             Quitar
@@ -155,7 +155,8 @@ export function FilaItem({
   /** Opcional: la emitida la pinta el servidor, que no puede pasar funciones */
   alQuitar?: () => void;
 }) {
-  const avisos = item.advertencias.filter((a) => a.codigo !== "PRECIO_DESACTUALIZADO");
+  // En la línea, solo lo que cambia una decisión; el precio se avisa una vez, en el documento (R22 del recorrido UX.0)
+  const avisos = item.advertencias.filter((a) => a.nivel === "warn" && a.codigo !== "PRECIO_DESACTUALIZADO");
 
   return (
     <li className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
@@ -177,10 +178,9 @@ export function FilaItem({
         </p>
         <p className="text-muted-foreground font-mono text-xs">{item.tipo.codigo}</p>
         {avisos.length > 0 ? (
-          <p className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
-            <AlertTriangle className="text-primary size-3.5" />
+          <Notificacion tono="advertencia" compacta className="mt-1">
             {avisos.length === 1 ? avisos[0].mensaje : `${avisos.length} advertencias del motor`}
-          </p>
+          </Notificacion>
         ) : null}
       </div>
 

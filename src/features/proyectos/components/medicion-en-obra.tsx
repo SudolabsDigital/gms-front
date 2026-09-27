@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, Ruler } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, Ruler } from "lucide-react";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +15,7 @@ import { PanelResponsivo } from "@/features/proyectos/components/panel-responsiv
 import type { Cotizacion, ItemMedido, Medicion, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { fechaHora, medida, numero } from "@/lib/formato";
+import { notificar } from "@/lib/notificar";
 import { cn } from "@/lib/utils";
 
 type Cotas = Record<string, { ancho: string; alto: string }>;
@@ -59,6 +59,9 @@ export function MedicionEnObra({
 
   const medicion = proyecto.medicion;
   const sePuedeMedir = puedeMedir && proyecto.etapa === "aprobado";
+  // Confirmada la vigente, el formulario se pliega: lo que queda es pasar a producción (recorrido UX.0, R34)
+  const yaConfirmada = medicion?.estado === "confirmada" && medicion.version === vigente.version;
+  const [remedir, setRemedir] = useState(false);
 
   function cambiar(id: string, eje: "ancho" | "alto", valor: string) {
     setCotas((antes) => ({ ...antes, [id]: { ...antes[id], [eje]: valor } }));
@@ -89,11 +92,13 @@ export function MedicionEnObra({
 
     const resultado = respuesta.datos.medicion;
     if (resultado?.estado === "confirmada") {
-      toast.success("Medición confirmada", { description: "Todas las cotas coinciden: ya se puede pasar a producción." });
+      notificar({ tono: "exito", titulo: "Medición confirmada", descripcion: "Todas las cotas coinciden: ya se puede pasar a producción." });
     } else {
       const distintas = resultado?.items.filter((i) => !i.coincide).length ?? 0;
-      toast.warning(`${distintas} ${distintas === 1 ? "ítem no coincide" : "ítems no coinciden"} con la v${vigente.version}`, {
-        description: "Para cortar lo medido hay que recotizar con estas medidas.",
+      notificar({
+        tono: "advertencia",
+        titulo: `${distintas} ${distintas === 1 ? "ítem no coincide" : "ítems no coinciden"} con la v${vigente.version}`,
+        descripcion: "Para cortar lo medido hay que recotizar con estas medidas.",
       });
     }
     setNota("");
@@ -111,7 +116,14 @@ export function MedicionEnObra({
         />
       ) : null}
 
-      {sePuedeMedir ? (
+      {sePuedeMedir && yaConfirmada && !remedir ? (
+        <div id="medir" className="scroll-mt-4">
+          <Button variant="outline" className="h-11 md:h-9" onClick={() => setRemedir(true)}>
+            <Ruler className="size-4" />
+            Volver a medir
+          </Button>
+        </div>
+      ) : sePuedeMedir ? (
         <Card id="medir" className="scroll-mt-4">
           <CardHeader className="gap-1">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -182,7 +194,7 @@ export function MedicionEnObra({
               />
             </div>
 
-            {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+            {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
             <Button variant="brand" className="h-11 md:h-9" onClick={enviar} disabled={enviando}>
               {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -219,14 +231,10 @@ function ResultadoDeMedicion({
 
   if (medicion.estado === "confirmada") {
     return (
-      <div className="flex items-start gap-2 rounded-md border px-3 py-2 text-sm">
-        <CheckCircle2 className="text-primary mt-0.5 size-4 shrink-0" />
-        <div>
-          <p className="font-medium">Medición confirmada · v{version}</p>
-          <p className="text-muted-foreground text-xs">{fechaHora(medicion.registrada_at)} · todas las cotas coinciden</p>
-          {medicion.nota ? <p className="mt-1">«{medicion.nota}»</p> : null}
-        </div>
-      </div>
+      <Notificacion tono="exito" titulo={`Medición confirmada · v${version}`}>
+        <p className="text-muted-foreground text-xs">{fechaHora(medicion.registrada_at)} · todas las cotas coinciden</p>
+        {medicion.nota ? <p className="mt-1">«{medicion.nota}»</p> : null}
+      </Notificacion>
     );
   }
 
@@ -261,7 +269,15 @@ function ResultadoDeMedicion({
  * Antes dice la consecuencia, que es la que el usuario eligió (`51-ui`). Si hay un borrador con líneas, el servidor
  * no lo toca (`BORRADOR_CON_LINEAS`) y su mensaje dice cómo seguir.
  */
-function RecotizarConMedidas({ proyectoId, items }: { proyectoId: string; items: ItemMedido[] }) {
+export function RecotizarConMedidas({
+  proyectoId,
+  items,
+  className,
+}: {
+  proyectoId: string;
+  items: ItemMedido[];
+  className?: string;
+}) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -283,7 +299,7 @@ function RecotizarConMedidas({ proyectoId, items }: { proyectoId: string; items:
       return;
     }
 
-    toast.success(`v${respuesta.datos.version} con las medidas de obra`, { description: "Revísela y emítala: el cliente la aprueba de nuevo." });
+    notificar({ tono: "exito", titulo: `v${respuesta.datos.version} con las medidas de obra`, descripcion: "Revísela y emítala: el cliente la aprueba de nuevo." });
     setAbierto(false);
     router.push(`/proyectos/${proyectoId}?pestana=cotizacion`);
     router.refresh();
@@ -291,7 +307,7 @@ function RecotizarConMedidas({ proyectoId, items }: { proyectoId: string; items:
 
   return (
     <>
-      <Button variant="brand" className="h-11 md:h-9" onClick={() => { setAbierto(true); setError(null); }}>
+      <Button variant="brand" className={className ?? "h-11 md:h-9"} onClick={() => { setAbierto(true); setError(null); }}>
         Recotizar con estas medidas
       </Button>
       <PanelResponsivo
@@ -305,7 +321,7 @@ function RecotizarConMedidas({ proyectoId, items }: { proyectoId: string; items:
             Cada ventana se recalcula con la medida de obra y los precios de hoy. Después de aprobarla, se confirma la
             medición otra vez: un toque, porque ya trae estas cotas.
           </p>
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
           <Button variant="brand" className="h-11 md:h-9" onClick={recotizar} disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Abrir la versión con estas medidas

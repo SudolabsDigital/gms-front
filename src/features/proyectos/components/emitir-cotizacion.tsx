@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
-import { AvisoDeError } from "@/components/comunes/aviso-de-error";
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
+import { useBorradorEnEdicion } from "@/features/proyectos/components/borrador-en-edicion";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import type { Cotizacion, Sustitucion } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { moneda } from "@/lib/formato";
+import { notificar } from "@/lib/notificar";
 
 /**
  * «Emitir» (`proyectos/50-api` § emitir, tajada B.2): el punto de no retorno.
@@ -19,16 +20,17 @@ import { moneda } from "@/lib/formato";
  * con esa lectura: lo que Miguel confirma es lo que sale (`P9`). Si los precios cambiaron, el servidor no emite y
  * lo dice (`PRECIOS_CAMBIARON`): la ficha se recarga con el borrador al precio de hoy. Un doble toque no produce
  * dos números: el servidor devuelve la misma emitida (`PRY-I06`).
+ *
+ * **Con cambios sin guardar en el documento, primero los guarda** (V02, V03): se emite lo que se ve, desde el pie o
+ * desde el riel. Guarda sin refrescar —el documento se remontaría y cerraría este diálogo— y refresca al cerrarlo.
  */
 export function EmitirCotizacion({
   cotizacionId,
-  hayCambiosSinGuardar = false,
   sustituye = null,
   variante = "brand",
   className,
 }: {
   cotizacionId: string;
-  hayCambiosSinGuardar?: boolean;
   /** Recotizando (B.3): a qué versión sustituye, y si estaba aprobada */
   sustituye?: Sustitucion | null;
   variante?: "brand" | "outline";
@@ -39,8 +41,27 @@ export function EmitirCotizacion({
   const [leida, setLeida] = useState<Cotizacion | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [trabajando, setTrabajando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [guardo, setGuardo] = useState(false);
+  const pendientes = useBorradorEnEdicion()?.pendientes;
+  const porGuardar = pendientes?.cotizacionId === cotizacionId ? pendientes : null;
 
   async function abrir() {
+    if (porGuardar) {
+      setGuardando(true);
+      const guardado = await porGuardar.guardar();
+      setGuardando(false);
+      if (!guardado) {
+        // Desde el riel el formulario puede no estar a la vista: el error de cada campo está en él
+        notificar({
+          tono: "error",
+          titulo: "No se emitió: el documento no se pudo guardar",
+          descripcion: "Corrija lo marcado en «El documento» y vuelva a emitir.",
+        });
+        return;
+      }
+      setGuardo(true);
+    }
     setAbierto(true);
     setLeida(null);
     setError(null);
@@ -73,15 +94,23 @@ export function EmitirCotizacion({
       return;
     }
 
-    toast.success(`Emitida ${respuesta.datos.numero}`, {
+    notificar({
+      tono: "exito",
+      titulo: `Emitida ${respuesta.datos.numero}`,
       // La primera emisión solo ocurre en `lead`; las siguientes sustituyen a una vigente (B.3)
-      description: sustituye?.aprobada
+      descripcion: sustituye?.aprobada
         ? `Sustituye a la v${sustituye.version}, que estaba aprobada: el proyecto volvió a Cotizado hasta que el cliente apruebe esta.`
         : sustituye
           ? `Sustituye a la v${sustituye.version}. El documento quedó numerado y ya no cambia.`
           : "El documento quedó numerado y ya no cambia. El proyecto pasó a Cotizado.",
     });
+    cerrar();
+  }
+
+  /** Lo guardado al abrir no se ha pintado todavía: se refresca al salir, se emita o no */
+  function cerrar() {
     setAbierto(false);
+    setGuardo(false);
     router.refresh();
   }
 
@@ -89,18 +118,20 @@ export function EmitirCotizacion({
 
   return (
     <>
-      <Button variant={variante} className={className ?? "h-11 w-full md:h-9"} onClick={abrir}>
-        Emitir
+      {/* `type="button"`: dentro del formulario del documento, un botón sin tipo lo envía (así nacía V03) */}
+      <Button type="button" variant={variante} className={className ?? "h-11 w-full md:h-9"} onClick={abrir} disabled={guardando}>
+        {guardando ? <Loader2 className="size-4 animate-spin" /> : null}
+        {porGuardar ? "Guardar y emitir" : "Emitir"}
       </Button>
 
       <PanelResponsivo
         abierto={abierto}
-        alCambiar={setAbierto}
+        alCambiar={(abrirlo) => (abrirlo ? setAbierto(true) : guardo ? cerrar() : setAbierto(false))}
         titulo={leida ? `Emitir la cotización v${leida.version}` : "Emitir la cotización"}
         descripcion="Se numerará y ya no podrá editarse: es el documento que recibe el cliente."
       >
         <div className="flex flex-col gap-4">
-          {error ? <AvisoDeError>{error}</AvisoDeError> : null}
+          {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
           {leida ? (
             <>
@@ -126,15 +157,16 @@ export function EmitirCotizacion({
                   {sustituye.aprobada ? " Estaba aprobada: el proyecto vuelve a Cotizado hasta que el cliente apruebe este." : ""}
                 </p>
               ) : null}
-              {hayCambiosSinGuardar ? (
-                <p className="text-muted-foreground text-sm">
-                  Hay cambios sin guardar en el documento: se emite lo guardado, que es lo de arriba.
-                </p>
-              ) : null}
-              <Button variant="brand" className="h-11 md:h-9" onClick={emitir} disabled={trabajando}>
-                {trabajando ? <Loader2 className="size-4 animate-spin" /> : null}
-                Emitir y numerar
-              </Button>
+              {/* Es el punto de no retorno: la salida se ofrece con palabras, no solo con la ✕ (recorrido UX.0, R28) */}
+              <div className="flex flex-col gap-2 md:flex-row-reverse">
+                <Button variant="brand" className="h-11 md:h-9" onClick={emitir} disabled={trabajando}>
+                  {trabajando ? <Loader2 className="size-4 animate-spin" /> : null}
+                  Emitir y numerar
+                </Button>
+                <Button variant="outline" className="h-11 md:h-9" onClick={() => (guardo ? cerrar() : setAbierto(false))} disabled={trabajando}>
+                  Cancelar
+                </Button>
+              </div>
             </>
           ) : !error ? (
             <p className="text-muted-foreground flex items-center gap-2 text-sm">

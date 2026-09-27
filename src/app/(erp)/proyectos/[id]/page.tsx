@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { AccionesEtapa } from "@/features/proyectos/components/acciones-etapa";
+import { BorradorEnEdicion } from "@/features/proyectos/components/borrador-en-edicion";
 import { CobrosProyecto } from "@/features/proyectos/components/cobros-proyecto";
 import { MedicionEnObra } from "@/features/proyectos/components/medicion-en-obra";
 import { CotizacionBorrador } from "@/features/proyectos/components/cotizacion-borrador";
@@ -22,7 +23,7 @@ import { LineaDeEtapas } from "@/features/proyectos/components/linea-de-etapas";
 import { PestanasFicha } from "@/features/proyectos/components/pestanas-ficha";
 import { SelectorDeVersiones } from "@/features/proyectos/components/selector-de-versiones";
 import { pestanaInicial } from "@/features/proyectos/pestanas";
-import { ETAPAS, QUE_FALTA } from "@/features/proyectos/textos";
+import { ENTREGADO_Y_PAGADO, ETAPAS, ETAPAS_CON_COBROS, QUE_FALTA } from "@/features/proyectos/textos";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
 import { ApiError, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
@@ -111,155 +112,160 @@ export default async function FichaProyectoPage({
   const cerrado = proyecto.etapa === "perdido" || proyecto.etapa === "anulado";
   // Sin `costeo:ver` la clave `saldo` no viaja (`CAL-04`): entonces la línea no habla de dinero
   const veDinero = "saldo" in proyecto;
+  // El saldo existe desde que el cliente aprueba: antes no se debe nada (recorrido UX.0, R15)
+  const conSaldo = veDinero && ETAPAS_CON_COBROS.includes(proyecto.etapa);
+  const queFalta = proyecto.etapa === "entregado" && proyecto.saldo === 0 ? ENTREGADO_Y_PAGADO : QUE_FALTA[proyecto.etapa];
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-28 md:pb-0">
-      <PageHeader
-        migas={[
-          { etiqueta: "Inicio", href: RUTA_INICIO },
-          { etiqueta: "Proyectos", href: "/proyectos" },
-          { etiqueta: proyecto.codigo },
-        ]}
-        titulo={proyecto.nombre}
-        descripcion={`${proyecto.codigo} · ${proyecto.cliente.nombre}`}
-        acciones={
-          <>
-            {whatsapp ? (
-              <Button asChild variant="outline" className="text-whatsapp h-11 md:h-8">
-                <a href={whatsapp} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="size-4" />
-                  WhatsApp
-                </a>
-              </Button>
-            ) : null}
-            {telefono ? (
-              <Button asChild variant="outline" className="h-11 md:hidden">
-                <a href={`tel:${telefono}`}>
-                  <Phone className="size-4" />
-                  Llamar
-                </a>
-              </Button>
-            ) : null}
-            {puede(usuario, "proyectos:crear") ? <EditarProyecto proyecto={proyecto} /> : null}
-          </>
-        }
-      />
-
-      <LineaDeEtapas
-        etapa={proyecto.etapa}
-        etapaDesde={proyecto.etapa_desde}
-        creado={proyecto.created_at}
-        historia={proyecto.historia}
-        total={veDinero ? (proyecto.vigente?.total ?? null) : undefined}
-        saldo={veDinero ? proyecto.saldo : undefined}
-        borrador={borrador?.version ?? null}
-      />
-
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:items-start lg:grid-cols-[minmax(0,1fr)_24rem]">
-        <PestanasFicha
-          inicial={inicial}
-          paneles={{
-            resumen: (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Qué falta</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm">{QUE_FALTA[proyecto.etapa]}</CardContent>
-                </Card>
-                <DatosProyecto proyecto={proyecto} />
-              </>
-            ),
-            cotizacion: mostrada ? (
-              <div className="flex flex-col gap-4">
-                <SelectorDeVersiones
-                  proyectoId={proyecto.id}
-                  versiones={proyecto.versiones}
-                  elegida={mostrada.version}
-                />
-                {emitida ? (
-                  <CotizacionEmitida cotizacion={emitida} sustituidaPor={pedida?.sustituida_por ?? null} />
-                ) : borrador ? (
-                  <CotizacionBorrador
-                    cotizacion={borrador}
-                    puedeEditar={puedeCotizar}
-                    puedeEmitir={puedeEmitir}
-                    sustituye={sustituye}
-                  />
-                ) : null}
-              </div>
-            ) : (
-              <Pendiente icono={FileText} titulo="Cotización">
-                {cerrado ? (
-                  "El proyecto se cerró sin cotización."
-                ) : proyecto.etapa === "lead" && puedeCotizar ? (
-                  <div className="flex flex-col items-start gap-3">
-                    <p>
-                      Todavía no hay cotización. Se arma en el cotizador: cada ventana se calcula y se agrega al proyecto
-                      con su cantidad y dónde va.
-                    </p>
-                    <CotizarProyecto proyectoId={proyecto.id} className="h-11 md:h-9" />
-                  </div>
-                ) : (
-                  "Todavía no hay cotización."
-                )}
-              </Pendiente>
-            ),
-            obra: vigenteEnObra ? (
-              // `key`: si la vigente cambia —recotizar y aprobar otra—, el formulario vuelve a partir de sus cotas
-              <MedicionEnObra
-                key={vigenteEnObra.id}
-                proyecto={proyecto}
-                vigente={vigenteEnObra}
-                puedeMedir={puede(usuario, "medicion:registrar")}
-                puedeRecotizar={puedeCotizar}
-              />
-            ) : (
-              <Pendiente icono={Ruler} titulo="Medición en obra">
-                {cerrado
-                  ? "El proyecto se cerró antes de medir en obra."
-                  : "Se mide en obra cuando el cliente aprueba la cotización: antes de cortar, cada cota se confirma en el sitio."}
-              </Pendiente>
-            ),
-            cobros: (
-              <CobrosProyecto
-                proyecto={proyecto}
-                puedeRegistrar={puede(usuario, "cobros:registrar")}
-                puedeAnular={puede(usuario, "cobros:anular")}
-              />
-            ),
-            historia: (
-              <Card>
-                <CardContent className="pt-6">
-                  <HistoriaProyecto eventos={proyecto.historia} />
-                </CardContent>
-              </Card>
-            ),
-          }}
+    <BorradorEnEdicion>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-28 md:pb-0">
+        <PageHeader
+          migas={[
+            { etiqueta: "Inicio", href: RUTA_INICIO },
+            { etiqueta: "Proyectos", href: "/proyectos" },
+            { etiqueta: proyecto.codigo },
+          ]}
+          titulo={proyecto.nombre}
+          descripcion={`${proyecto.codigo} · ${proyecto.cliente.nombre}`}
+          acciones={
+            <>
+              {whatsapp ? (
+                <Button asChild variant="outline" className="text-whatsapp h-11 md:h-8">
+                  <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="size-4" />
+                    WhatsApp
+                  </a>
+                </Button>
+              ) : null}
+              {telefono ? (
+                <Button asChild variant="outline" className="h-11 md:hidden">
+                  <a href={`tel:${telefono}`}>
+                    <Phone className="size-4" />
+                    Llamar
+                  </a>
+                </Button>
+              ) : null}
+              {puede(usuario, "proyectos:crear") ? <EditarProyecto proyecto={proyecto} /> : null}
+            </>
+          }
         />
 
-        {/* El riel de la etapa: a la derecha en el escritorio; debajo del contenido en el móvil */}
-        <aside className="md:sticky md:top-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{cerrado ? ETAPAS[proyecto.etapa] : `${ETAPAS[proyecto.etapa]} · qué sigue`}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AccionesEtapa
-                proyecto={proyecto}
-                puedeAvanzar={puede(usuario, "proyectos:avanzar")}
-                puedeCotizar={puedeCotizar}
-                puedeAprobar={puede(usuario, "cotizaciones:aprobar")}
-                puedeCobrar={puede(usuario, "cobros:registrar")}
-                puedeMedir={puede(usuario, "medicion:registrar")}
-                puedeVerCorte={puede(usuario, "despiece:ver")}
-                // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
-                emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
-              />
-            </CardContent>
-          </Card>
-        </aside>
+        <LineaDeEtapas
+          etapa={proyecto.etapa}
+          etapaDesde={proyecto.etapa_desde}
+          creado={proyecto.created_at}
+          historia={proyecto.historia}
+          total={veDinero ? (proyecto.vigente?.total ?? null) : undefined}
+          saldo={conSaldo ? proyecto.saldo : undefined}
+          borrador={borrador?.version ?? null}
+        />
+
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:items-start lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <PestanasFicha
+            inicial={inicial}
+            paneles={{
+              resumen: (
+                <>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Qué falta</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm">{queFalta}</CardContent>
+                  </Card>
+                  <DatosProyecto proyecto={proyecto} />
+                </>
+              ),
+              cotizacion: mostrada ? (
+                <div className="flex flex-col gap-4">
+                  <SelectorDeVersiones
+                    proyectoId={proyecto.id}
+                    versiones={proyecto.versiones}
+                    elegida={mostrada.version}
+                  />
+                  {emitida ? (
+                    <CotizacionEmitida cotizacion={emitida} cliente={proyecto.cliente} sustituidaPor={pedida?.sustituida_por ?? null} />
+                  ) : borrador ? (
+                    <CotizacionBorrador
+                      cotizacion={borrador}
+                      puedeEditar={puedeCotizar}
+                      puedeEmitir={puedeEmitir}
+                      sustituye={sustituye}
+                    />
+                  ) : null}
+                </div>
+              ) : (
+                <Pendiente icono={FileText} titulo="Cotización">
+                  {cerrado ? (
+                    "El proyecto se cerró sin cotización."
+                  ) : proyecto.etapa === "lead" && puedeCotizar ? (
+                    <div className="flex flex-col items-start gap-3">
+                      <p>
+                        Todavía no hay cotización. Se arma en el cotizador: cada ventana se calcula y se agrega al proyecto
+                        con su cantidad y dónde va.
+                      </p>
+                      <CotizarProyecto proyectoId={proyecto.id} className="h-11 md:h-9" />
+                    </div>
+                  ) : (
+                    "Todavía no hay cotización."
+                  )}
+                </Pendiente>
+              ),
+              obra: vigenteEnObra ? (
+                // `key`: si la vigente cambia —recotizar y aprobar otra—, el formulario vuelve a partir de sus cotas
+                <MedicionEnObra
+                  key={vigenteEnObra.id}
+                  proyecto={proyecto}
+                  vigente={vigenteEnObra}
+                  puedeMedir={puede(usuario, "medicion:registrar")}
+                  puedeRecotizar={puedeCotizar}
+                />
+              ) : (
+                <Pendiente icono={Ruler} titulo="Medición en obra">
+                  {cerrado
+                    ? "El proyecto se cerró antes de medir en obra."
+                    : "Se mide en obra cuando el cliente aprueba la cotización: antes de cortar, cada cota se confirma en el sitio."}
+                </Pendiente>
+              ),
+              cobros: (
+                <CobrosProyecto
+                  proyecto={proyecto}
+                  puedeRegistrar={puede(usuario, "cobros:registrar")}
+                  puedeAnular={puede(usuario, "cobros:anular")}
+                />
+              ),
+              historia: (
+                <Card>
+                  <CardContent className="pt-6">
+                    <HistoriaProyecto eventos={proyecto.historia} />
+                  </CardContent>
+                </Card>
+              ),
+            }}
+          />
+
+          {/* El riel de la etapa: a la derecha en el escritorio; debajo del contenido en el móvil */}
+          <aside className="md:sticky md:top-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{cerrado ? ETAPAS[proyecto.etapa] : `${ETAPAS[proyecto.etapa]} · qué sigue`}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AccionesEtapa
+                  proyecto={proyecto}
+                  puedeAvanzar={puede(usuario, "proyectos:avanzar")}
+                  puedeCotizar={puedeCotizar}
+                  puedeAprobar={puede(usuario, "cotizaciones:aprobar")}
+                  puedeCobrar={puede(usuario, "cobros:registrar")}
+                  puedeMedir={puede(usuario, "medicion:registrar")}
+                  puedeVerCorte={puede(usuario, "despiece:ver")}
+                  // Con ítems, lo siguiente de un lead es emitir (`51-ui`: «Emitir» en la barra fija)
+                  emitible={borrador && borrador.items.length > 0 && puedeEmitir ? borrador.id : null}
+                />
+              </CardContent>
+            </Card>
+          </aside>
+        </div>
       </div>
-    </div>
+    </BorradorEnEdicion>
   );
 }

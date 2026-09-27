@@ -1,6 +1,11 @@
+import { MessageCircle } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { enlaceParaEscribirA } from "@/config/site-config";
 import { FilaItem } from "@/features/proyectos/components/cotizacion-borrador";
 import { DesgloseCotizacion } from "@/features/proyectos/components/desglose-cotizacion";
+import { mensajeDeCotizacion } from "@/features/proyectos/mensaje-cotizacion";
 import type { Cotizacion } from "@/features/proyectos/types";
 import { diaLegible, fechaHora } from "@/lib/formato";
 
@@ -11,10 +16,12 @@ import { diaLegible, fechaHora } from "@/lib/formato";
  */
 export function CotizacionEmitida({
   cotizacion,
+  cliente,
   sustituidaPor = null,
   ahora = new Date(),
 }: {
   cotizacion: Cotizacion;
+  cliente: { nombre: string; telefono: string | null };
   /** La versión que la sustituyó, si no es la vigente: la calcula el servidor */
   sustituidaPor?: number | null;
   ahora?: Date;
@@ -22,6 +29,10 @@ export function CotizacionEmitida({
   const vencida = cotizacion.vence_at !== null && new Date(cotizacion.vence_at) < ahora;
   const veDinero = cotizacion.total !== undefined;
   const vence = fechaHora(cotizacion.vence_at).slice(0, 10);
+  // Lo siguiente a emitir es mandarla (decisión 36): solo la vigente que el cliente todavía puede aprobar
+  const porEnviar = cotizacion.estado === "emitida" && cotizacion.vigente && !vencida && sustituidaPor === null;
+  const mensaje = porEnviar ? mensajeDeCotizacion(cliente.nombre, cotizacion) : null;
+  const enviar = mensaje ? enlaceParaEscribirA(cliente.telefono, mensaje) : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -41,9 +52,9 @@ export function CotizacionEmitida({
             {cotizacion.estado === "aprobada" ? (
               <>Aprobada el {diaLegible(cotizacion.aprobada_el)}</>
             ) : cotizacion.estado === "anulada" ? (
-              <span className="text-destructive">Anulada con el proyecto</span>
+              <span className="text-destructive-fuerte">Anulada con el proyecto</span>
             ) : vencida ? (
-              <span className="text-destructive">Emitida · vencida el {vence}</span>
+              <span className="text-destructive-fuerte">Emitida · vencida el {vence}</span>
             ) : (
               <>Emitida · vence el {vence}</>
             )}
@@ -52,6 +63,18 @@ export function CotizacionEmitida({
           {cotizacion.aprobacion_nota ? <p className="text-sm">«{cotizacion.aprobacion_nota}»</p> : null}
           {vencida && cotizacion.vigente && cotizacion.estado === "emitida" ? (
             <p className="text-sm">Para que el cliente la apruebe, recotice con los precios de hoy.</p>
+          ) : null}
+          {enviar ? (
+            <Button asChild variant="outline" className="text-whatsapp mt-2 h-11 md:h-8 md:justify-self-start">
+              <a href={enviar} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="size-4" />
+                Enviar por WhatsApp
+              </a>
+            </Button>
+          ) : mensaje ? (
+            <p className="text-muted-foreground text-sm">
+              El cliente no tiene un teléfono registrado: sin él, no se puede enviar por WhatsApp.
+            </p>
           ) : null}
         </CardHeader>
         <CardContent>
