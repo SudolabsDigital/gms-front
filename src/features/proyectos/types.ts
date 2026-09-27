@@ -42,7 +42,13 @@ export type Meta = {
 
 export type ListaProyectos = {
   datos: ProyectoFila[];
-  meta: Meta & { recuento_por_etapa: Record<Etapa, number> };
+  meta: Meta & {
+    recuento_por_etapa: Record<Etapa, number>;
+    /** «Cerrados» ya no es la suma de sus etapas: un entregado con saldo va a «Por cobrar» (decisión 40) */
+    recuento_por_vista: Record<"vivos" | "cerrados" | "por_cobrar", number>;
+    /** La suma de los saldos de «Por cobrar». Sin `costeo:ver` no viaja */
+    por_cobrar_total?: number;
+  };
 };
 
 export type Cliente = {

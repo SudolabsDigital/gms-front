@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-import { ETAPAS, ETAPAS_CERRADAS, ETAPAS_EN_CURSO } from "@/features/proyectos/textos";
+import { ETAPAS, ETAPAS_EN_CURSO } from "@/features/proyectos/textos";
 import type { Etapa } from "@/features/proyectos/types";
 import { cn } from "@/lib/utils";
 
-export type FiltroLista = { vista: "vivos" | "cerrados" | "todos"; etapa: Etapa | null; buscar: string };
+export type FiltroLista = { vista: "vivos" | "cerrados" | "por_cobrar" | "todos"; etapa: Etapa | null; buscar: string };
 
 /** La URL de la lista con un filtro cambiado. La página se resetea: otro filtro, otra primera página. */
 export function urlDeLista(filtro: FiltroLista, cambios: Partial<FiltroLista> = {}): string {
@@ -21,17 +21,24 @@ export function urlDeLista(filtro: FiltroLista, cambios: Partial<FiltroLista> = 
 
 /**
  * Fichas por etapa con su recuento (`proyectos/51-ui` § lista): deslizables en el móvil, una fila de
- * pestañas en el escritorio. El recuento viene del servidor (`meta.recuento_por_etapa`), con la misma
+ * pestañas en el escritorio. El recuento viene del servidor (`meta.recuento_por_etapa` y `recuento_por_vista`), con la misma
  * búsqueda aplicada. «En curso» es la vista por omisión: la lista es de trabajo vivo.
  */
-export function FiltroEtapas({ filtro, recuento }: { filtro: FiltroLista; recuento: Record<Etapa, number> }) {
-  const suma = (etapas: Etapa[]) => etapas.reduce((total, e) => total + (recuento[e] ?? 0), 0);
-
+export function FiltroEtapas({
+  filtro,
+  recuento,
+  porVista,
+}: {
+  filtro: FiltroLista;
+  recuento: Record<Etapa, number>;
+  /** Las vistas las cuenta el servidor: «Cerrados» ya no es la suma de sus etapas (decisión 40) */
+  porVista: Record<"vivos" | "cerrados" | "por_cobrar", number>;
+}) {
   const opciones: { clave: string; etiqueta: string; n: number; href: string; activa: boolean }[] = [
     {
       clave: "vivos",
       etiqueta: "En curso",
-      n: suma(ETAPAS_EN_CURSO),
+      n: porVista.vivos,
       href: urlDeLista(filtro, { vista: "vivos", etapa: null }),
       activa: !filtro.etapa && filtro.vista === "vivos",
     },
@@ -42,10 +49,18 @@ export function FiltroEtapas({ filtro, recuento }: { filtro: FiltroLista; recuen
       href: urlDeLista(filtro, { etapa }),
       activa: filtro.etapa === etapa,
     })),
+    // El dinero pendiente, en cualquier etapa desde aprobado: antes, un entregado con saldo se iba a «Cerrados» (R14)
+    {
+      clave: "por_cobrar",
+      etiqueta: "Por cobrar",
+      n: porVista.por_cobrar,
+      href: urlDeLista(filtro, { vista: "por_cobrar", etapa: null }),
+      activa: !filtro.etapa && filtro.vista === "por_cobrar",
+    },
     {
       clave: "cerrados",
       etiqueta: "Cerrados",
-      n: suma(ETAPAS_CERRADAS),
+      n: porVista.cerrados,
       href: urlDeLista(filtro, { vista: "cerrados", etapa: null }),
       activa: !filtro.etapa && filtro.vista === "cerrados",
     },

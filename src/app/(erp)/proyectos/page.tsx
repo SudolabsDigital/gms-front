@@ -13,6 +13,7 @@ import { ListaProyectos } from "@/features/proyectos/components/lista-proyectos"
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Etapa, ListaProyectos as Lista } from "@/features/proyectos/types";
 import { apiGet } from "@/lib/api-server";
+import { moneda, plural } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -30,7 +31,7 @@ function leerFiltro(crudo: Awaited<Parametros>): FiltroLista & { pagina: number 
 
   return {
     etapa: etapa in ETAPAS ? (etapa as Etapa) : null,
-    vista: vista === "cerrados" || vista === "todos" ? vista : "vivos",
+    vista: vista === "cerrados" || vista === "por_cobrar" || vista === "todos" ? vista : "vivos",
     buscar: texto("buscar").trim().slice(0, 100),
     pagina: Math.max(1, Number.parseInt(texto("pagina"), 10) || 1),
   };
@@ -87,7 +88,15 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pa
           </form>
           <FocoEnEscritorio id="buscar-proyectos" />
 
-          <FiltroEtapas filtro={filtro} recuento={lista.meta.recuento_por_etapa} />
+          <FiltroEtapas filtro={filtro} recuento={lista.meta.recuento_por_etapa} porVista={lista.meta.recuento_por_vista} />
+
+          {/* La suma la da el servidor y solo a quien ve dinero (decisión 40): aquí no se suma nada (`G-32`) */}
+          {!filtro.etapa && filtro.vista === "por_cobrar" && lista.meta.por_cobrar_total !== undefined ? (
+            <p className="text-sm">
+              Falta cobrar <b className="font-mono tabular-nums">{moneda(lista.meta.por_cobrar_total)}</b> en{" "}
+              {plural(lista.meta.recuento_por_vista.por_cobrar, "proyecto", "proyectos")}.
+            </p>
+          ) : null}
 
           {lista.datos.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center text-sm">
