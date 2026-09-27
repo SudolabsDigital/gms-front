@@ -42,6 +42,24 @@ export type Meta = {
   ultima_pagina: number;
 };
 
+/** Un asunto de Inicio (`GET inicio`, decisión 43): su recuento real y los 3 primeros. El dinero, solo con `costeo:ver` */
+export type AsuntoPendiente = {
+  clave: "vencidas" | "por_vencer" | "leads" | "sin_medir" | "produccion" | "por_cobrar";
+  recuento: number;
+  total?: number;
+  proyectos: {
+    id: string;
+    codigo: string;
+    nombre: string;
+    cliente: string;
+    etapa_desde: string;
+    vence_at?: string | null;
+    saldo?: number;
+  }[];
+};
+
+export type Pendientes = { asuntos: AsuntoPendiente[]; en_curso: Partial<Record<Etapa, number>> };
+
 export type ListaProyectos = {
   datos: ProyectoFila[];
   meta: Meta & {

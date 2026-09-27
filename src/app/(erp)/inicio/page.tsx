@@ -5,6 +5,11 @@ import { ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/comunes/page-header";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { Card, CardContent } from "@/components/ui/card";
+import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
+import { PendientesDeHoy } from "@/features/proyectos/components/pendientes-de-hoy";
+import type { Pendientes } from "@/features/proyectos/types";
+import { apiGet } from "@/lib/api-server";
+import { puede } from "@/lib/permisos";
 import { cn } from "@/lib/utils";
 import { exigirUsuario } from "@/lib/session";
 
@@ -13,7 +18,35 @@ export const metadata: Metadata = {
 };
 
 /**
- * La puerta del ERP.
+ * La puerta del ERP: **qué hacer hoy** (`proyectos/54-brief-inicio`, decisión 43).
+ *
+ * Quien ve proyectos llega a lo que le necesita —cotizaciones que vencen, aprobados sin medir, saldos—, en orden de
+ * urgencia y a un toque de donde se resuelve. El mapa del sistema de abajo se queda para quien no los ve (el maestro y
+ * el almacén): a Miguel el menú ya le da las secciones, y ver el mapa cada mañana era ruido (recorrido UX.0, R26).
+ */
+export default async function InicioPage() {
+  const usuario = await exigirUsuario();
+  const nombre = usuario.nombre.split(" ")[0];
+
+  if (!puede(usuario, "proyectos:ver")) return <MapaDelSistema nombre={nombre} usuario={usuario} />;
+
+  const pendientes = await apiGet<Pendientes>("/inicio");
+
+  return (
+    // Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 pb-24 md:pb-0">
+      <PageHeader
+        titulo={`Hola, ${nombre}`}
+        descripcion="Lo que necesita atención hoy, de lo más urgente a lo que puede esperar."
+        acciones={puede(usuario, "proyectos:crear") ? <AltaProyecto variante="outline" /> : null}
+      />
+      <PendientesDeHoy pendientes={pendientes} />
+    </div>
+  );
+}
+
+/**
+ * El mapa del sistema, para quien no ve proyectos.
  *
  * Antes el login dejaba al usuario directamente en el cotizador, que es la pantalla que
  * más se usa pero la peor para llegar en frío: no dice qué es el sistema ni qué más
@@ -23,8 +56,7 @@ export const metadata: Metadata = {
  * no hay nada que cotizar, y sin cotización no hay orden de producción. Ver esa cadena
  * explica el sistema entero mejor que cualquier manual.
  */
-export default async function InicioPage() {
-  const usuario = await exigirUsuario();
+function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<ReturnType<typeof exigirUsuario>> }) {
   const entradas = navegacionPara(usuario).filter(
     (entrada) => entrada.href !== "/inicio",
   );
@@ -32,7 +64,7 @@ export default async function InicioPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
       <PageHeader
-        titulo={`Hola, ${usuario.nombre.split(" ")[0]}`}
+        titulo={`Hola, ${nombre}`}
         descripcion="GMS Integra calcula ventanas y mamparas a medida: usted da las medidas y el sistema devuelve el plano, la lista de corte y el precio."
       />
 

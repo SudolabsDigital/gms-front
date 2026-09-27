@@ -50,7 +50,8 @@ const VACIO: Formulario = {
  * Dos disparadores y un solo formulario: en el escritorio, el botón de la cabecera; en el móvil, uno
  * fijo abajo, al alcance del pulgar. Si la red falla, lo escrito se conserva (`ENT.C4`).
  */
-export function AltaProyecto() {
+/** `variante`: en Inicio es la acción secundaria y no rellena en escritorio (decisión 43); en el móvil, la barra la lleva igual */
+export function AltaProyecto({ variante = "brand" }: { variante?: "brand" | "outline" } = {}) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [datos, setDatos] = useState<Formulario>(VACIO);
@@ -121,7 +122,7 @@ export function AltaProyecto() {
 
   return (
     <>
-      <Button variant="brand" className="hidden md:inline-flex" onClick={() => setAbierto(true)}>
+      <Button variant={variante} className="hidden md:inline-flex" onClick={() => setAbierto(true)}>
         <Plus className="size-4" />
         Nuevo proyecto
       </Button>
