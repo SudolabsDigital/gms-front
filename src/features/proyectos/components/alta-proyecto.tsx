@@ -6,6 +6,7 @@ import { ChevronDown, Loader2, Plus } from "lucide-react";
 
 import { Notificacion } from "@/components/comunes/notificacion";
 import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
+import { describeError, ErrorDeCampo } from "@/components/comunes/error-de-campo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -157,8 +158,9 @@ export function AltaProyecto() {
               maxLength={150}
               onChange={(e) => campo("nombre", e.target.value)}
               aria-invalid={Boolean(errorDe("nombre"))}
+              aria-describedby={describeError("proyecto-nombre", errorDe("nombre"))}
             />
-            {errorDe("nombre") ? <p className="text-destructive-fuerte text-sm">{errorDe("nombre")}</p> : null}
+            <ErrorDeCampo campo="proyecto-nombre">{errorDe("nombre")}</ErrorDeCampo>
           </div>
 
           <SelectorDeOrigen valor={datos.origen} alCambiar={(origen) => campo("origen", origen)} error={errorDe("origen")} />
@@ -174,10 +176,9 @@ export function AltaProyecto() {
               value={datos.enlace_origen}
               onChange={(e) => campo("enlace_origen", e.target.value)}
               aria-invalid={Boolean(errorDe("enlace_origen"))}
+              aria-describedby={describeError("proyecto-enlace", errorDe("enlace_origen"))}
             />
-            {errorDe("enlace_origen") ? (
-              <p className="text-destructive-fuerte text-sm">{errorDe("enlace_origen")}</p>
-            ) : null}
+            <ErrorDeCampo campo="proyecto-enlace">{errorDe("enlace_origen")}</ErrorDeCampo>
           </div>
 
           <div>
@@ -201,10 +202,10 @@ export function AltaProyecto() {
                     value={datos.direccion_obra}
                     maxLength={200}
                     onChange={(e) => campo("direccion_obra", e.target.value)}
+                    aria-invalid={errorDe("direccion_obra") ? true : undefined}
+                    aria-describedby={describeError("proyecto-direccion", errorDe("direccion_obra"))}
                   />
-                  {errorDe("direccion_obra") ? (
-                    <p className="text-destructive-fuerte text-sm">{errorDe("direccion_obra")}</p>
-                  ) : null}
+                  <ErrorDeCampo campo="proyecto-direccion">{errorDe("direccion_obra")}</ErrorDeCampo>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="proyecto-distrito">Distrito</Label>

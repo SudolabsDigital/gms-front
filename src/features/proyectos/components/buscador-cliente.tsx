@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Search, UserPlus, X } from "lucide-react";
 
+import { describeError, ErrorDeCampo } from "@/components/comunes/error-de-campo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,6 +100,7 @@ export function BuscadorCliente({
             maxLength={150}
             onChange={(e) => alCambiar({ ...valor, nombre: e.target.value })}
             aria-invalid={Boolean(error)}
+            aria-describedby={describeError("cliente-nombre", error)}
           />
         </div>
         <div className="space-y-1.5">
@@ -117,7 +119,7 @@ export function BuscadorCliente({
             onChange={(e) => alCambiar({ ...valor, telefono: e.target.value })}
           />
         </div>
-        {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
+        <ErrorDeCampo campo="cliente-nombre">{error}</ErrorDeCampo>
       </fieldset>
     );
   }
@@ -140,6 +142,7 @@ export function BuscadorCliente({
             if (e.target.value.trim().length < 2) setResultados([]);
           }}
           aria-invalid={Boolean(error)}
+          aria-describedby={describeError("cliente-buscar", error)}
         />
         {buscando ? (
           <Loader2 className="text-muted-foreground absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin" />
@@ -181,7 +184,7 @@ export function BuscadorCliente({
       ) : null}
 
       {fallo ? <p className="text-destructive-fuerte text-sm">{fallo}</p> : null}
-      {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
+      <ErrorDeCampo campo="cliente-buscar">{error}</ErrorDeCampo>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Notificacion } from "@/components/comunes/notificacion";
+import { describeError, ErrorDeCampo } from "@/components/comunes/error-de-campo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -221,6 +222,7 @@ export function DocumentoCotizacion({
                 unidad="días"
                 valor={datos.validez_dias}
                 marcador={String(cotizacion.validez_por_omision)}
+                entero
                 error={errorDe("validez_dias")}
                 deshabilitado={!puedeEditar}
                 alCambiar={(v) => campo("validez_dias", v)}
@@ -293,6 +295,7 @@ function CampoNumero({
   error,
   deshabilitado,
   alCambiar,
+  entero = false,
 }: {
   id: string;
   etiqueta: string;
@@ -300,6 +303,8 @@ function CampoNumero({
   valor: string;
   marcador?: string;
   error?: string;
+  /** Días y cantidades: el teclado sin coma decimal (V10) */
+  entero?: boolean;
   deshabilitado: boolean;
   alCambiar: (valor: string) => void;
 }) {
@@ -310,15 +315,16 @@ function CampoNumero({
       </Label>
       <Input
         id={id}
-        inputMode="decimal"
+        inputMode={entero ? "numeric" : "decimal"}
         className="h-11 font-mono tabular-nums md:h-9"
         value={valor}
         placeholder={marcador}
         disabled={deshabilitado}
         aria-invalid={error ? true : undefined}
+        aria-describedby={describeError(id, error)}
         onChange={(e) => alCambiar(e.target.value)}
       />
-      {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
+      <ErrorDeCampo campo={id}>{error}</ErrorDeCampo>
     </div>
   );
 }

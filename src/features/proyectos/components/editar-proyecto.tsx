@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Pencil } from "lucide-react";
 
 import { Notificacion } from "@/components/comunes/notificacion";
+import { describeError, ErrorDeCampo } from "@/components/comunes/error-de-campo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ import { BuscadorCliente, type ClienteElegido } from "@/features/proyectos/compo
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { SelectorDeOrigen } from "@/features/proyectos/components/selector-origen";
 import { CAMPOS } from "@/features/proyectos/textos";
-import type { Origen, ProyectoFicha } from "@/features/proyectos/types";
+import type { Cliente, Origen, ProyectoFicha } from "@/features/proyectos/types";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 import { notificar } from "@/lib/notificar";
 
@@ -52,6 +53,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
   const [abierto, setAbierto] = useState(false);
   const [datos, setDatos] = useState<Campos>(camposDe(proyecto));
   const [cliente, setCliente] = useState<ClienteElegido | null>({ modo: "existente", cliente: proyecto.cliente });
+  const [telefono, setTelefono] = useState(proyecto.cliente.telefono ?? "");
   const [errores, setErrores] = useState<Record<string, string[]>>({});
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
   const [conflicto, setConflicto] = useState<string[] | null>(null);
@@ -60,6 +62,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
   function abrir() {
     setDatos(camposDe(proyecto));
     setCliente({ modo: "existente", cliente: proyecto.cliente });
+    setTelefono(proyecto.cliente.telefono ?? "");
     setErrores({});
     setErrorGeneral(null);
     setConflicto(null);
@@ -91,13 +94,44 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
         .map((clave) => [clave, actuales[clave].trim() === "" ? null : actuales[clave].trim()]),
     );
 
-    if (Object.keys(cambios).length === 0) {
+    const nuevoTelefono = telefono.trim();
+    const cambiaTelefono = mismoCliente && nuevoTelefono !== (proyecto.cliente.telefono ?? "").trim();
+
+    if (Object.keys(cambios).length === 0 && !cambiaTelefono) {
       setAbierto(false);
       return;
     }
 
     setEnviando(true);
     setErrorGeneral(null);
+
+    // El teléfono es del cliente, no del proyecto: va a su ruta y con su versión (decisión 39)
+    if (cambiaTelefono) {
+      const delCliente = await pedir<Cliente>(`/api/v1/clientes/${proyecto.cliente.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ telefono: nuevoTelefono === "" ? null : nuevoTelefono, updated_at: proyecto.cliente.updated_at }),
+      });
+      if (!delCliente.ok) {
+        setEnviando(false);
+        if (delCliente.error.estado === 409) {
+          setConflicto(["teléfono del cliente"]);
+          return;
+        }
+        const porCampo = erroresPorCampo(delCliente.error);
+        setErrores(porCampo);
+        if (Object.keys(porCampo).length === 0) setErrorGeneral(mensajeDeError(delCliente.error));
+        return;
+      }
+    }
+
+    if (Object.keys(cambios).length === 0) {
+      setEnviando(false);
+      notificar({ tono: "exito", titulo: "Teléfono guardado", descripcion: `Vale para todos los proyectos de ${proyecto.cliente.nombre}.` });
+      setAbierto(false);
+      router.refresh();
+      return;
+    }
+
     // Un 409 trae en `actual` la ficha como está ahora: con ella se dice QUÉ cambió
     const respuesta = await pedir<ProyectoFicha, ProyectoFicha>(`/api/v1/proyectos/${proyecto.id}`, {
       method: "PATCH",
@@ -122,6 +156,8 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
   }
 
   const errorDe = (clave: string) => errores[clave]?.[0];
+  // El teléfono se corrige solo del cliente del proyecto: si se elige otro, el suyo es el que ya tiene
+  const mismoCliente = cliente?.modo === "existente" && cliente.cliente.id === proyecto.cliente.id;
 
   return (
     <>
@@ -167,11 +203,42 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
                 value={datos.nombre}
                 maxLength={150}
                 onChange={(e) => campo("nombre", e.target.value)}
+                aria-invalid={errorDe("nombre") ? true : undefined}
+                aria-describedby={describeError("editar-nombre", errorDe("nombre"))}
               />
-              {errorDe("nombre") ? <p className="text-destructive-fuerte text-sm">{errorDe("nombre")}</p> : null}
+              <ErrorDeCampo campo="editar-nombre">{errorDe("nombre")}</ErrorDeCampo>
             </div>
 
             <BuscadorCliente valor={cliente} alCambiar={elegirCliente} permitirNuevo={false} error={errorDe("cliente_id")} />
+
+            {mismoCliente ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="editar-telefono">Teléfono del cliente</Label>
+                <Input
+                  id="editar-telefono"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  className="h-11 md:h-9"
+                  placeholder="964 123 456"
+                  value={telefono}
+                  maxLength={30}
+                  aria-invalid={errorDe("telefono") ? true : undefined}
+                  aria-describedby="editar-telefono-ayuda"
+                  onChange={(e) => {
+                    setTelefono(e.target.value);
+                    setErrores((actuales) => sinErrores(actuales, ["telefono"]));
+                  }}
+                />
+                {errorDe("telefono") ? (
+                  <p id="editar-telefono-ayuda" className="text-destructive-fuerte text-sm">{errorDe("telefono")}</p>
+                ) : (
+                  <p id="editar-telefono-ayuda" className="text-muted-foreground text-xs">
+                    Es el de {proyecto.cliente.nombre}: cambia en todos sus proyectos. Con él se envía la cotización por WhatsApp.
+                  </p>
+                )}
+              </div>
+            ) : null}
 
             <SelectorDeOrigen valor={datos.origen} alCambiar={(origen) => campo("origen", origen)} error={errorDe("origen")} />
 
@@ -190,8 +257,10 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
                   className="h-11 md:h-9"
                   value={datos[clave]}
                   onChange={(e) => campo(clave, e.target.value)}
+                  aria-invalid={errorDe(clave) ? true : undefined}
+                  aria-describedby={describeError(`editar-${clave}`, errorDe(clave))}
                 />
-                {errorDe(clave) ? <p className="text-destructive-fuerte text-sm">{errorDe(clave)}</p> : null}
+                <ErrorDeCampo campo={`editar-${clave}`}>{errorDe(clave)}</ErrorDeCampo>
               </div>
             ))}
 

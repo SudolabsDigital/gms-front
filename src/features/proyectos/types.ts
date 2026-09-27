@@ -162,7 +162,8 @@ export type Sustitucion = { version: number; aprobada: boolean };
 /** Una línea del documento (`proyectos/50-api` § el borrador). `subtotal` es costo de línea, sin margen */
 export type ItemCotizacion = {
   id: string;
-  tipo: { id: string; codigo: string; nombre: string };
+  /** `diseno`: como se le nombra al cliente (decisión 38); `nombre` es la configuración, para el taller */
+  tipo: { id: string; codigo: string; nombre: string; diseno: string | null };
   ancho_cm: number;
   alto_cm: number;
   cantidad: number;

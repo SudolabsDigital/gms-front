@@ -154,10 +154,16 @@ export function AprobarCotizacion({
                 />
               </div>
 
-              <Button variant="brand" className="h-11 md:h-9" onClick={aprobar} disabled={trabajando || dia === ""}>
-                {trabajando ? <Loader2 className="size-4 animate-spin" /> : null}
-                Registrar aprobación
-              </Button>
+              {/* La salida con palabras, como en «Emitir» (R28): registrar el sí mueve la etapa (V07) */}
+              <div className="flex flex-col gap-2 md:flex-row-reverse">
+                <Button variant="brand" className="h-11 md:h-9" onClick={aprobar} disabled={trabajando || dia === ""}>
+                  {trabajando ? <Loader2 className="size-4 animate-spin" /> : null}
+                  Registrar aprobación
+                </Button>
+                <Button variant="outline" className="h-11 md:h-9" onClick={() => setAbierto(false)} disabled={trabajando}>
+                  Cancelar
+                </Button>
+              </div>
             </>
           ) : !error ? (
             <p className="text-muted-foreground flex items-center gap-2 text-sm">

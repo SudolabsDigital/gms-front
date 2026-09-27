@@ -14,7 +14,8 @@ export function mensajeDeCotizacion(cliente: string, cotizacion: Cotizacion): st
 
   const lineas = cotizacion.items.map((item) => {
     const donde = item.ubicacion?.trim() ? ` · ${item.ubicacion.trim()}` : "";
-    return `• ${numero(item.cantidad, 0)} × ${item.tipo.nombre}${donde} · ${numero(item.ancho_cm, 1)} × ${numero(item.alto_cm, 1)} cm`;
+    // El diseño, no la configuración: «F-D-F-D-F» es del taller (decisión 38, V05)
+    return `• ${numero(item.cantidad, 0)} × ${item.tipo.diseno ?? item.tipo.nombre}${donde} · ${numero(item.ancho_cm, 1)} × ${numero(item.alto_cm, 1)} cm`;
   });
   const vence = cotizacion.vence_at ? `\nVálida hasta el ${diaLegible(diaDe(cotizacion.vence_at))}.` : "";
 

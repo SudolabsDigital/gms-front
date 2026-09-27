@@ -73,7 +73,7 @@ export function CotizacionEmitida({
             </Button>
           ) : mensaje ? (
             <p className="text-muted-foreground text-sm">
-              El cliente no tiene un teléfono registrado: sin él, no se puede enviar por WhatsApp.
+              El cliente no tiene un teléfono registrado: agréguelo en «Editar datos» para enviarla por WhatsApp.
             </p>
           ) : null}
         </CardHeader>

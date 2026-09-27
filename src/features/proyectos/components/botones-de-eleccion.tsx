@@ -1,3 +1,6 @@
+import { useId } from "react";
+
+import { describeError, ErrorDeCampo } from "@/components/comunes/error-de-campo";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,8 +21,10 @@ export function BotonesDeEleccion<T extends string>({
   alCambiar: (valor: T) => void;
   error?: string;
 }) {
+  // El error es del grupo: lo nombra el `fieldset`, que es lo que el lector anuncia al entrar (V01)
+  const grupo = useId();
   return (
-    <fieldset className="space-y-1.5">
+    <fieldset className="space-y-1.5" aria-describedby={describeError(grupo, error)}>
       <legend className="text-sm font-medium">{leyenda}</legend>
       <div className="flex flex-wrap gap-2">
         {(Object.keys(opciones) as T[]).map((opcion) => (
@@ -37,7 +42,7 @@ export function BotonesDeEleccion<T extends string>({
           </button>
         ))}
       </div>
-      {error ? <p className="text-destructive-fuerte text-sm">{error}</p> : null}
+      <ErrorDeCampo campo={grupo}>{error}</ErrorDeCampo>
     </fieldset>
   );
 }
