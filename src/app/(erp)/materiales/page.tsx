@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search, Tags } from "lucide-react";
+import { Layers, Search, Tags } from "lucide-react";
 
 import { FocoEnEscritorio } from "@/components/comunes/foco-en-escritorio";
 import { Notificacion } from "@/components/comunes/notificacion";
@@ -57,6 +57,13 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
         descripcion="Todo lo que se consume —perfiles, vidrios, accesorios, consumibles—, cuánto cuesta y dónde se usa."
         acciones={
           <>
+            {/* Las familias con que se agrupa el consumo (MAE.6): se consultan con el mismo permiso que los insumos */}
+            <Button asChild variant="ghost" className="h-11 md:h-9">
+              <Link href="/materiales/familias">
+                <Layers className="size-4" />
+                Familias
+              </Link>
+            </Button>
             {cargarPrecios ? (
               <Button asChild variant="outline" className="h-11 md:h-9">
                 <Link href="/materiales/precios">
