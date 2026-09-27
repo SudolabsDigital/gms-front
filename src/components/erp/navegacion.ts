@@ -72,12 +72,14 @@ export const NAVEGACION: EntradaNavegacion[] = [
     disponible: true,
   },
   {
-    titulo: "Catálogo",
-    href: "/catalogo",
+    // `/materiales` y no `/catalogo`, que es el catálogo público del portal (MAE.4). Se ve con `catalogo:ver`: el
+    // maestro y el almacén consultan insumos, sin precios
+    titulo: "Materiales",
+    href: "/materiales",
     icono: Boxes,
-    permiso: "catalogo:gestionar",
-    descripcion: "Materiales, insumos y precios",
-    disponible: false,
+    permiso: "catalogo:ver",
+    descripcion: "Insumos, precios y dónde se usa cada uno",
+    disponible: true,
   },
   {
     titulo: "Parámetros",
