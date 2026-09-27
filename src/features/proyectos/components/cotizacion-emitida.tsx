@@ -1,5 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
+import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
@@ -33,6 +34,8 @@ export function CotizacionEmitida({
   const porEnviar = cotizacion.estado === "emitida" && cotizacion.vigente && !vencida && sustituidaPor === null;
   const mensaje = porEnviar ? mensajeDeCotizacion(cliente.nombre, cotizacion) : null;
   const enviar = mensaje ? enlaceParaEscribirA(cliente.telefono, mensaje) : null;
+  // La cascada de precios (MAE.3): lo emitido no se recalcula solo; se avisa aquí, y «Recotizar» está en el riel
+  const desactualizada = cotizacion.avisos.find((a) => a.codigo === "COTIZACION_DESACTUALIZADA");
 
   return (
     <div className="flex flex-col gap-4">
@@ -61,6 +64,7 @@ export function CotizacionEmitida({
             {cotizacion.vigente ? " · vigente" : ""}
           </p>
           {cotizacion.aprobacion_nota ? <p className="text-sm">«{cotizacion.aprobacion_nota}»</p> : null}
+          {desactualizada ? <Notificacion tono="advertencia" className="mt-2">{desactualizada.mensaje}</Notificacion> : null}
           {vencida && cotizacion.vigente && cotizacion.estado === "emitida" ? (
             <p className="text-sm">Para que el cliente la apruebe, recotice con los precios de hoy.</p>
           ) : null}
