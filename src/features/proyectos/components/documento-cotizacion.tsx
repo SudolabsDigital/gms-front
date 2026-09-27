@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useBorradorEnEdicion } from "@/features/proyectos/components/borrador-en-edicion";
 import { DesgloseCotizacion, type EstadoDelDesglose } from "@/features/proyectos/components/desglose-cotizacion";
 import { EmitirCotizacion } from "@/features/proyectos/components/emitir-cotizacion";
-import type { Cotizacion, Desglose, Sustitucion } from "@/features/proyectos/types";
+import type { Advertencia, Cotizacion, Desglose, Sustitucion } from "@/features/proyectos/types";
 import { moneda } from "@/lib/formato";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 import { notificar } from "@/lib/notificar";
@@ -88,7 +88,7 @@ export function DocumentoCotizacion({
   );
   const claveDeImportes = JSON.stringify(importes);
   const importesCambiaron = IMPORTES.some((clave) => datos[clave].trim() !== original[clave].trim());
-  const [previa, setPrevia] = useState<{ clave: string; desglose: Desglose } | null>(null);
+  const [previa, setPrevia] = useState<{ clave: string; desglose: Desglose; avisos: Advertencia[] } | null>(null);
   const [erroresPrevios, setErroresPrevios] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export function DocumentoCotizacion({
     const control = new AbortController();
     // 300 ms, como el cotizador: se pregunta cuando se deja de escribir, no en cada tecla
     const espera = setTimeout(async () => {
-      const respuesta = await pedir<{ desglose: Desglose }>(`/api/v1/cotizaciones/${cotizacion.id}/totales`, {
+      const respuesta = await pedir<{ desglose: Desglose; avisos: Advertencia[] }>(`/api/v1/cotizaciones/${cotizacion.id}/totales`, {
         method: "POST",
         body: claveDeImportes,
         signal: control.signal,
@@ -105,7 +105,7 @@ export function DocumentoCotizacion({
       if (control.signal.aborted) return;
 
       if (respuesta.ok) {
-        setPrevia({ clave: claveDeImportes, desglose: respuesta.datos.desglose });
+        setPrevia({ clave: claveDeImportes, desglose: respuesta.datos.desglose, avisos: respuesta.datos.avisos });
         setErroresPrevios({});
       } else {
         setPrevia(null);
@@ -121,6 +121,10 @@ export function DocumentoCotizacion({
 
   const provisional = importesCambiaron && previa?.clave === claveDeImportes;
   const desgloseVisible = provisional ? previa.desglose : cotizacion.desglose;
+  // El piso de margen se juzga sobre lo que se ve: con valores sin guardar manda el de la previsualización (V04)
+  const avisosVisibles = provisional
+    ? [...cotizacion.avisos.filter((a) => a.codigo !== "MARGEN_BAJO_PISO"), ...previa.avisos]
+    : cotizacion.avisos;
   const hayErrorPrevio = Object.keys(erroresPrevios).length > 0;
   const estadoDesglose: EstadoDelDesglose = provisional ? "sin-guardar" : importesCambiaron ? "desfasado" : "guardado";
   const notaDesglose =
@@ -253,8 +257,8 @@ export function DocumentoCotizacion({
               </div>
             ) : null}
 
-            {cotizacion.avisos.length > 0 ? (
-              <Notificacion tono="advertencia" detalles={cotizacion.avisos.map((a) => ({ mensaje: a.mensaje }))} />
+            {avisosVisibles.length > 0 ? (
+              <Notificacion tono="advertencia" detalles={avisosVisibles.map((a) => ({ mensaje: a.mensaje }))} />
             ) : null}
 
             {desgloseVisible ? (
@@ -274,7 +278,8 @@ export function DocumentoCotizacion({
                     cotizacionId={cotizacion.id}
                     sustituye={sustituye}
                     variante={cambios.length > 0 ? "outline" : "brand"}
-                    className="h-11 md:h-9"
+                    // Con líneas, en el móvil «Emitir» ya está en la barra fija del riel: aquí era un tercer botón (V11)
+                    className={cotizacion.items.length > 0 ? "hidden md:inline-flex md:h-9" : "h-11 md:h-9"}
                   />
                 ) : null}
               </div>

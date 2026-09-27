@@ -30,6 +30,8 @@ export type ProyectoFila = {
   cliente: { id: string; nombre: string; telefono: string | null };
   responsable: Persona | null;
   total_vigente?: number | null;
+  /** Solo en la vista «Por cobrar» y con `costeo:ver`: lo que falta cobrar (decisión 40, V12) */
+  saldo?: number;
   updated_at: string;
 };
 
@@ -155,6 +157,8 @@ export type ProyectoFicha = {
   saldo?: number | null;
   /** `ANTICIPO_PCT` × total vigente, redondeado por el servidor (C.1): el front no compone importes */
   anticipo_sugerido?: number | null;
+  /** `AAAA-MM-DD` si está culminado —entregado y pagado—; si no, `null` (decisión 41). No es dinero: siempre viaja */
+  garantia_hasta: string | null;
   historia: Evento[];
   created_at: string;
   updated_at: string;

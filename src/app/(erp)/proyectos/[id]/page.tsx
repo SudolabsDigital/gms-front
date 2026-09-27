@@ -23,7 +23,7 @@ import { LineaDeEtapas } from "@/features/proyectos/components/linea-de-etapas";
 import { PestanasFicha } from "@/features/proyectos/components/pestanas-ficha";
 import { SelectorDeVersiones } from "@/features/proyectos/components/selector-de-versiones";
 import { pestanaInicial } from "@/features/proyectos/pestanas";
-import { ENTREGADO_Y_PAGADO, ETAPAS, ETAPAS_CON_COBROS, QUE_FALTA } from "@/features/proyectos/textos";
+import { culminado, ETAPAS, ETAPAS_CON_COBROS, QUE_FALTA } from "@/features/proyectos/textos";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
 import { ApiError, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
@@ -114,7 +114,8 @@ export default async function FichaProyectoPage({
   const veDinero = "saldo" in proyecto;
   // El saldo existe desde que el cliente aprueba: antes no se debe nada (recorrido UX.0, R15)
   const conSaldo = veDinero && ETAPAS_CON_COBROS.includes(proyecto.etapa);
-  const queFalta = proyecto.etapa === "entregado" && proyecto.saldo === 0 ? ENTREGADO_Y_PAGADO : QUE_FALTA[proyecto.etapa];
+  // Culminado lo decide el servidor, que también cuenta la garantía: la pantalla no compara saldos (decisión 41)
+  const queFalta = proyecto.garantia_hasta ? culminado(proyecto.garantia_hasta) : QUE_FALTA[proyecto.etapa];
 
   return (
     <BorradorEnEdicion>

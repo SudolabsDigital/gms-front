@@ -155,6 +155,12 @@ export function MedicionEnObra({
                             {medida(item.ancho_cm)} × {medida(item.alto_cm)}
                           </span>
                         </p>
+                        {item.cantidad > 1 ? (
+                          // Una línea son vanos idénticos (decisión 42, R19): una cota vale para todos
+                          <p className="text-muted-foreground mt-1 text-xs">
+                            Una cota para los {item.cantidad} vanos. Si no miden igual, recotice con una línea por vano.
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-3">

@@ -1,4 +1,5 @@
 import type { Etapa, Evento, MedioCobro, Origen, TipoCobro } from "@/features/proyectos/types";
+import { diaLegible } from "@/lib/formato";
 
 /**
  * Cómo se NOMBRA cada cosa del módulo en pantalla. Solo nombres: qué etapa sigue a cuál lo decide el
@@ -74,7 +75,9 @@ export const MEDIOS_COBRO: Record<MedioCobro, string> = {
 export const ETAPAS_CON_COBROS: Etapa[] = ["aprobado", "produccion", "instalacion", "entregado"];
 
 /** Entregado y sin saldo: «Qué falta» decía «Cobrar el saldo, si queda» con el saldo en cero (recorrido UX.0, R06) */
-export const ENTREGADO_Y_PAGADO = "Nada: el proyecto está entregado y pagado.";
+/** Culminado: entregado y pagado, con la garantía de un año que acredita la decisión 5 del portal (decisión 41) */
+export const culminado = (garantiaHasta: string) =>
+  `Nada: el proyecto está culminado —entregado y pagado—. Garantía hasta el ${diaLegible(garantiaHasta)}.`;
 
 /** Los campos que puede nombrar un evento `datos_editados` */
 export const CAMPOS: Record<string, string> = {

@@ -17,6 +17,7 @@ import { BarraControles } from "@/features/cotizar/components/barra-controles";
 import { ResultadoCalculo } from "@/features/cotizar/components/resultado-calculo";
 import type { Despiece, Tipo } from "@/features/cotizar/types";
 import { pedir, type ErrorApi } from "@/lib/api-cliente";
+import { cn } from "@/lib/utils";
 
 /**
  * Panel del cotizador.
@@ -113,7 +114,8 @@ export function CotizadorPanel({
   const notas = advertencias.filter((a) => a.nivel !== "warn");
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
+    // Con destino, la barra fija de «Agregar al proyecto» ocupa el pie en el móvil: el último bloque no debe quedar debajo
+    <div className={cn("flex min-h-0 flex-1 flex-col gap-4", destino && "pb-24 md:pb-0")}>
       {destino ? <CabeceraDestino destino={destino} /> : null}
 
       <BarraControles

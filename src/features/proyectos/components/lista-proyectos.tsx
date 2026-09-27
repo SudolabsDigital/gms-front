@@ -55,6 +55,9 @@ export function ListaProyectos({
   }
 
   const conTotales = inicial.datos.some((fila) => "total_vigente" in fila);
+  // En «Por cobrar» la cifra que importa es lo que falta, no el total de la cotización (V12)
+  const conSaldo = inicial.datos.some((fila) => "saldo" in fila);
+  const cifra = (fila: ProyectoFila) => (conSaldo ? fila.saldo : fila.total_vigente);
   // Una función no cruza del servidor al cliente: la URL de cada página se arma aquí
   const hrefPagina = (n: number) => `/proyectos?${consulta}${consulta ? "&" : ""}pagina=${n}`;
 
@@ -77,8 +80,11 @@ export function ListaProyectos({
                 <span className="truncate">{fila.cliente.nombre}</span>
                 <span className="shrink-0">{haceDias(fila.etapa_desde)}</span>
               </div>
-              {fila.total_vigente != null ? (
-                <p className="font-mono text-sm tabular-nums">{moneda(fila.total_vigente)}</p>
+              {cifra(fila) != null ? (
+                <p className="font-mono text-sm tabular-nums">
+                  {conSaldo ? <span className="text-muted-foreground font-sans">Por cobrar </span> : null}
+                  {moneda(cifra(fila))}
+                </p>
               ) : null}
             </Link>
           </li>
@@ -105,7 +111,7 @@ export function ListaProyectos({
               <th className="px-3 py-2 font-medium">Cliente</th>
               <th className="px-3 py-2 font-medium">Etapa</th>
               <th className="px-3 py-2 font-medium">Responsable</th>
-              {conTotales ? <th className="px-3 py-2 text-right font-medium">Total vigente</th> : null}
+              {conTotales ? <th className="px-3 py-2 text-right font-medium">{conSaldo ? "Por cobrar" : "Total vigente"}</th> : null}
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -136,7 +142,7 @@ export function ListaProyectos({
                 <td className="text-muted-foreground px-3 py-2">{fila.responsable?.nombre ?? "—"}</td>
                 {conTotales ? (
                   <td className="px-3 py-2 text-right font-mono tabular-nums">
-                    {fila.total_vigente != null ? moneda(fila.total_vigente) : "—"}
+                    {cifra(fila) != null ? moneda(cifra(fila)) : "—"}
                   </td>
                 ) : null}
               </tr>

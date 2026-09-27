@@ -17,7 +17,8 @@ const PESTANAS_RESULTADO = [
   { id: "medidas", etiqueta: "Medidas" },
   { id: "perfiles", etiqueta: "Perfiles" },
   { id: "despiece", etiqueta: "Despiece" },
-  { id: "compra", etiqueta: "Compra" },
+  // «Barras», no «Compra»: es el mínimo con que se costea, no una lista de compra (decisión 42, R21)
+  { id: "compra", etiqueta: "Barras" },
   { id: "costeo", etiqueta: "Costeo" },
 ] as const;
 import { FilaMonto } from "@/components/comunes/fila-monto";
@@ -34,7 +35,7 @@ import { medida, moneda, numero, porcentaje } from "@/lib/formato";
  * Del mismo cálculo salen documentos con públicos distintos, y confundirlos es el error
  * clásico de este tipo de sistema (negocio.md §5):
  *
- *   Despiece → taller   · Compra → almacén   · Costeo → cliente
+ *   Despiece → taller   · Barras → costo   · Costeo → cliente
  *
  * El **modelo** abre la baraja y ocupa todo el alto disponible: es lo que se mira
  * mientras se ajustan medidas, y lo que hace que un tipo se entienda sin leer una tabla.
@@ -214,8 +215,12 @@ export function ResultadoCalculo({
         </p>
       </TabsContent>
 
-      {/* ── Compra: lo que el almacén debe pedir ───────────────────────────── */}
+      {/* ── Barras: el mínimo con que se costea. La compra será su propio sistema (decisión 29) ── */}
       <TabsContent value="compra">
+        <p className="text-muted-foreground mb-3 text-sm">
+          Las barras mínimas con que se costea: sin empalmes ni merma de corte. No es una lista de compra; las compras
+          tendrán su propio sistema.
+        </p>
         <Card>
           <CardContent className="overflow-x-auto p-0">
             <Table>
@@ -223,7 +228,7 @@ export function ResultadoCalculo({
                 <TableRow>
                   <TableHead>Insumo</TableHead>
                   <TableHead className="text-right">Se necesita</TableHead>
-                  <TableHead className="text-right">Hay que comprar</TableHead>
+                  <TableHead className="text-right">Barras mínimas</TableHead>
                   <TableHead className="text-right">Presentación</TableHead>
                   <TableHead className="text-right">Sobra</TableHead>
                 </TableRow>
