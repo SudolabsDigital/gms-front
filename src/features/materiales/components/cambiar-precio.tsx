@@ -91,7 +91,7 @@ export function CambiarPrecio({
         ? "Es una alternativa: no cambia lo que se cotiza."
         : n > 0
           ? `${n} ${n === 1 ? "cotización emitida quedó desactualizada" : "cotizaciones emitidas quedaron desactualizadas"}.`
-          : "Ninguna cotización emitida lo usaba.",
+          : "Ninguna cotización emitida quedó desactualizada por este cambio.",
     });
     setAbierto(false);
     router.refresh();
