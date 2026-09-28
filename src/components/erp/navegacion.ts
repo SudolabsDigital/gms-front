@@ -82,12 +82,13 @@ export const NAVEGACION: EntradaNavegacion[] = [
     disponible: true,
   },
   {
+    // MAE.7: se ve con `variables:ver` —el maestro consulta el cálculo del diseño—; cambiar pide `variables:gestionar`
     titulo: "Parámetros",
     href: "/parametros",
     icono: SlidersHorizontal,
-    permiso: "variables:gestionar",
-    descripcion: "Variables y estándares de mano de obra",
-    disponible: false,
+    permiso: "variables:ver",
+    descripcion: "Margen, vigencia, mano de obra y cálculo",
+    disponible: true,
   },
   {
     titulo: "Producción",

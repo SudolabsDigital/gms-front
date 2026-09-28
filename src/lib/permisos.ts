@@ -26,7 +26,7 @@ export type PermisoDelFront =
   | "proyectos:avanzar"
   | "proyectos:crear"
   | "proyectos:ver"
-  | "variables:gestionar";
+  | "variables:ver";
 
 export function puede(
   usuario: { permisos: readonly string[] },
