@@ -10,6 +10,12 @@ import { Label } from "@/components/ui/label";
 import type { Cliente, ListaClientes } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
+/** Los dígitos del número sin el prefijo de Perú: la misma comparación que `Cliente::buscar` en la API */
+function digitosDeTelefono(telefono: string | null): string {
+  const digitos = (telefono ?? "").replace(/\D/g, "");
+  return digitos.length === 11 && digitos.startsWith("51") ? digitos.slice(2) : digitos;
+}
+
 /** El cliente elegido: uno que ya existe, o uno nuevo que se crea junto con el proyecto */
 export type ClienteElegido =
   | { modo: "existente"; cliente: Pick<Cliente, "id" | "nombre" | "telefono"> }
@@ -38,6 +44,20 @@ export function BuscadorCliente({
   const [resultados, setResultados] = useState<Cliente[]>([]);
   const [buscando, setBuscando] = useState(false);
   const [fallo, setFallo] = useState<string | null>(null);
+  const [repetido, setRepetido] = useState<Cliente | null>(null);
+
+  /**
+   * Avisa, sin bloquear, si el número del cliente nuevo ya es de otro (decisión 51, `clientes/52-brief` § 6). La API
+   * busca «contiene»; el aviso exige el número entero, para no nombrar a quien solo comparte unos dígitos.
+   */
+  async function buscarRepetido(telefono: string) {
+    const propio = digitosDeTelefono(telefono);
+    if (propio.length < 6) return;
+
+    const respuesta = await pedir<ListaClientes>(`/api/v1/clientes?buscar=${encodeURIComponent(telefono)}&por_pagina=6`);
+    if (!respuesta.ok) return; // Es un aviso: si la búsqueda falla, el alta sigue igual
+    setRepetido(respuesta.datos.datos.find((c) => digitosDeTelefono(c.telefono) === propio) ?? null);
+  }
 
   // Espera a que se deje de escribir: una petición por pausa, no una por tecla
   useEffect(() => {
@@ -86,7 +106,15 @@ export function BuscadorCliente({
       <fieldset className="space-y-3 rounded-md border p-3">
         <div className="flex items-center justify-between gap-2">
           <legend className="text-sm font-medium">Cliente nuevo</legend>
-          <Button type="button" variant="ghost" size="sm" onClick={() => alCambiar(null)}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setRepetido(null);
+              alCambiar(null);
+            }}
+          >
             <X className="size-4" />
             Buscar otro
           </Button>
@@ -116,8 +144,23 @@ export function BuscadorCliente({
             placeholder="964 123 456"
             value={valor.telefono}
             maxLength={30}
-            onChange={(e) => alCambiar({ ...valor, telefono: e.target.value })}
+            onChange={(e) => {
+              alCambiar({ ...valor, telefono: e.target.value });
+              setRepetido(null);
+            }}
+            onBlur={() => buscarRepetido(valor.telefono)}
+            aria-describedby={repetido ? "cliente-telefono-repetido" : undefined}
           />
+          {repetido ? (
+            <div id="cliente-telefono-repetido" className="flex flex-col gap-2 text-sm">
+              <p className="text-warning-fuerte">
+                Ya existe <b>{repetido.nombre}</b> con ese número.
+              </p>
+              <Button type="button" variant="outline" className="h-11 self-start md:h-8" onClick={() => alCambiar({ modo: "existente", cliente: repetido })}>
+                Usar a {repetido.nombre}
+              </Button>
+            </div>
+          ) : null}
         </div>
         <ErrorDeCampo campo="cliente-nombre">{error}</ErrorDeCampo>
       </fieldset>

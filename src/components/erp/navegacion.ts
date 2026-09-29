@@ -6,6 +6,7 @@ import {
   Home,
   LayoutTemplate,
   SlidersHorizontal,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -53,6 +54,15 @@ export const NAVEGACION: EntradaNavegacion[] = [
     icono: FolderKanban,
     permiso: "proyectos:ver",
     descripcion: "Del lead al proyecto entregado",
+    disponible: true,
+  },
+  {
+    // MAE.9: con el mismo permiso que los proyectos —todo dato del cliente ya viaja en su ficha— (decisión 54)
+    titulo: "Clientes",
+    href: "/clientes",
+    icono: Users,
+    permiso: "proyectos:ver",
+    descripcion: "Sus datos, sus proyectos y lo que deben",
     disponible: true,
   },
   {

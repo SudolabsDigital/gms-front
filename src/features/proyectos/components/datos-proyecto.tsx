@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { documentoLegible } from "@/features/clientes/types";
 import { ORIGENES } from "@/features/proyectos/textos";
 import type { ProyectoFicha } from "@/features/proyectos/types";
 import { fechaHora } from "@/lib/formato";
@@ -18,9 +21,12 @@ export function DatosProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
           <dt className="text-muted-foreground">Cliente</dt>
           <dd>
-            {proyecto.cliente.nombre}
+            {/* Su ficha: los demás proyectos y lo que debe (`clientes/52-brief-clientes` § 8) */}
+            <Link href={`/clientes/${proyecto.cliente.id}`} className="text-primary underline-offset-4 hover:underline">
+              {proyecto.cliente.nombre}
+            </Link>
             <span className="text-muted-foreground block text-xs">
-              {[proyecto.cliente.telefono, proyecto.cliente.documento].filter(Boolean).join(" · ") ||
+              {[proyecto.cliente.telefono, documentoLegible(proyecto.cliente.documento)].filter(Boolean).join(" · ") ||
                 "Sin teléfono ni documento"}
             </span>
           </dd>
