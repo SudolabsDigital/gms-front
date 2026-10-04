@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Notificacion } from "@/components/comunes/notificacion";
@@ -25,17 +25,18 @@ import { notificar } from "@/lib/notificar";
  * acciones de la etapa (no se abre un panel encima de otro).
  */
 export function AprobarCotizacion({
+  proyectoId,
   vigente,
   variante = "brand",
   className,
 }: {
+  proyectoId: string;
   vigente: DocumentoResumen;
   /** Secundaria cuando lo principal es emitir la versión que se está recotizando (recorrido UX.0, R09) */
   variante?: "brand" | "outline";
   className?: string;
 }) {
   const router = useRouter();
-  const ruta = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [leida, setLeida] = useState<Cotizacion | null>(null);
   const [dia, setDia] = useState("");
@@ -87,8 +88,8 @@ export function AprobarCotizacion({
       descripcion: "El proyecto pasó a Aprobado. Lo siguiente es confirmar las medidas en obra.",
     });
     setAbierto(false);
-    // Sin `?pestana=`, la ficha abre en la de lo siguiente —Obra—, no en la que había (recorrido UX.0, R11)
-    router.replace(ruta);
+    // A la obra sin sección: abre en la de lo siguiente —Medición—, no en la que había (recorrido UX.0, R11; SEC.9b)
+    router.replace(`/proyectos/${proyectoId}`);
     router.refresh();
   }
 

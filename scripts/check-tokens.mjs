@@ -180,9 +180,27 @@ const INVARIANTES = [
     patron: /^(?![\s\S]*MarcoDeTrabajo)[\s\S]*export default/g,
     archivoEntero: true,
     solo: ["src/app/(erp)/"],
-    exentos: ["src/app/(erp)/layout.tsx", "src/app/(erp)/error.tsx"],
+    // Las secciones de la obra heredan el marco de `proyectos/[id]/layout.tsx` (SEC.9b), que sí lo nombra
+    exentos: [
+      "src/app/(erp)/layout.tsx",
+      "src/app/(erp)/error.tsx",
+      ...["", "/resumen", "/cotizacion", "/obra", "/cobros", "/historia", "/corte"].map((s) => `src/app/(erp)/proyectos/[id]${s}/page.tsx`),
+    ],
     umbral: 0,
     salida: "Envuelve la página en `<MarcoDeTrabajo barra={<BarraDeContexto ruta={…} />}>` de `@/components/erp/marco-de-trabajo`, también la rama de `SinAcceso`.",
+  },
+  {
+    id: "INV-E08",
+    nombre: "los enlaces a una obra van a su sección, no a ?pestana=",
+    // SEC.9b (2026-10-04): las pestañas de la ficha pasaron a subrutas (`/proyectos/{id}/cobros`). `?pestana=` sigue
+    // funcionando —la página de la obra lo redirige— para los enlaces ya compartidos, pero el código no lo escribe:
+    // cada uno cuesta un viaje de más. Cuenta la query escrita en el código, no la que se menciona en un comentario
+    // Un comentario la cita entre comillas invertidas (`` `?pestana=obra` ``); el código la escribe tras la ruta
+    patron: /(?<!`)\?pestana=(?:\$\{|[a-z])/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `rutaDeSeccion(id, seccion)` o `rutaDeObra(id, etapa)` de `@/features/proyectos/pestanas`.",
   },
   {
     id: "INV-E07",

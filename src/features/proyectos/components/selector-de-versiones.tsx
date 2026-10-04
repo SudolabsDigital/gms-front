@@ -1,5 +1,6 @@
 import { Enlace } from "@/components/comunes/enlace";
 import { cn } from "@/lib/utils";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
 import type { DocumentoResumen } from "@/features/proyectos/types";
 
 /**
@@ -27,7 +28,7 @@ export function SelectorDeVersiones({
         return (
           <Enlace
             key={v.id}
-            href={`/proyectos/${proyectoId}?pestana=cotizacion&version=${v.version}`}
+            href={rutaDeSeccion(proyectoId, "cotizacion", `?version=${v.version}`)}
             aria-current={actual ? "page" : undefined}
             scroll={false}
             className={cn(

@@ -16,6 +16,7 @@ import { AgregarAlProyecto, type DestinoDeCotizacion } from "@/features/cotizar/
 import { BarraControles } from "@/features/cotizar/components/barra-controles";
 import { ResultadoCalculo } from "@/features/cotizar/components/resultado-calculo";
 import type { Despiece, Tipo } from "@/features/cotizar/types";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
 import { pedir, type ErrorApi } from "@/lib/api-cliente";
 import { cn } from "@/lib/utils";
 
@@ -223,7 +224,7 @@ function CabeceraDestino({ destino }: { destino: DestinoDeCotizacion }) {
         <span className="font-medium break-words">{destino.nombre}</span>
       </p>
       <Button asChild variant="outline" size="sm" className="h-11 shrink-0 md:h-8">
-        <Enlace href={`/proyectos/${destino.proyectoId}?pestana=cotizacion`}>
+        <Enlace href={rutaDeSeccion(destino.proyectoId, "cotizacion")}>
           <ArrowLeft className="size-4" />
           Volver al proyecto ({destino.items} {destino.items === 1 ? "ítem" : "ítems"})
         </Enlace>

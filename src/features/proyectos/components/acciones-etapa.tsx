@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Enlace } from "@/components/comunes/enlace";
@@ -17,17 +17,12 @@ import { RecotizarConMedidas } from "@/features/proyectos/components/medicion-en
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { RecotizarProyecto } from "@/features/proyectos/components/recotizar-proyecto";
 import { RegistrarCobro } from "@/features/proyectos/components/registrar-cobro";
-import { ETAPAS } from "@/features/proyectos/textos";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
+import { CON_LISTA_DE_CORTE, ETAPAS } from "@/features/proyectos/textos";
 import type { Advertencia, Etapa, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { moneda } from "@/lib/formato";
 import { notificar, notificarConflicto } from "@/lib/notificar";
-
-/**
- * La lista de corte existe desde producción (`PRY-I34`): en `produccion` imprimirla es lo principal; en
- * `instalacion` y `entregado` se reimprime (tajada D). Hasta D fue un botón INERTE y rotulado.
- */
-const CON_LISTA_DE_CORTE: Etapa[] = ["produccion", "instalacion", "entregado"];
 
 /** Las que se piden con un motivo obligatorio (`P5`, `PRY-I04`) */
 const CON_MOTIVO: Etapa[] = ["perdido", "anulado"];
@@ -77,7 +72,6 @@ export function AccionesEtapa({
   emitible?: string | null;
 }) {
   const router = useRouter();
-  const ruta = usePathname();
   const [pidiendo, setPidiendo] = useState<Etapa | null>(null);
   const [motivo, setMotivo] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -125,7 +119,7 @@ export function AccionesEtapa({
       ? posibles.find((e) => !CON_MOTIVO.includes(e))
       : undefined;
   // Emitir la versión nueva pasa delante de aprobar la vigente, pero el sí de la vigente sigue a mano
-  const aprobarSecundaria = aprobar && emitirPrimero ? <AprobarCotizacion vigente={aprobar} variante="outline" className="h-11 md:h-9" /> : null;
+  const aprobarSecundaria = aprobar && emitirPrimero ? <AprobarCotizacion proyectoId={proyecto.id} vigente={aprobar} variante="outline" className="h-11 md:h-9" /> : null;
   const hojaDeCorte = `/proyectos/${proyecto.id}/corte`;
   // Después de producción la hoja se reimprime: secundaria, debajo de la principal
   const reimprimirCorte =
@@ -177,8 +171,8 @@ export function AccionesEtapa({
       notificar({ tono: "advertencia", titulo: aviso.mensaje });
     }
     setPidiendo(null);
-    // Sin `?pestana=`, la ficha abre en la pestaña que pide la etapa nueva (R11)
-    router.replace(ruta);
+    // A la obra sin sección: abre en la que pide la etapa nueva (R11; la redirección de `/proyectos/{id}`, SEC.9b)
+    router.replace(`/proyectos/${proyecto.id}`);
     router.refresh();
   }
 
@@ -208,12 +202,12 @@ export function AccionesEtapa({
     <RecotizarConMedidas proyectoId={proyecto.id} items={recotizarConObra.items} className="h-11 w-full md:h-9" />
   ) : confirmarMedicion ? (
     <Button asChild variant="brand" className="h-11 w-full md:h-9">
-      <Enlace href={`/proyectos/${proyecto.id}?pestana=obra#medir`}>
+      <Enlace href={rutaDeSeccion(proyecto.id, "obra", "#medir")}>
         {proyecto.medicion ? "Volver a medir" : "Confirmar medición"}
       </Enlace>
     </Button>
   ) : aprobar ? (
-    <AprobarCotizacion vigente={aprobar} />
+    <AprobarCotizacion proyectoId={proyecto.id} vigente={aprobar} />
   ) : cobrarSaldo ? (
     <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" tipoInicial="saldo" className="h-11 w-full md:h-9" />
   ) : cotizar ? (

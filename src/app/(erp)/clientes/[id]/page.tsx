@@ -14,6 +14,7 @@ import { enlaceParaEscribirA } from "@/config/site-config";
 import { EditarCliente } from "@/features/clientes/components/editar-cliente";
 import { documentoLegible, type ClienteFicha } from "@/features/clientes/types";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
+import { rutaDeObra } from "@/features/proyectos/pestanas";
 import { adelantar, ApiError, apiGet } from "@/lib/api-server";
 import { moneda, plural } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
@@ -137,7 +138,7 @@ export default async function FichaClientePage({ params }: { params: Promise<{ i
             <ul className="divide-y">
               {cliente.proyectos.map((p) => (
                 <li key={p.id}>
-                  <Enlace href={`/proyectos/${p.id}`} className="hover:bg-muted/40 active:bg-muted/60 flex min-h-11 flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:gap-3">
+                  <Enlace href={rutaDeObra(p.id, p.etapa)} className="hover:bg-muted/40 active:bg-muted/60 flex min-h-11 flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:gap-3">
                     <span className="text-muted-foreground font-mono text-xs md:w-28 md:shrink-0">{p.codigo}</span>
                     <span className="min-w-0 flex-1 font-medium break-words">{p.nombre}</span>
                     <span className="flex items-center justify-between gap-3 md:justify-end">

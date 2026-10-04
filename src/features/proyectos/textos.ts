@@ -71,6 +71,12 @@ export const MEDIOS_COBRO: Record<MedioCobro, string> = {
   otro: "Otro",
 };
 
+/**
+ * La lista de corte existe desde producción (`PRY-I34`): en `produccion` imprimirla es lo principal; en
+ * `instalacion` y `entregado` se reimprime (tajada D). La leen el riel y el panel de la obra (SEC.9b).
+ */
+export const CON_LISTA_DE_CORTE: Etapa[] = ["produccion", "instalacion", "entregado"];
+
 /** Las etapas en que se cobra: desde que el cliente aprueba (decisión 27). El servidor lo exige igual */
 export const ETAPAS_CON_COBROS: Etapa[] = ["aprobado", "produccion", "instalacion", "entregado"];
 

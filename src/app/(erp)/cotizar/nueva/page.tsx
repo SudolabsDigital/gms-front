@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { DestinoDeCotizacion } from "@/features/cotizar/components/agregar-al-proyecto";
 import { CotizadorPanel } from "@/features/cotizar/components/cotizador-panel";
 import type { Despiece, Tipo } from "@/features/cotizar/types";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
 import { adelantar, ApiError, apiGet, apiPost } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
@@ -77,7 +78,7 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
               Un documento emitido no cambia: el cliente ya lo vio. Para otra propuesta, recotice desde el proyecto.
             </p>
             <Button asChild variant="outline" className="h-11 md:h-9">
-              <Enlace href={`/proyectos/${cotizacion.proyecto_id}?pestana=cotizacion`}>Volver al proyecto</Enlace>
+              <Enlace href={rutaDeSeccion(cotizacion.proyecto_id, "cotizacion")}>Volver al proyecto</Enlace>
             </Button>
           </div>
         </MarcoDeTrabajo>
@@ -100,7 +101,7 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
   const ruta = destino
     ? [
         { etiqueta: "Proyectos", href: "/proyectos" },
-        { codigo: destino.codigo, etiqueta: destino.nombre, href: `/proyectos/${destino.proyectoId}?pestana=cotizacion` },
+        { codigo: destino.codigo, etiqueta: destino.nombre, href: rutaDeSeccion(destino.proyectoId, "cotizacion") },
         { etiqueta: "Cotizar" },
       ]
     : [{ etiqueta: "Cotizar" }];

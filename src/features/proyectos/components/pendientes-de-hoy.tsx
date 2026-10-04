@@ -2,6 +2,7 @@ import { ChevronRight, TriangleAlert } from "lucide-react";
 
 import { Enlace } from "@/components/comunes/enlace";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { rutaDeSeccion, type Seccion } from "@/features/proyectos/pestanas";
 import { ETAPAS, ETAPAS_EN_CURSO } from "@/features/proyectos/textos";
 import type { AsuntoPendiente, Pendientes } from "@/features/proyectos/types";
 import { diaDe, diaLegible, haceDias, moneda, numero } from "@/lib/formato";
@@ -16,41 +17,41 @@ type Proyecto = AsuntoPendiente["proyectos"][number];
 
 const ASUNTOS: Record<
   AsuntoPendiente["clave"],
-  { titulo: string; pestana: string | null; detalle: (p: Proyecto) => string; todos: string }
+  { titulo: string; seccion: Seccion | "corte"; detalle: (p: Proyecto) => string; todos: string }
 > = {
   vencidas: {
     titulo: "Cotizaciones vencidas",
-    pestana: "cotizacion",
+    seccion: "cotizacion",
     detalle: (p) => `venció el ${vence(p)} · recotizar`,
     todos: "/proyectos?etapa=cotizado",
   },
   por_vencer: {
     titulo: "Cotizaciones por vencer",
-    pestana: "cotizacion",
+    seccion: "cotizacion",
     detalle: (p) => `vence el ${vence(p)}`,
     todos: "/proyectos?etapa=cotizado",
   },
   leads: {
     titulo: "Leads sin cotizar",
-    pestana: null,
+    seccion: "resumen",
     detalle: (p) => `llegó ${haceDias(p.etapa_desde)}`,
     todos: "/proyectos?etapa=lead",
   },
   sin_medir: {
     titulo: "Aprobados sin medir",
-    pestana: "obra",
+    seccion: "obra",
     detalle: (p) => `aprobado ${haceDias(p.etapa_desde)}`,
     todos: "/proyectos?etapa=aprobado",
   },
   produccion: {
     titulo: "Listas de corte por imprimir",
-    pestana: null,
+    seccion: "corte",
     detalle: (p) => `en producción ${haceDias(p.etapa_desde)}`,
     todos: "/proyectos?etapa=produccion",
   },
   por_cobrar: {
     titulo: "Por cobrar",
-    pestana: "cobros",
+    seccion: "cobros",
     detalle: (p) => (p.saldo !== undefined ? `debe ${moneda(p.saldo)}` : `entregado ${haceDias(p.etapa_desde)}`),
     todos: "/proyectos?vista=por_cobrar",
   },
@@ -60,11 +61,9 @@ function vence(p: Proyecto): string {
   return p.vence_at ? diaLegible(diaDe(p.vence_at)) : "—";
 }
 
-/** A dónde lleva cada proyecto: la ficha en la pestaña que lo resuelve, o la hoja de corte si es lo que toca */
+/** A dónde lleva cada proyecto: la sección de la obra que lo resuelve, la hoja de corte incluida (SEC.9b) */
 function destino(clave: AsuntoPendiente["clave"], p: Proyecto): string {
-  if (clave === "produccion") return `/proyectos/${p.id}/corte`;
-  const pestana = ASUNTOS[clave].pestana;
-  return pestana ? `/proyectos/${p.id}?pestana=${pestana}` : `/proyectos/${p.id}`;
+  return rutaDeSeccion(p.id, ASUNTOS[clave].seccion);
 }
 
 function Asunto({ asunto }: { asunto: AsuntoPendiente }) {

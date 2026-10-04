@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { BuscadorCliente, type ClienteElegido } from "@/features/proyectos/components/buscador-cliente";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import { SelectorDeOrigen } from "@/features/proyectos/components/selector-origen";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
 import type { Origen, ProyectoFicha } from "@/features/proyectos/types";
 import { erroresPorCampo, mensajeDeError, pedir, sinErrores } from "@/lib/api-cliente";
 import { notificar } from "@/lib/notificar";
@@ -115,7 +116,7 @@ export function AltaProyecto({
       tono: "exito",
       titulo: `${creado.codigo} registrado`,
       descripcion: creado.nombre,
-      accion: { etiqueta: "Abrir", onClick: () => router.push(`/proyectos/${creado.id}`) },
+      accion: { etiqueta: "Abrir", onClick: () => router.push(rutaDeSeccion(creado.id, "resumen")) },
     });
     setDatos(VACIO);
     setErrores({});

@@ -7,6 +7,7 @@ import { Enlace } from "@/components/comunes/enlace";
 import { TablaDeRegistros, TarjetasDeRegistros, type Columna } from "@/components/comunes/lista-de-registros";
 import { Button } from "@/components/ui/button";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
+import { rutaDeObra } from "@/features/proyectos/pestanas";
 import type { ListaProyectos, ProyectoFila } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { haceDias, moneda } from "@/lib/formato";
@@ -61,7 +62,8 @@ export function ListaProyectos({
   const cifra = (fila: ProyectoFila) => (conSaldo ? fila.saldo : fila.total_vigente);
   // Una función no cruza del servidor al cliente: la URL de cada página se arma aquí
   const hrefPagina = (n: number) => `/proyectos?${consulta}${consulta ? "&" : ""}pagina=${n}`;
-  const enlace = (fila: ProyectoFila) => `/proyectos/${fila.id}`;
+  // Directo a la sección de su etapa: sin el viaje de más de la redirección de `/proyectos/{id}` (SEC.9b)
+  const enlace = (fila: ProyectoFila) => rutaDeObra(fila.id, fila.etapa);
 
   const columnas: Columna<ProyectoFila>[] = [
     { clave: "codigo", titulo: "Código", celda: (fila) => fila.codigo, className: "font-mono text-xs whitespace-nowrap" },

@@ -8,6 +8,7 @@ import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
 import type { Cotizacion, Etapa } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 
@@ -36,7 +37,7 @@ export function RecotizarProyecto({
   const [abierto, setAbierto] = useState(false);
   const [abriendo, setAbriendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const pestana = `/proyectos/${proyectoId}?pestana=cotizacion`;
+  const pestana = rutaDeSeccion(proyectoId, "cotizacion");
   const clase = className ?? "h-11 md:h-9";
 
   if (hayBorrador) {

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
+import { rutaDeSeccion } from "@/features/proyectos/pestanas";
 import type { Cotizacion, ItemMedido, Medicion, ProyectoFicha } from "@/features/proyectos/types";
 import { mensajeDeError, pedir } from "@/lib/api-cliente";
 import { fechaHora, medida, numero } from "@/lib/formato";
@@ -307,7 +308,7 @@ export function RecotizarConMedidas({
 
     notificar({ tono: "exito", titulo: `v${respuesta.datos.version} con las medidas de obra`, descripcion: "Revísela y emítala: el cliente la aprueba de nuevo." });
     setAbierto(false);
-    router.push(`/proyectos/${proyectoId}?pestana=cotizacion`);
+    router.push(rutaDeSeccion(proyectoId, "cotizacion"));
     router.refresh();
   }
 
