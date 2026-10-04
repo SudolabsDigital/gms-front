@@ -186,7 +186,8 @@ function PlanoV2({
                 d={trazado(tramo)}
                 fill="none"
                 stroke={hay ? GRIS_APAGADO : colorDe(p)}
-                strokeOpacity={hay ? 0.55 : p.posicion === "hipotesis" ? 0.75 : 1}
+                // La hipótesis se distingue por el punteado, no por la transparencia: al 75 % medía 2,3:1 (decisión 64)
+                strokeOpacity={hay ? 0.55 : 1}
                 strokeWidth={t * 2.6}
                 strokeDasharray={TRAZO_POR_POSICION[p.posicion](t)}
                 strokeLinecap={p.posicion === "hipotesis" ? "round" : "square"}
