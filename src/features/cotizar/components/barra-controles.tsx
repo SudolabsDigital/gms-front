@@ -56,7 +56,7 @@ export function BarraControles({
     juicioAncho.estado === "error" || juicioAlto.estado === "error";
 
   return (
-    <div className="bg-background/95 sticky top-0 z-10 -mx-4 flex flex-wrap items-start gap-3 border-b px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
+    <div className="bg-background/95 sticky top-[var(--alto-barra-contexto)] z-10 -mx-4 flex flex-wrap items-start gap-3 border-b px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
       <div className="min-w-52 flex-1 md:max-w-72">
         <Label htmlFor="tipo" className="sr-only">
           Tipo de ventana

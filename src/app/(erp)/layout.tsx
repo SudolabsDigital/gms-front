@@ -39,12 +39,10 @@ export default async function ErpLayout({
    * apoya sobre su propio fondo sólido y las deja fuera.
    */
   /*
-   * Sin barra superior en escritorio.
-   *
-   * La que había mostraba un nombre y un rol que no cambian nunca, y a cambio se llevaba
-   * 56px a lo ancho de la pantalla en la página donde más falta hace el alto: la del
-   * plano. Esa información vive ahora al pie del riel, y por debajo de `md` —donde el
-   * riel no existe— la reemplaza <ErpBarraMovil/>, que sí es navegación imprescindible.
+   * La barra de contexto no vive aquí: la pone cada página con su `MarcoDeTrabajo` (SEC.9a, decisión 76), porque
+   * solo la página sabe dónde se está y en qué estado. Una barra fija que dijera un nombre y un rol que no cambian se
+   * quitó hace tiempo para dar el alto al plano; la de ahora dice lo que cambia. Por debajo de `md` —donde no se
+   * pinta— navega <ErpBarraMovil/>. El relleno del contenido también lo pone el marco: la barra va de borde a borde.
    */
   // En papel solo sale la página: la navegación no se imprime (lista de corte, tajada D)
   return (
@@ -57,7 +55,7 @@ export default async function ErpLayout({
         <div className="contents print:hidden">
           <ErpBarraMovil usuario={usuario} />
         </div>
-        <main className="flex min-h-0 flex-1 flex-col p-4 md:p-6 print:p-0">{children}</main>
+        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
       </div>
     </div>
   );

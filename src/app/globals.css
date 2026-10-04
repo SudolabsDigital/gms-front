@@ -260,6 +260,21 @@
 }
 
 /*
+ * EL ALTO DE LA BARRA DE CONTEXTO (SEC.9a, decisión 76). La barra se pega arriba en el escritorio, y lo que también
+ * se pega —la barra del cotizador, el riel de la ficha, el panel de una sección— suma este alto para no quedar
+ * debajo. En el móvil la barra no se pinta (navega `ErpBarraMovil`) y vale 0.
+ */
+:root {
+  --alto-barra-contexto: 0px;
+}
+
+@media (width >= 48rem) {
+  :root {
+    --alto-barra-contexto: 2.75rem;
+  }
+}
+
+/*
  * EL ENLACE PULSADO, MIENTRAS NAVEGA (SEC.5, decisión 75). Sin skeleton, la página actual se queda hasta que llega
  * la nueva; esta línea dice que el clic se oyó. Siempre pintada y transparente —aparecer no mueve nada—, se enciende
  * a los 150 ms para que una navegación rápida no parpadee. Ocupa el borde inferior del primer antepasado posicionado:

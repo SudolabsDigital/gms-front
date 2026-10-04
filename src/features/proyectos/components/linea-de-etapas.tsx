@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { caminoDelProyecto } from "@/features/proyectos/camino";
 import { CAMINO, COMO_SE_LLEGA, ETAPAS } from "@/features/proyectos/textos";
 import type { Etapa, Evento } from "@/features/proyectos/types";
 import { fechaHora, haceDias, moneda } from "@/lib/formato";
@@ -30,13 +31,8 @@ type Props = {
 export function LineaDeEtapas({ etapa, etapaDesde, creado, historia, total, saldo, borrador = null }: Props) {
   const [elegida, setElegida] = useState<Etapa | null>(null);
 
-  // Perdido y anulado no están en el camino: la línea marca el paso desde el que se cerró
-  const cerrado = !CAMINO.includes(etapa);
-  const desde = cerrado ? historia.find((e) => e.etapa_nueva === etapa)?.etapa_anterior : etapa;
-  const posicion = Math.max(0, CAMINO.indexOf(desde ?? "lead"));
-
-  const entrada = (paso: Etapa): string | undefined =>
-    paso === "lead" ? creado : historia.find((e) => e.etapa_nueva === paso)?.created_at;
+  // Perdido y anulado no están en el camino: la línea marca el paso desde el que se cerró (`caminoDelProyecto`)
+  const { cerrado, posicion, entrada } = caminoDelProyecto({ etapa, creado, historia });
 
   const detalle = (paso: Etapa): string => {
     const i = CAMINO.indexOf(paso);

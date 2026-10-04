@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { Enlace } from "@/components/comunes/enlace";
-import { PageHeader } from "@/components/comunes/page-header";
+import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
-import { RUTA_INICIO } from "@/components/erp/navegacion";
+import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
+import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BotonImprimir } from "@/features/proyectos/components/boton-imprimir";
@@ -38,7 +39,13 @@ export default async function ListaDeCortePage({ params }: { params: Promise<{ i
 
   const usuario = await exigirUsuario();
 
-  if (!puede(usuario, "despiece:ver")) return <SinAcceso que="la lista de corte" />;
+  if (!puede(usuario, "despiece:ver")) {
+    return (
+      <MarcoDeTrabajo barra={<BarraDeContexto ruta={[{ etiqueta: "Proyectos", href: "/proyectos" }, { etiqueta: "Lista de corte" }]} />}>
+        <SinAcceso que="la lista de corte" />
+      </MarcoDeTrabajo>
+    );
+  }
 
   let lista: ListaDeCorte | null = null;
   let fueraDeEtapa: string | null = null;
@@ -60,33 +67,40 @@ export default async function ListaDeCortePage({ params }: { params: Promise<{ i
     </Button>
   );
 
-  return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 print:max-w-none">
-      <PageHeader
-        className="print:hidden"
-        migas={[
-          { etiqueta: "Inicio", href: RUTA_INICIO },
-          { etiqueta: "Proyectos", href: "/proyectos" },
-          { etiqueta: lista?.proyecto.codigo ?? "Proyecto", href: ficha },
-          { etiqueta: "Lista de corte" },
-        ]}
-        titulo="Lista de corte"
-        descripcion="Qué se corta, a qué medida y cuántas veces, ítem por ítem. Se imprime y en el taller se tacha con lápiz."
-        acciones={
-          <>
-            {volver}
-            {lista ? <BotonImprimir /> : null}
-          </>
-        }
-      />
+  // Sin la lista (fuera de etapa) no se sabe el nombre de la obra: la barra dice su código si lo tiene
+  const barra = (
+    <BarraDeContexto
+      ruta={[
+        { etiqueta: "Proyectos", href: "/proyectos" },
+        lista ? { codigo: lista.proyecto.codigo, etiqueta: lista.proyecto.nombre, href: ficha } : { etiqueta: "Proyecto", href: ficha },
+        { etiqueta: "Lista de corte" },
+      ]}
+    />
+  );
 
-      {lista ? (
-        <HojaDeCorte lista={lista} />
-      ) : (
-        <Card>
-          <CardContent className="text-sm">{fueraDeEtapa}</CardContent>
-        </Card>
-      )}
-    </div>
+  return (
+    <MarcoDeTrabajo barra={barra}>
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 print:max-w-none">
+        <CabeceraDeSeccion
+          className="print:hidden"
+          titulo="Lista de corte"
+          descripcion="Qué se corta, a qué medida y cuántas veces, ítem por ítem. Se imprime y en el taller se tacha con lápiz."
+          acciones={
+            <>
+              {volver}
+              {lista ? <BotonImprimir /> : null}
+            </>
+          }
+        />
+
+        {lista ? (
+          <HojaDeCorte lista={lista} />
+        ) : (
+          <Card>
+            <CardContent className="text-sm">{fueraDeEtapa}</CardContent>
+          </Card>
+        )}
+      </div>
+    </MarcoDeTrabajo>
   );
 }

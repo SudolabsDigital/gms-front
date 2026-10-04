@@ -172,6 +172,28 @@ const INVARIANTES = [
     salida: "Usa `Enlace` de `@/components/comunes/enlace` (un `Link` con la línea de «abriendo»), o un componente común que ya la lleve.",
   },
   {
+    id: "INV-E06",
+    nombre: "toda página del ERP va en un MarcoDeTrabajo",
+    // SEC.9a (2026-10-04, decisión 76): la barra de contexto la pone cada página —o el layout de la obra— con los
+    // datos que ya tiene. Una página sin marco se queda sin barra, sin «Cotizar» y sin la persona. Cuenta las
+    // `page.tsx` que no lo nombran; las secciones de la obra lo heredan de su layout (9b)
+    patron: /^(?![\s\S]*MarcoDeTrabajo)[\s\S]*export default/g,
+    archivoEntero: true,
+    solo: ["src/app/(erp)/"],
+    exentos: ["src/app/(erp)/layout.tsx", "src/app/(erp)/error.tsx"],
+    umbral: 0,
+    salida: "Envuelve la página en `<MarcoDeTrabajo barra={<BarraDeContexto ruta={…} />}>` de `@/components/erp/marco-de-trabajo`, también la rama de `SinAcceso`.",
+  },
+  {
+    id: "INV-E07",
+    nombre: "las migas viven en la barra, no en la página",
+    // SEC.9a: `PageHeader` llevaba las migas; ahora las dice `BarraDeContexto` y la página usa `CabeceraDeSeccion`
+    patron: /comunes\/page-header["']/g,
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `CabeceraDeSeccion` de `@/components/comunes/cabecera-de-seccion`; la ruta va en `BarraDeContexto`.",
+  },
+  {
     id: "INV-N01",
     nombre: "los avisos flotantes por notificar()",
     // Decisión 33 (2026-09-26): 19 llamadas a `toast` en 15 archivos, cada una con su título, su duración y su tono.

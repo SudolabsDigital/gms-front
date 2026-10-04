@@ -50,8 +50,15 @@ const VACIO: Formulario = {
  * Dos disparadores y un solo formulario: en el escritorio, el botón de la cabecera; en el móvil, uno
  * fijo abajo, al alcance del pulgar. Si la red falla, lo escrito se conserva (`ENT.C4`).
  */
-/** `variante`: en Inicio es la acción secundaria y no rellena en escritorio (decisión 43); en el móvil, la barra la lleva igual */
-export function AltaProyecto({ variante = "brand" }: { variante?: "brand" | "outline" } = {}) {
+/**
+ * `variante`: el relleno del botón de escritorio. `disparador`: qué botones se pintan —`pagina`, los dos; `barra`, solo
+ * el de escritorio, el de la barra de contexto (SEC.9a); `movil`, solo el fijo de abajo—. Desde el armazón, el de
+ * escritorio vive en la barra y las páginas ponen solo el del móvil: «Nuevo proyecto» no sale dos veces en una pantalla.
+ */
+export function AltaProyecto({
+  variante = "brand",
+  disparador = "pagina",
+}: { variante?: "brand" | "outline"; disparador?: "pagina" | "barra" | "movil" } = {}) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [datos, setDatos] = useState<Formulario>(VACIO);
@@ -122,17 +129,21 @@ export function AltaProyecto({ variante = "brand" }: { variante?: "brand" | "out
 
   return (
     <>
-      <Button variant={variante} className="hidden md:inline-flex" onClick={() => setAbierto(true)}>
-        <Plus className="size-4" />
-        Nuevo proyecto
-      </Button>
-
-      <BarraFijaMovil>
-        <Button variant="brand" className="h-11 w-full" onClick={() => setAbierto(true)}>
+      {disparador !== "movil" ? (
+        <Button variant={variante} className="hidden md:inline-flex" onClick={() => setAbierto(true)}>
           <Plus className="size-4" />
           Nuevo proyecto
         </Button>
-      </BarraFijaMovil>
+      ) : null}
+
+      {disparador !== "barra" ? (
+        <BarraFijaMovil>
+          <Button variant="brand" className="h-11 w-full" onClick={() => setAbierto(true)}>
+            <Plus className="size-4" />
+            Nuevo proyecto
+          </Button>
+        </BarraFijaMovil>
+      ) : null}
 
       <PanelResponsivo
         abierto={abierto}

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 
+import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
 import { Enlace } from "@/components/comunes/enlace";
-import { PageHeader } from "@/components/comunes/page-header";
+import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
+import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { Card, CardContent } from "@/components/ui/card";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
@@ -28,21 +30,31 @@ export default async function InicioPage() {
   const peticion = adelantar(apiGet<Pendientes>("/inicio"));
   const usuario = await exigirUsuario();
   const nombre = usuario.nombre.split(" ")[0];
+  const barra = <BarraDeContexto ruta={[{ etiqueta: "Inicio" }]} />;
 
-  if (!puede(usuario, "proyectos:ver")) return <MapaDelSistema nombre={nombre} usuario={usuario} />;
+  if (!puede(usuario, "proyectos:ver")) {
+    return (
+      <MarcoDeTrabajo barra={barra}>
+        <MapaDelSistema nombre={nombre} usuario={usuario} />
+      </MarcoDeTrabajo>
+    );
+  }
 
   const pendientes = await peticion;
 
   return (
-    // Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 pb-24 md:pb-0">
-      <PageHeader
-        titulo={`Hola, ${nombre}`}
-        descripcion="Lo que necesita atención hoy, de lo más urgente a lo que puede esperar."
-        acciones={puede(usuario, "proyectos:crear") ? <AltaProyecto variante="outline" /> : null}
-      />
-      <PendientesDeHoy pendientes={pendientes} />
-    </div>
+    <MarcoDeTrabajo barra={barra}>
+      {/* Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta */}
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 pb-24 md:pb-0">
+        <CabeceraDeSeccion
+          titulo={`Hola, ${nombre}`}
+          descripcion="Lo que necesita atención hoy, de lo más urgente a lo que puede esperar."
+        />
+        <PendientesDeHoy pendientes={pendientes} />
+        {/* En el escritorio, «Nuevo proyecto» está en la barra de contexto */}
+        {puede(usuario, "proyectos:crear") ? <AltaProyecto disparador="movil" /> : null}
+      </div>
+    </MarcoDeTrabajo>
   );
 }
 
@@ -64,7 +76,7 @@ function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <PageHeader
+      <CabeceraDeSeccion
         titulo={`Hola, ${nombre}`}
         descripcion="GMS Integra calcula ventanas y mamparas a medida: usted da las medidas y el sistema devuelve el plano, la lista de corte y el precio."
       />

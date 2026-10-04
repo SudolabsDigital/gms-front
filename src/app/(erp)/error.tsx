@@ -29,5 +29,10 @@ export default function Error({
     console.error("[ERP] fallo al renderizar la página:", error);
   }, [error]);
 
-  return <AvisoSinServidor onReintentar={() => unstable_retry()} referencia={error.digest} />;
+  // Sin marco: la barra de contexto es de servidor y aquí se está en un límite de error del cliente
+  return (
+    <div className="p-4 md:p-6">
+      <AvisoSinServidor onReintentar={() => unstable_retry()} referencia={error.digest} />
+    </div>
+  );
 }

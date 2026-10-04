@@ -2,13 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import logo from "@/assets/gms-logo.webp";
 import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
-import { navegacionPara } from "@/components/erp/navegacion";
+import { navegacionPorGrupos } from "@/components/erp/navegacion";
 import { cn } from "@/lib/utils";
 import type { Usuario } from "@/lib/session";
 
@@ -23,24 +21,14 @@ import type { Usuario } from "@/lib/session";
  * que el puntero roza el borde izquierdo, la página temblaría al pasar por encima. El
  * `<aside>` exterior se queda en el flujo reservando los 56px y el riel va fijo encima.
  *
- * Aquí abajo vive también la identidad del usuario. Antes ocupaba una barra superior de
- * 56px de alto a lo ancho de toda la pantalla para decir un nombre y un rol que no
- * cambian nunca. Ese espacio pasó al plano, que sí lo aprovecha.
+ * Las entradas van **por grupos** separados por un filete (SEC.9a, `arquitectura-del-erp` § 2): Hoy · Operación ·
+ * Catálogo · Empresa. Sin rótulo a la vista, como el menú de referencia: el nombre del grupo lo lleva su
+ * `aria-label`. La persona y «Cerrar sesión» subieron a la barra de contexto (`MenuDeUsuario`); el logo mide lo que
+ * ella, 44 px, para que las dos líneas cuadren.
  */
 export function ErpSidebar({ usuario }: { usuario: Usuario }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [saliendo, setSaliendo] = useState(false);
-  const entradas = navegacionPara(usuario);
-
-  async function cerrarSesion() {
-    setSaliendo(true);
-
-    await fetch("/api/auth/logout", { method: "POST" });
-
-    router.replace("/login");
-    router.refresh();
-  }
+  const grupos = navegacionPorGrupos(usuario);
 
   /** Se revela junto con el riel: transparente mientras está plegado. */
   const alDesplegar =
@@ -55,104 +43,67 @@ export function ErpSidebar({ usuario }: { usuario: Usuario }) {
           "hover:w-56 hover:shadow-lg focus-within:w-56 focus-within:shadow-lg",
         )}
       >
-        <Link
-          href="/"
-          className="flex h-14 shrink-0 items-center gap-2.5 border-b px-[15px]"
-        >
+        <Link href="/" className="flex h-11 shrink-0 items-center gap-2.5 border-b px-[15px]">
           <Image src={logo} alt="" width={26} height={26} className="shrink-0" />
           <span className={cn("truncate text-sm font-semibold tracking-tight", alDesplegar)}>
             GMS Integra
           </span>
         </Link>
 
-        <nav className="flex flex-1 flex-col gap-1 p-2">
-          {entradas.map((entrada) => {
-            const activo =
-              pathname === entrada.href || pathname.startsWith(`${entrada.href}/`);
+        <nav className="flex flex-1 flex-col overflow-y-auto">
+          {grupos.map(({ grupo, entradas }) => (
+            <div key={grupo} role="group" aria-label={grupo} className="flex flex-col gap-1 border-b p-2 last:border-b-0">
+              {entradas.map((entrada) => {
+                const activo = pathname === entrada.href || pathname.startsWith(`${entrada.href}/`);
 
-            // 44px de alto: área táctil mínima cómoda también en tablet de taller
-            const base =
-              "flex min-h-11 items-center gap-3 rounded-md px-[7px] text-sm transition-colors";
+                // 44px de alto: área táctil mínima cómoda también en tablet de taller
+                const base = "flex min-h-11 items-center gap-3 rounded-md px-[7px] text-sm transition-colors";
 
-            const etiqueta = (
-              <span className={cn("truncate", alDesplegar)}>{entrada.titulo}</span>
-            );
+                const etiqueta = <span className={cn("truncate", alDesplegar)}>{entrada.titulo}</span>;
 
-            if (!entrada.disponible) {
-              return (
-                <div
-                  key={entrada.href}
-                  aria-disabled
-                  className={cn(base, "text-muted-foreground/45 cursor-not-allowed")}
-                >
-                  <entrada.icono className="size-4 shrink-0" />
-                  {etiqueta}
-                  <span
+                if (!entrada.disponible) {
+                  return (
+                    <div
+                      key={entrada.href}
+                      aria-disabled
+                      className={cn(base, "text-muted-foreground/45 cursor-not-allowed")}
+                    >
+                      <entrada.icono className="size-4 shrink-0" />
+                      {etiqueta}
+                      <span
+                        className={cn(
+                          "bg-muted ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] whitespace-nowrap",
+                          alDesplegar,
+                        )}
+                      >
+                        Pronto
+                      </span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={entrada.href}
+                    href={entrada.href}
+                    aria-current={activo ? "page" : undefined}
                     className={cn(
-                      "bg-muted ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] whitespace-nowrap",
-                      alDesplegar,
+                      base,
+                      "relative overflow-hidden",
+                      activo
+                        ? "bg-primary/8 text-primary font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
-                    Pronto
-                  </span>
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={entrada.href}
-                href={entrada.href}
-                aria-current={activo ? "page" : undefined}
-                className={cn(
-                  base,
-                  "relative overflow-hidden",
-                  activo
-                    ? "bg-primary/8 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                <entrada.icono className="size-4 shrink-0" />
-                {etiqueta}
-                <EnlacePendiente />
-              </Link>
-            );
-          })}
+                    <entrada.icono className="size-4 shrink-0" />
+                    {etiqueta}
+                    <EnlacePendiente />
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
-
-        <div className="flex shrink-0 items-center gap-2.5 border-t px-[11px] py-3">
-          <span
-            aria-hidden
-            className="bg-primary/8 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-          >
-            {usuario.nombre.charAt(0).toUpperCase()}
-          </span>
-
-          <span className={cn("min-w-0 flex-1", alDesplegar)}>
-            <span className="block truncate text-sm leading-tight font-medium">
-              {usuario.nombre}
-            </span>
-            <span className="text-muted-foreground block truncate text-[11px] leading-tight">
-              {usuario.rol_etiqueta}
-            </span>
-          </span>
-
-          <button
-            type="button"
-            onClick={cerrarSesion}
-            disabled={saliendo}
-            title="Cerrar sesión"
-            className={cn(
-              "text-muted-foreground hover:text-foreground hover:bg-muted shrink-0 rounded-md p-2 transition-colors disabled:opacity-50",
-              alDesplegar,
-            )}
-          >
-            <LogOut className="size-4" />
-            <span className="sr-only">
-              {saliendo ? "Saliendo…" : "Cerrar sesión"}
-            </span>
-          </button>
-        </div>
       </div>
     </aside>
   );

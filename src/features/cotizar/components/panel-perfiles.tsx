@@ -166,7 +166,7 @@ export function PanelPerfiles({
       {plano ? (
         // En el móvil el plano va ARRIBA y se queda fijo bajo la barra de navegación, y la lista corre debajo:
         // elegir no obliga a desplazarse (P5; antes el plano quedaba 1.174 px por debajo de la pieza pulsada)
-        <div className="bg-background sticky top-14 z-[11] order-first -mx-4 border-b px-4 pt-1 pb-2 lg:top-24 lg:z-auto lg:order-none lg:mx-0 lg:self-start lg:border-0 lg:p-0">
+        <div className="bg-background sticky top-14 z-[11] order-first -mx-4 border-b px-4 pt-1 pb-2 lg:top-[calc(6rem+var(--alto-barra-contexto))] lg:z-auto lg:order-none lg:mx-0 lg:self-start lg:border-0 lg:p-0">
           <div className="relative">
             <VentanaSVG
               geometria={plano}
@@ -182,7 +182,7 @@ export function PanelPerfiles({
           <PieDelPlano plano={plano} despiece={despiece} insumo={insumoResaltado} className="mt-1.5 text-center" />
         </div>
       ) : despiece.geometria ? (
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="lg:sticky lg:top-[calc(6rem+var(--alto-barra-contexto))] lg:self-start">
           <div className="relative">
             <VentanaSVG
               geometria={despiece.geometria}
