@@ -136,6 +136,18 @@ const INVARIANTES = [
     salida: "Pide el importe a la API: si falta uno, se añade al Resource del servidor. El front solo lo pinta (`CAL-01`, `G-32`).",
   },
   {
+    id: "INV-E03",
+    nombre: "las listas del ERP por ListaDeRegistros",
+    // SEC.0 (2026-10-03): tres listas escritas a mano iluminaban la fila entera y solo dejaban pulsar el código o el
+    // nombre —el 2, 4 y 5 % de la fila—, sin teclado. En `ListaDeRegistros` la fila es el enlace. Exentas: la hoja de
+    // corte, que se imprime —es un documento, no una lista que se abre—, y cargar precios, cuyas filas se editan.
+    patron: /<table\b/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: ["src/features/proyectos/components/hoja-de-corte.tsx", "src/features/materiales/components/cargar-precios.tsx"],
+    umbral: 0,
+    salida: "Usa `ListaDeRegistros` (o sus mitades `TablaDeRegistros` y `TarjetasDeRegistros`) de `@/components/comunes/lista-de-registros`: la fila entera abre, con teclado y en otra pestaña.",
+  },
+  {
     id: "INV-N01",
     nombre: "los avisos flotantes por notificar()",
     // Decisión 33 (2026-09-26): 19 llamadas a `toast` en 15 archivos, cada una con su título, su duración y su tono.

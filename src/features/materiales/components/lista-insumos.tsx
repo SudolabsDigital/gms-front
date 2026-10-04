@@ -1,13 +1,12 @@
-import Link from "next/link";
-
+import { ListaDeRegistros, type Columna } from "@/components/comunes/lista-de-registros";
 import type { InsumoFila } from "@/features/materiales/types";
 import { haceDias, moneda, plural } from "@/lib/formato";
-import { cn } from "@/lib/utils";
 
 /*
- * La lista del repositorio (`materiales/52-brief-materiales`): tarjetas en el móvil, tabla en el escritorio, como
- * `/proyectos`. Un insumo a S/ 0 lleva la señal de advertencia —cotizarlo así sale a costo cero (`G-01`)— y uno
- * inactivo va atenuado. Sin `costeo:ver` no hay columna de precio: la pantalla lo nota porque la clave no viaja.
+ * La lista del repositorio (`materiales/52-brief-materiales`): tarjetas en el móvil, tabla en el escritorio, y en los
+ * dos la fila entera abre la ficha (`ListaDeRegistros`). Un insumo a S/ 0 lleva la señal de advertencia —cotizarlo así
+ * sale a costo cero (`G-01`)— y uno inactivo va atenuado. Sin `costeo:ver` no hay columna de precio: la pantalla lo
+ * nota porque la clave no viaja.
  */
 
 function SinPrecio() {
@@ -34,70 +33,74 @@ function Precio({ fila }: { fila: InsumoFila }) {
 export function ListaInsumos({ filas }: { filas: InsumoFila[] }) {
   const conPrecio = filas.some((f) => f.compra?.precio !== undefined);
 
-  return (
-    <>
-      <ul className="flex flex-col gap-2 md:hidden">
-        {filas.map((fila) => (
-          <li key={fila.id}>
-            <Link
-              href={`/materiales/${fila.id}`}
-              className={cn("bg-card active:bg-muted/60 flex flex-col gap-1 rounded-md border p-3 shadow-sm", !fila.activo && "opacity-60")}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-sm font-semibold">{fila.codigo}</span>
-                <Precio fila={fila} />
-              </div>
-              <p className="leading-snug font-medium">{fila.nombre_comercial}</p>
-              <p className="text-muted-foreground text-sm">
-                {[fila.material?.nombre, fila.presentacion, plural(fila.reglas_activas, "regla", "reglas")].filter(Boolean).join(" · ")}
-              </p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+  const columnas: Columna<InsumoFila>[] = [
+    {
+      clave: "codigo",
+      titulo: "Código",
+      celda: (fila) => fila.codigo,
+      className: "font-mono text-xs font-semibold whitespace-nowrap",
+    },
+    {
+      clave: "nombre",
+      titulo: "Nombre",
+      celda: (fila) => (
+        <>
+          {fila.nombre_comercial}
+          {!fila.activo ? <span className="text-muted-foreground ml-2 text-xs">inactivo</span> : null}
+        </>
+      ),
+      className: "font-medium",
+    },
+    { clave: "material", titulo: "Material", celda: (fila) => fila.material?.nombre ?? "—", className: "text-muted-foreground" },
+    { clave: "presentacion", titulo: "Presentación", celda: (fila) => fila.presentacion ?? "—", className: "text-muted-foreground" },
+    {
+      clave: "reglas",
+      titulo: "Reglas",
+      celda: (fila) => fila.reglas_activas,
+      alinear: "derecha",
+      className: "font-mono tabular-nums",
+    },
+  ];
 
-      <div className="bg-card hidden overflow-hidden rounded-md border shadow-sm md:block">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground text-left text-xs">
-            <tr>
-              <th className="px-3 py-2 font-medium">Código</th>
-              <th className="px-3 py-2 font-medium">Nombre</th>
-              <th className="px-3 py-2 font-medium">Material</th>
-              <th className="px-3 py-2 font-medium">Presentación</th>
-              <th className="px-3 py-2 text-right font-medium">Reglas</th>
-              {conPrecio ? <th className="px-3 py-2 text-right font-medium">Precio</th> : null}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {filas.map((fila) => (
-              <tr key={fila.id} className={cn("hover:bg-muted/40", !fila.activo && "opacity-60")}>
-                <td className="px-3 py-2 font-mono text-xs font-semibold whitespace-nowrap">
-                  <Link href={`/materiales/${fila.id}`} className="hover:underline">
-                    {fila.codigo}
-                  </Link>
-                </td>
-                <td className="px-3 py-2 font-medium">
-                  <Link href={`/materiales/${fila.id}`} className="hover:underline">
-                    {fila.nombre_comercial}
-                  </Link>
-                  {!fila.activo ? <span className="text-muted-foreground ml-2 text-xs">inactivo</span> : null}
-                </td>
-                <td className="text-muted-foreground px-3 py-2">{fila.material?.nombre ?? "—"}</td>
-                <td className="text-muted-foreground px-3 py-2">{fila.presentacion ?? "—"}</td>
-                <td className="px-3 py-2 text-right font-mono tabular-nums">{fila.reglas_activas}</td>
-                {conPrecio ? (
-                  <td className="px-3 py-2 text-right whitespace-nowrap">
-                    <Precio fila={fila} />
-                    {fila.compra?.precio && fila.precio_actualizado_at ? (
-                      <span className="text-muted-foreground block text-xs">{haceDias(fila.precio_actualizado_at)}</span>
-                    ) : null}
-                  </td>
-                ) : null}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
+  if (conPrecio) {
+    columnas.push({
+      clave: "precio",
+      titulo: "Precio",
+      alinear: "derecha",
+      className: "whitespace-nowrap",
+      celda: (fila) => (
+        <>
+          <Precio fila={fila} />
+          {fila.compra?.precio && fila.precio_actualizado_at ? (
+            <span className="text-muted-foreground block text-xs">{haceDias(fila.precio_actualizado_at)}</span>
+          ) : null}
+        </>
+      ),
+    });
+  }
+
+  return (
+    <ListaDeRegistros
+      filas={filas}
+      clave={(fila) => fila.id}
+      enlace={(fila) => `/materiales/${fila.id}`}
+      atenuada={(fila) => !fila.activo}
+      principal="nombre"
+      columnas={columnas}
+      tarjeta={(fila) => (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-sm font-semibold">{fila.codigo}</span>
+            <Precio fila={fila} />
+          </div>
+          <p className="leading-snug font-medium">{fila.nombre_comercial}</p>
+          <p className="text-muted-foreground text-sm">
+            {[fila.material?.nombre, fila.presentacion, plural(fila.reglas_activas, "regla", "reglas")]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        </>
+      )}
+    />
   );
 }

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { FolderKanban, Search } from "lucide-react";
+import { FolderKanban } from "lucide-react";
 
+import { Buscador } from "@/components/comunes/buscador";
 import { EmptyState } from "@/components/comunes/empty-state";
-import { FocoEnEscritorio } from "@/components/comunes/foco-en-escritorio";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
-import { Input } from "@/components/ui/input";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
 import { FiltroEtapas, type FiltroLista, urlDeLista } from "@/features/proyectos/components/filtro-etapas";
 import { ListaProyectos } from "@/features/proyectos/components/lista-proyectos";
@@ -70,23 +69,14 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pa
         />
       ) : (
         <>
-          <form action="/proyectos" className="relative max-w-md" role="search">
-            {filtro.etapa ? <input type="hidden" name="etapa" value={filtro.etapa} /> : null}
-            {!filtro.etapa && filtro.vista !== "vivos" ? (
-              <input type="hidden" name="vista" value={filtro.vista} />
-            ) : null}
-            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-            <Input
-              id="buscar-proyectos"
-              type="search"
-              name="buscar"
-              defaultValue={filtro.buscar}
-              placeholder="Código, proyecto, cliente o teléfono"
-              aria-label="Buscar proyectos"
-              className="h-11 pl-9 md:h-9"
-            />
-          </form>
-          <FocoEnEscritorio id="buscar-proyectos" />
+          <Buscador
+            accion="/proyectos"
+            id="buscar-proyectos"
+            etiqueta="Buscar proyectos"
+            placeholder="Código, proyecto, cliente o teléfono"
+            valor={filtro.buscar}
+            conservar={{ etapa: filtro.etapa, vista: !filtro.etapa && filtro.vista !== "vivos" ? filtro.vista : null }}
+          />
 
           <FiltroEtapas filtro={filtro} recuento={lista.meta.recuento_por_etapa} porVista={lista.meta.recuento_por_vista} />
 

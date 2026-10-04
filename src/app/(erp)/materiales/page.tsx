@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Layers, Search, Tags } from "lucide-react";
+import { Layers, Tags } from "lucide-react";
 
-import { FocoEnEscritorio } from "@/components/comunes/foco-en-escritorio";
+import { Buscador } from "@/components/comunes/buscador";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { EditarInsumo } from "@/features/materiales/components/editar-insumo";
 import { FiltroClases, type FiltroInsumos, urlDeInsumos } from "@/features/materiales/components/filtro-clases";
 import { ListaInsumos } from "@/features/materiales/components/lista-insumos";
@@ -91,13 +90,14 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
         </Notificacion>
       ) : null}
 
-      <form action="/materiales" className="relative max-w-md" role="search">
-        {filtro.clase ? <input type="hidden" name="clase" value={filtro.clase} /> : null}
-        {filtro.inactivos ? <input type="hidden" name="estado" value="inactivos" /> : null}
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input id="buscar-insumos" type="search" name="buscar" defaultValue={filtro.buscar} placeholder="Código o nombre" aria-label="Buscar insumos" className="h-11 pl-9 md:h-9" />
-      </form>
-      <FocoEnEscritorio id="buscar-insumos" />
+      <Buscador
+        accion="/materiales"
+        id="buscar-insumos"
+        etiqueta="Buscar insumos"
+        placeholder="Código o nombre"
+        valor={filtro.buscar}
+        conservar={{ clase: filtro.clase, estado: filtro.inactivos ? "inactivos" : null }}
+      />
 
       <FiltroClases filtro={filtro} recuento={lista.meta.recuento_por_clase} />
 

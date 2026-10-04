@@ -1,11 +1,10 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { Calculator, LayoutTemplate } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
 import { PageHeader } from "@/components/comunes/page-header";
+import { TarjetaEnlace } from "@/components/comunes/tarjeta-enlace";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import type { Tipo } from "@/features/cotizar/types";
@@ -97,10 +96,12 @@ export default async function PlantillasPage() {
                 (panel) => panel === "D",
               ).length;
 
+              // La tarjeta entera abre el cotizador con este tipo: era su única acción, en un botón de 87×28 px
               return (
-                <div
+                <TarjetaEnlace
                   key={tipo.id}
-                  className="flex flex-wrap items-center gap-4 rounded-md border p-3"
+                  href={`/cotizar/nueva?tipo=${tipo.id}`}
+                  className="flex-wrap items-center gap-4"
                 >
                   <div className="min-w-40 flex-1">
                     <p className="flex items-center gap-2 font-mono text-sm font-medium">
@@ -128,13 +129,11 @@ export default async function PlantillasPage() {
                     </p>
                   </div>
 
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href={`/cotizar/nueva?tipo=${tipo.id}`}>
-                      <Calculator className="size-4" />
-                      Cotizar
-                    </Link>
-                  </Button>
-                </div>
+                  <span className="text-primary flex items-center gap-1.5 text-sm font-medium">
+                    <Calculator aria-hidden className="size-4" />
+                    Cotizar
+                  </span>
+                </TarjetaEnlace>
               );
             })}
           </CardContent>

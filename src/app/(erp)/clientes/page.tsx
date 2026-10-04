@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search } from "lucide-react";
 
-import { FocoEnEscritorio } from "@/components/comunes/foco-en-escritorio";
+import { Buscador } from "@/components/comunes/buscador";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ListaClientes } from "@/features/clientes/components/lista-clientes";
 import type { ListaClientesConRecuento } from "@/features/clientes/types";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
@@ -49,19 +47,13 @@ export default async function ClientesPage({ searchParams }: { searchParams: Par
         descripcion="A quién se le ha hecho o se le está haciendo un trabajo: sus datos, sus proyectos y lo que debe."
       />
 
-      <form action="/clientes" className="relative max-w-md" role="search">
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
-          id="buscar-clientes"
-          type="search"
-          name="buscar"
-          defaultValue={buscar}
-          placeholder="Nombre, teléfono o DNI/RUC"
-          aria-label="Buscar clientes"
-          className="h-11 pl-9 md:h-9"
-        />
-      </form>
-      <FocoEnEscritorio id="buscar-clientes" />
+      <Buscador
+        accion="/clientes"
+        id="buscar-clientes"
+        etiqueta="Buscar clientes"
+        placeholder="Nombre, teléfono o DNI/RUC"
+        valor={buscar}
+      />
 
       {lista.datos.length === 0 ? (
         buscar ? (
