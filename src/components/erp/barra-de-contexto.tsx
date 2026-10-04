@@ -3,14 +3,18 @@ import { Fragment, type ReactNode } from "react";
 
 import { Enlace } from "@/components/comunes/enlace";
 import { MenuDeUsuario } from "@/components/erp/menu-de-usuario";
+import { SelectorDeContexto } from "@/components/erp/selector-de-contexto";
 import { Button } from "@/components/ui/button";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
-/** Un tramo de «dónde está»: sin `href`, es donde se está y se pinta como texto */
-export type TramoDeRuta = { etiqueta: string; href?: string; codigo?: string };
+/**
+ * Un tramo de «dónde está»: sin `href`, es donde se está y se pinta como texto. Con `selector`, el tramo actual se abre
+ * como un buscador para cambiar de obra o de cliente sin volver a la lista (`SelectorDeContexto`, SEC.9d)
+ */
+export type TramoDeRuta = { etiqueta: string; href?: string; codigo?: string; selector?: "proyectos" | "clientes" };
 
 /**
  * La barra de contexto del escritorio (SEC.9a, decisión 76; `03-sistema-de-diseno/componentes-del-armazon`): **dónde
@@ -46,7 +50,9 @@ export async function BarraDeContexto({ ruta, estado }: { ruta: TramoDeRuta[]; e
                   /
                 </span>
               ) : null}
-              {tramo.href && !actual ? (
+              {actual && tramo.selector ? (
+                <SelectorDeContexto tipo={tramo.selector} etiqueta={tramo.etiqueta} codigo={tramo.codigo} />
+              ) : tramo.href && !actual ? (
                 <Enlace
                   href={tramo.href}
                   className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap"

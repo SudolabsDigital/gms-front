@@ -4,6 +4,7 @@ import { Buscador } from "@/components/comunes/buscador";
 import { Enlace } from "@/components/comunes/enlace";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
+import { TablaDeDatos } from "@/components/comunes/tabla-de-datos";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import type { ListaClientesConRecuento } from "@/features/clientes/types";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
 import { adelantar, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
+import { plural } from "@/lib/formato";
 import { exigirUsuario } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -57,46 +59,54 @@ export default async function ClientesPage({ searchParams }: { searchParams: Par
           descripcion="A quién se le ha hecho o se le está haciendo un trabajo: sus datos, sus proyectos y lo que debe."
         />
 
-        <Buscador
-          accion="/clientes"
-          id="buscar-clientes"
-          etiqueta="Buscar clientes"
-          placeholder="Nombre, teléfono o DNI/RUC"
-          valor={buscar}
-        />
-
-        {lista.datos.length === 0 ? (
-          buscar ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">Nadie coincide con «{buscar}».</p>
+        <TablaDeDatos
+          herramientas={
+            <Buscador
+              accion="/clientes"
+              id="buscar-clientes"
+              etiqueta="Buscar clientes"
+              placeholder="Nombre, teléfono o DNI/RUC"
+              valor={buscar}
+            />
+          }
+          pie={
+            lista.datos.length > 0 ? (
+              <>
+                <span>
+                  Total: {plural(meta.total, "cliente", "clientes")}
+                  {meta.ultima_pagina > 1 ? ` · página ${meta.pagina} de ${meta.ultima_pagina}` : ""}
+                </span>
+                {meta.ultima_pagina > 1 ? (
+                  <nav aria-label="Páginas" className="flex gap-2">
+                    {meta.pagina > 1 ? (
+                      <Button asChild variant="outline" className="h-11 md:h-8">
+                        <Enlace href={hrefPagina(meta.pagina - 1)}>Anterior</Enlace>
+                      </Button>
+                    ) : null}
+                    {meta.pagina < meta.ultima_pagina ? (
+                      <Button asChild variant="outline" className="h-11 md:h-8">
+                        <Enlace href={hrefPagina(meta.pagina + 1)}>Siguiente</Enlace>
+                      </Button>
+                    ) : null}
+                  </nav>
+                ) : null}
+              </>
+            ) : null
+          }
+        >
+          {lista.datos.length === 0 ? (
+            buscar ? (
+              <p className="text-muted-foreground py-8 text-center text-sm">Nadie coincide con «{buscar}».</p>
+            ) : (
+              <div className="text-muted-foreground flex flex-col items-center gap-3 py-8 text-center text-sm">
+                <p>Todavía no hay clientes. Nacen al crear un proyecto.</p>
+                {puede(usuario, "proyectos:crear") ? <AltaProyecto /> : null}
+              </div>
+            )
           ) : (
-            <div className="text-muted-foreground flex flex-col items-center gap-3 py-8 text-center text-sm">
-              <p>Todavía no hay clientes. Nacen al crear un proyecto.</p>
-              {puede(usuario, "proyectos:crear") ? <AltaProyecto /> : null}
-            </div>
-          )
-        ) : (
-          <ListaClientes filas={lista.datos} />
-        )}
-
-        {meta.ultima_pagina > 1 ? (
-          <nav aria-label="Páginas" className="text-muted-foreground flex items-center justify-between gap-2 text-sm">
-            <span>
-              Página {meta.pagina} de {meta.ultima_pagina} · {meta.total} clientes
-            </span>
-            <div className="flex gap-2">
-              {meta.pagina > 1 ? (
-                <Button asChild variant="outline" className="h-11 md:h-8">
-                  <Enlace href={hrefPagina(meta.pagina - 1)}>Anterior</Enlace>
-                </Button>
-              ) : null}
-              {meta.pagina < meta.ultima_pagina ? (
-                <Button asChild variant="outline" className="h-11 md:h-8">
-                  <Enlace href={hrefPagina(meta.pagina + 1)}>Siguiente</Enlace>
-                </Button>
-              ) : null}
-            </div>
-          </nav>
-        ) : null}
+            <ListaClientes filas={lista.datos} />
+          )}
+        </TablaDeDatos>
       </div>
     </MarcoDeTrabajo>
   );

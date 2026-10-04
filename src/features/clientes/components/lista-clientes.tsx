@@ -52,6 +52,8 @@ export function ListaClientes({ filas }: { filas: ClienteFila[] }) {
           <p className="text-muted-foreground text-sm break-words">{contacto(fila)}</p>
         </>
       )}
+      // Va dentro de `TablaDeDatos`, con el buscador arriba y el total abajo (SEC.9d)
+      incrustada
     />
   );
 }

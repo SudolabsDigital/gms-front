@@ -1,7 +1,8 @@
 import type { Cliente, Etapa, Meta } from "@/features/proyectos/types";
 
 /** Una fila de `GET clientes` (`clientes/50-api` § lista): el cliente y cuántos proyectos tiene */
-export type ClienteFila = Cliente & { proyectos_count: number };
+/** `GET clientes`. `debe` solo viaja con `costeo:ver`: la misma cuenta que la ficha (SEC.9d) */
+export type ClienteFila = Cliente & { proyectos_count: number; debe?: number };
 
 export type ListaClientesConRecuento = { datos: ClienteFila[]; meta: Meta };
 

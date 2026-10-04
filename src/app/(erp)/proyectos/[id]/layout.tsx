@@ -92,7 +92,7 @@ export default async function ObraLayout({ children, params }: { children: React
     <MarcoDeTrabajo
       barra={
         <BarraDeContexto
-          ruta={[{ etiqueta: "Proyectos", href: "/proyectos" }, { codigo: proyecto.codigo, etiqueta: proyecto.nombre }]}
+          ruta={[{ etiqueta: "Proyectos", href: "/proyectos" }, { codigo: proyecto.codigo, etiqueta: proyecto.nombre, selector: "proyectos" }]}
           estado={estado}
         />
       }

@@ -16,6 +16,7 @@ export function Buscador({
   placeholder,
   valor,
   conservar = {},
+  enfocar = true,
 }: {
   /** La ruta de la lista: `/clientes` */
   accion: string;
@@ -26,6 +27,8 @@ export function Buscador({
   valor?: string;
   /** Los filtros que la búsqueda no debe perder; un valor vacío no viaja */
   conservar?: Record<string, string | null | undefined>;
+  /** Tomar el foco al entrar (escritorio). No en un panel junto a una ficha: se lo robaría a cada apertura */
+  enfocar?: boolean;
 }) {
   return (
     <>
@@ -44,7 +47,7 @@ export function Buscador({
           className="h-11 pl-9 md:h-9"
         />
       </form>
-      <FocoEnEscritorio id={id} />
+      {enfocar ? <FocoEnEscritorio id={id} /> : null}
     </>
   );
 }
