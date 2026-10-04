@@ -1,14 +1,14 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { PageHeader } from "@/components/comunes/page-header";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { Card, CardContent } from "@/components/ui/card";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
 import { PendientesDeHoy } from "@/features/proyectos/components/pendientes-de-hoy";
 import type { Pendientes } from "@/features/proyectos/types";
-import { apiGet } from "@/lib/api-server";
+import { adelantar, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { cn } from "@/lib/utils";
 import { exigirUsuario } from "@/lib/session";
@@ -25,12 +25,13 @@ export const metadata: Metadata = {
  * el almacén): a Miguel el menú ya le da las secciones, y ver el mapa cada mañana era ruido (recorrido UX.0, R26).
  */
 export default async function InicioPage() {
+  const peticion = adelantar(apiGet<Pendientes>("/inicio"));
   const usuario = await exigirUsuario();
   const nombre = usuario.nombre.split(" ")[0];
 
   if (!puede(usuario, "proyectos:ver")) return <MapaDelSistema nombre={nombre} usuario={usuario} />;
 
-  const pendientes = await apiGet<Pendientes>("/inicio");
+  const pendientes = await peticion;
 
   return (
     // Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta
@@ -141,9 +142,9 @@ function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<
                 key={entrada.href}
                 className="hover:border-primary/30 transition-colors"
               >
-                <Link href={entrada.href} className="block">
+                <Enlace href={entrada.href} className="block">
                   {contenido}
-                </Link>
+                </Enlace>
               </Card>
             );
           })}

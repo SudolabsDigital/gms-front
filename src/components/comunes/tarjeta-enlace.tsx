@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,12 +23,13 @@ export function TarjetaEnlace({
     <Link
       href={href}
       className={cn(
-        "hover:bg-muted/40 active:bg-muted/60 flex min-h-11 rounded-md border p-3 transition-colors",
+        "hover:bg-muted/40 active:bg-muted/60 relative flex min-h-11 overflow-hidden rounded-md border p-3 transition-colors",
         "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
         className,
       )}
     >
       {children}
+      <EnlacePendiente />
     </Link>
   );
 }

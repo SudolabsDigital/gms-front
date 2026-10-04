@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
 import { cn } from "@/lib/utils";
 
 /**
@@ -14,7 +15,8 @@ import { cn } from "@/lib/utils";
  * pleno (8,6:1): el `ring-ring/50` de los botones mide 2,55:1 sobre blanco, poco para marcar una fila.
  *
  * Dentro de una fila no van otros controles: el enlace la cubre. Si alguno hiciera falta, va con `relative z-10`.
- * Sin estado ni efectos: sirve igual desde un componente de servidor que desde uno de cliente.
+ * Sin estado ni efectos: sirve igual desde un componente de servidor que desde uno de cliente. Lo único de cliente es
+ * `EnlacePendiente`, la línea que dice que la fila pulsada está abriendo (SEC.5).
  */
 
 export type Columna<T> = {
@@ -86,6 +88,7 @@ export function TablaDeRegistros<T>({ filas, clave, enlace, atenuada, columnas, 
                       )}
                     >
                       {columna.celda(fila)}
+                      <EnlacePendiente />
                     </Link>
                   ) : (
                     columna.celda(fila)
@@ -109,12 +112,13 @@ export function TarjetasDeRegistros<T>({ filas, clave, enlace, atenuada, tarjeta
           <Link
             href={enlace(fila)}
             className={cn(
-              "bg-card active:bg-muted/60 flex min-h-11 flex-col gap-1.5 rounded-md border p-3 shadow-sm",
+              "bg-card active:bg-muted/60 relative flex min-h-11 flex-col gap-1.5 overflow-hidden rounded-md border p-3 shadow-sm",
               ANILLO,
               atenuada?.(fila) && "opacity-60",
             )}
           >
             {tarjeta(fila)}
+            <EnlacePendiente />
           </Link>
         </li>
       ))}

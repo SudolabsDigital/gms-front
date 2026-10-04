@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Layers, Tags } from "lucide-react";
 
 import { Buscador } from "@/components/comunes/buscador";
+import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
@@ -13,7 +13,7 @@ import { FiltroClases, type FiltroInsumos, urlDeInsumos } from "@/features/mater
 import { ListaInsumos } from "@/features/materiales/components/lista-insumos";
 import { CLASES } from "@/features/materiales/textos";
 import type { Clase, ListaInsumos as Lista } from "@/features/materiales/types";
-import { apiGet } from "@/lib/api-server";
+import { adelantar, apiGet } from "@/lib/api-server";
 import { plural } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -39,12 +39,14 @@ function leerFiltro(crudo: Awaited<Parametros>): FiltroInsumos {
  * insumos: se piden hasta 100 de una vez y no hay paginación en pantalla; si un día pasan de 100, se añade.
  */
 export default async function MaterialesPage({ searchParams }: { searchParams: Parametros }) {
+  const filtro = leerFiltro(await searchParams);
+  const consulta = urlDeInsumos(filtro).replace(/^\/materiales\??/, "");
+  const peticion = adelantar(apiGet<Lista>(`/insumos?${consulta}${consulta ? "&" : ""}por_pagina=100`));
+
   const usuario = await exigirUsuario();
   if (!puede(usuario, "catalogo:ver")) return <SinAcceso que="materiales" />;
 
-  const filtro = leerFiltro(await searchParams);
-  const consulta = urlDeInsumos(filtro).replace(/^\/materiales\??/, "");
-  const lista = await apiGet<Lista>(`/insumos?${consulta}${consulta ? "&" : ""}por_pagina=100`);
+  const lista = await peticion;
   const sinPrecio = lista.meta.sin_precio ?? 0;
   const cargarPrecios = puede(usuario, "precios:actualizar");
 
@@ -58,17 +60,17 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
           <>
             {/* Las familias con que se agrupa el consumo (MAE.6): se consultan con el mismo permiso que los insumos */}
             <Button asChild variant="ghost" className="h-11 md:h-9">
-              <Link href="/materiales/familias">
+              <Enlace href="/materiales/familias">
                 <Layers className="size-4" />
                 Familias
-              </Link>
+              </Enlace>
             </Button>
             {cargarPrecios ? (
               <Button asChild variant="outline" className="h-11 md:h-9">
-                <Link href="/materiales/precios">
+                <Enlace href="/materiales/precios">
                   <Tags className="size-4" />
                   Cargar precios
-                </Link>
+                </Enlace>
               </Button>
             ) : null}
             {puede(usuario, "catalogo:gestionar") ? <EditarInsumo /> : null}
@@ -82,9 +84,9 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
           {cargarPrecios ? (
             <>
               {" "}
-              <Link href="/materiales/precios" className="font-medium underline underline-offset-4">
+              <Enlace href="/materiales/precios" className="font-medium underline underline-offset-4">
                 Cargar la lista del proveedor
-              </Link>
+              </Enlace>
             </>
           ) : null}
         </Notificacion>

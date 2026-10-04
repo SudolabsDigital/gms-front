@@ -8,7 +8,7 @@ import { AYUDA, GRUPOS } from "@/features/parametros/textos";
 import type { Parametro } from "@/features/parametros/types";
 import { valorLegible } from "@/features/parametros/valor";
 import type { Meta } from "@/features/proyectos/types";
-import { apiGet } from "@/lib/api-server";
+import { adelantar, apiGet } from "@/lib/api-server";
 import { diaDe, diaLegible } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -22,10 +22,11 @@ export const metadata: Metadata = {
  * orden en que cambian. Sin `costeo:ver` el servidor solo manda el cálculo del diseño, y un bloque vacío no se pinta.
  */
 export default async function ParametrosPage() {
+  const peticion = adelantar(apiGet<{ datos: Parametro[]; meta: Meta }>("/variables?por_pagina=100"));
   const usuario = await exigirUsuario();
   if (!puede(usuario, "variables:ver")) return <SinAcceso que="los parámetros" />;
 
-  const { datos } = await apiGet<{ datos: Parametro[]; meta: Meta }>("/variables?por_pagina=100");
+  const { datos } = await peticion;
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">

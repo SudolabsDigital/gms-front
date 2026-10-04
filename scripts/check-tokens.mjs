@@ -148,6 +148,30 @@ const INVARIANTES = [
     salida: "Usa `ListaDeRegistros` (o sus mitades `TablaDeRegistros` y `TarjetasDeRegistros`) de `@/components/comunes/lista-de-registros`: la fila entera abre, con teclado y en otra pestaña.",
   },
   {
+    id: "INV-E04",
+    nombre: "una página del ERP no espera al usuario para pedir sus datos",
+    // SEC.5 (2026-10-04): 12 páginas esperaban `auth/me` y solo después pedían lo suyo; la ficha del proyecto encadenaba
+    // 4 llamadas. Una página que espera a `exigirUsuario()` antes de su primer `apiGet` paga una llamada entera de
+    // más. Lo suyo se adelanta con `adelantar()` y se espera después del permiso (decisión 75).
+    patron: /^(?:(?!\bapiGet<|\bapiPost<|\badelantar\()[\s\S])*?await exigirUsuario\(\)[\s\S]*?\b(?:apiGet|apiPost)</g,
+    archivoEntero: true,
+    solo: ["src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Empieza la petición con `adelantar(apiGet(…))` de `@/lib/api-server` ANTES de `await exigirUsuario()`, y espérala después del permiso.",
+  },
+  {
+    id: "INV-E05",
+    nombre: "los enlaces del ERP dicen que están abriendo",
+    // SEC.5 (2026-10-04): sin el skeleton, la página actual se queda hasta que llega la nueva; un enlace sin
+    // `EnlacePendiente` deja el clic sin respuesta. Los componentes comunes lo llevan dentro; en el resto, `Enlace`.
+    patron: /from\s+["']next\/link["']/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `Enlace` de `@/components/comunes/enlace` (un `Link` con la línea de «abriendo»), o un componente común que ya la lleve.",
+  },
+  {
     id: "INV-N01",
     nombre: "los avisos flotantes por notificar()",
     // Decisión 33 (2026-09-26): 19 llamadas a `toast` en 15 archivos, cada una con su título, su duración y su tono.
@@ -379,7 +403,18 @@ const resultados = INVARIANTES.map((inv) => {
     // `solo` acota una regla a una parte del árbol: la del dinero no mira el portal, donde «total» cuenta
     if (inv.solo && !inv.solo.some((prefijo) => rel.startsWith(prefijo))) continue;
 
-    const lineas = readFileSync(archivo, "utf8").split("\n");
+    const contenido = readFileSync(archivo, "utf8");
+    // `archivoEntero`: reglas sobre el orden dentro de un archivo (INV-E04), que ninguna línea sola puede ver. Se
+    // anota la línea donde acaba la coincidencia
+    if (inv.archivoEntero) {
+      const coincidencias = [...contenido.matchAll(inv.patron)];
+      if (!coincidencias.length) continue;
+      total += coincidencias.length;
+      porArchivo.set(rel, coincidencias.map((c) => contenido.slice(0, c.index + c[0].length).split("\n").length));
+      continue;
+    }
+
+    const lineas = contenido.split("\n");
     lineas.forEach((linea, i) => {
       const coincidencias = linea.match(inv.patron);
       if (!coincidencias) return;

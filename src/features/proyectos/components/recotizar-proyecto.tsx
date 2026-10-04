@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
@@ -42,7 +42,7 @@ export function RecotizarProyecto({
   if (hayBorrador) {
     return (
       <Button asChild variant="outline" className={clase}>
-        <Link href={pestana}>Seguir recotizando</Link>
+        <Enlace href={pestana}>Seguir recotizando</Enlace>
       </Button>
     );
   }

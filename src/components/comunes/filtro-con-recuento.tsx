@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
 import { cn } from "@/lib/utils";
 
 export type OpcionDeFiltro = {
@@ -45,7 +46,7 @@ export function FiltroConRecuento({
               href={opcion.href}
               aria-current={opcion.activa ? "page" : undefined}
               className={cn(
-                "flex h-11 items-center gap-1.5 rounded-full border px-3 text-sm whitespace-nowrap transition-colors",
+                "relative flex h-11 items-center gap-1.5 overflow-hidden rounded-full border px-3 text-sm whitespace-nowrap transition-colors",
                 "md:-mb-px md:h-9 md:rounded-none md:border-0 md:border-b-2 md:border-transparent md:px-3",
                 opcion.activa
                   ? "border-primary bg-primary text-primary-foreground md:border-primary md:bg-transparent md:text-foreground md:font-medium"
@@ -56,6 +57,7 @@ export function FiltroConRecuento({
               {opcion.recuento != null ? (
                 <span className="font-mono text-xs tabular-nums opacity-80">{opcion.recuento}</span>
               ) : null}
+              <EnlacePendiente />
             </Link>
           </li>
         ))}

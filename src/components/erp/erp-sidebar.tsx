@@ -7,6 +7,7 @@ import { useState } from "react";
 import { LogOut } from "lucide-react";
 
 import logo from "@/assets/gms-logo.webp";
+import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { cn } from "@/lib/utils";
 import type { Usuario } from "@/lib/session";
@@ -105,6 +106,7 @@ export function ErpSidebar({ usuario }: { usuario: Usuario }) {
                 aria-current={activo ? "page" : undefined}
                 className={cn(
                   base,
+                  "relative overflow-hidden",
                   activo
                     ? "bg-primary/8 text-primary font-medium"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -112,6 +114,7 @@ export function ErpSidebar({ usuario }: { usuario: Usuario }) {
               >
                 <entrada.icono className="size-4 shrink-0" />
                 {etiqueta}
+                <EnlacePendiente />
               </Link>
             );
           })}

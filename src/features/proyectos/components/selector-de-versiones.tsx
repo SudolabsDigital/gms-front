@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Enlace } from "@/components/comunes/enlace";
 import { cn } from "@/lib/utils";
 import type { DocumentoResumen } from "@/features/proyectos/types";
 
@@ -26,7 +25,7 @@ export function SelectorDeVersiones({
       {enOrden.map((v) => {
         const actual = v.version === elegida;
         return (
-          <Link
+          <Enlace
             key={v.id}
             href={`/proyectos/${proyectoId}?pestana=cotizacion&version=${v.version}`}
             aria-current={actual ? "page" : undefined}
@@ -39,7 +38,7 @@ export function SelectorDeVersiones({
           >
             v{v.version}
             {v.vigente ? " vigente" : v.estado === "borrador" ? " borrador" : ""}
-          </Link>
+          </Enlace>
         );
       })}
     </nav>

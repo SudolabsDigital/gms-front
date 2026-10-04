@@ -12,7 +12,7 @@ import { contenidoLegible, UNIDAD_DEL_MOTOR } from "@/features/materiales/conten
 import { EditarInsumo } from "@/features/materiales/components/editar-insumo";
 import { CLASE, MEDIDAS } from "@/features/materiales/textos";
 import type { InsumoFicha } from "@/features/materiales/types";
-import { ApiError, apiGet } from "@/lib/api-server";
+import { adelantar, ApiError, apiGet } from "@/lib/api-server";
 import { fechaHora, haceDias, medida, moneda, numero } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -26,13 +26,15 @@ export const metadata: Metadata = {
  * cuesta, dónde se usa—; las acciones son secundarias y dependen del permiso.
  */
 export default async function InsumoPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const peticion = adelantar(apiGet<InsumoFicha>(`/insumos/${encodeURIComponent(id)}`));
+
   const usuario = await exigirUsuario();
   if (!puede(usuario, "catalogo:ver")) return <SinAcceso que="materiales" />;
 
-  const { id } = await params;
   let insumo: InsumoFicha;
   try {
-    insumo = await apiGet<InsumoFicha>(`/insumos/${encodeURIComponent(id)}`);
+    insumo = await peticion;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;

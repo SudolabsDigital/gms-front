@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Enlace } from "@/components/comunes/enlace";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { documentoLegible } from "@/features/clientes/types";
 import { ORIGENES } from "@/features/proyectos/textos";
@@ -22,9 +21,9 @@ export function DatosProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
           <dt className="text-muted-foreground">Cliente</dt>
           <dd>
             {/* Su ficha: los demás proyectos y lo que debe (`clientes/52-brief-clientes` § 8) */}
-            <Link href={`/clientes/${proyecto.cliente.id}`} className="text-primary underline-offset-4 hover:underline">
+            <Enlace href={`/clientes/${proyecto.cliente.id}`} className="text-primary underline-offset-4 hover:underline">
               {proyecto.cliente.nombre}
-            </Link>
+            </Enlace>
             <span className="text-muted-foreground block text-xs">
               {[proyecto.cliente.telefono, documentoLegible(proyecto.cliente.documento)].filter(Boolean).join(" · ") ||
                 "Sin teléfono ni documento"}

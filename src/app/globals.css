@@ -259,6 +259,54 @@
   }
 }
 
+/*
+ * EL ENLACE PULSADO, MIENTRAS NAVEGA (SEC.5, decisión 75). Sin skeleton, la página actual se queda hasta que llega
+ * la nueva; esta línea dice que el clic se oyó. Siempre pintada y transparente —aparecer no mueve nada—, se enciende
+ * a los 150 ms para que una navegación rápida no parpadee. Ocupa el borde inferior del primer antepasado posicionado:
+ * la fila, la tarjeta, la entrada del menú. La pinta `EnlacePendiente`; con movimiento reducido, la línea queda quieta.
+ */
+@keyframes enlace-barrido {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+.enlace-pendiente {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.enlace-pendiente::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 40%;
+  background: var(--brand);
+  animation: enlace-barrido 900ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.enlace-pendiente[data-pendiente] {
+  opacity: 1;
+  transition-delay: 150ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enlace-pendiente::before {
+    width: 100%;
+    animation: none;
+  }
+}
+
 @utility titular-contorno {
   color: #ffffff;
   -webkit-text-stroke-width: clamp(1.2px, 0.32vw, 3px);

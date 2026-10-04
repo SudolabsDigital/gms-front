@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { Button } from "@/components/ui/button";
 import type { DestinoDeCotizacion } from "@/features/cotizar/components/agregar-al-proyecto";
 import { CotizadorPanel } from "@/features/cotizar/components/cotizador-panel";
 import type { Despiece, Tipo } from "@/features/cotizar/types";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
-import { ApiError, apiGet, apiPost } from "@/lib/api-server";
+import { adelantar, ApiError, apiGet, apiPost } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -32,21 +32,35 @@ type Parametros = Promise<{ [clave: string]: string | string[] | undefined }>;
  * (abría siempre el primero).
  */
 export default async function NuevaCotizacionPage({ searchParams }: { searchParams: Parametros }) {
-  // El layout se renderiza EN PARALELO con la página: no garantiza nada aquí. Cada página
-  // que necesita al usuario lo exige por su cuenta (la consulta se hace una vez por petición)
-  const usuario = await exigirUsuario();
-  const tipos = await apiGet<Tipo[]>("/tipos");
-
   const parametros = await searchParams;
   const crudo = parametros.cotizacion;
   const cotizacionId = typeof crudo === "string" ? crudo : null;
+  // Los tipos y la cotización no dependen del usuario: salen ya, mientras se le espera (SEC.5)
+  const peticionTipos = adelantar(apiGet<Tipo[]>("/tipos"));
+  const peticionCotizacion = cotizacionId
+    ? adelantar(apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(cotizacionId)}`))
+    : null;
+
+  // El layout se renderiza EN PARALELO con la página: no garantiza nada aquí. Cada página
+  // que necesita al usuario lo exige por su cuenta (la consulta se hace una vez por petición)
+  const usuario = await exigirUsuario();
+  const tipos = await peticionTipos;
+  // Abre ya calculado: el tipo pedido —o el primero— con sus medidas de referencia, las mismas que propone la barra
+  // (P1). Si el cálculo no sale, abre como antes, esperando «Calcular». Corre a la vez que el destino
+  const inicial = tipos.find((tipo) => tipo.id === parametros.tipo) ?? tipos[0];
+  const peticionCalculo = inicial
+    ? apiPost<Despiece>(`/tipos/${encodeURIComponent(inicial.id)}/calcular`, {
+        ancho: inicial.ancho_default ?? 300,
+        alto: inicial.alto_default ?? 170,
+      }).catch(() => null)
+    : null;
   let destino: DestinoDeCotizacion | null = null;
 
-  if (cotizacionId && puede(usuario, "cotizaciones:crear")) {
+  if (peticionCotizacion && puede(usuario, "cotizaciones:crear")) {
     let cotizacion: Cotizacion;
 
     try {
-      cotizacion = await apiGet<Cotizacion>(`/cotizaciones/${encodeURIComponent(cotizacionId)}`);
+      cotizacion = await peticionCotizacion;
     } catch (error) {
       if (error instanceof ApiError && error.status === 404) notFound();
       throw error;
@@ -61,7 +75,7 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
             Un documento emitido no cambia: el cliente ya lo vio. Para otra propuesta, recotice desde el proyecto.
           </p>
           <Button asChild variant="outline" className="h-11 md:h-9">
-            <Link href={`/proyectos/${cotizacion.proyecto_id}?pestana=cotizacion`}>Volver al proyecto</Link>
+            <Enlace href={`/proyectos/${cotizacion.proyecto_id}?pestana=cotizacion`}>Volver al proyecto</Enlace>
           </Button>
         </div>
       );
@@ -78,15 +92,7 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
     };
   }
 
-  // Abre ya calculado: el tipo pedido —o el primero— con sus medidas de referencia, las mismas que propone la barra
-  // (P1). Si el cálculo no sale, abre como antes, esperando «Calcular»
-  const inicial = tipos.find((tipo) => tipo.id === parametros.tipo) ?? tipos[0];
-  const resultadoInicial = inicial
-    ? await apiPost<Despiece>(`/tipos/${encodeURIComponent(inicial.id)}/calcular`, {
-        ancho: inicial.ancho_default ?? 300,
-        alto: inicial.alto_default ?? 170,
-      }).catch(() => null)
-    : null;
+  const resultadoInicial = peticionCalculo ? await peticionCalculo : null;
 
   return (
     <CotizadorPanel

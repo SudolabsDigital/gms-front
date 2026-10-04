@@ -25,7 +25,7 @@ import { SelectorDeVersiones } from "@/features/proyectos/components/selector-de
 import { pestanaInicial } from "@/features/proyectos/pestanas";
 import { culminado, ETAPAS, ETAPAS_CON_COBROS, QUE_FALTA } from "@/features/proyectos/textos";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
-import { ApiError, apiGet } from "@/lib/api-server";
+import { adelantar, ApiError, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -65,15 +65,17 @@ export default async function FichaProyectoPage({
   params: Promise<{ id: string }>;
   searchParams: Parametros;
 }) {
+  const { id } = await params;
+  const peticion = adelantar(apiGet<ProyectoFicha>(`/proyectos/${encodeURIComponent(id)}`));
+
   const usuario = await exigirUsuario();
 
   if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="proyectos" />;
 
-  const { id } = await params;
   let proyecto: ProyectoFicha;
 
   try {
-    proyecto = await apiGet<ProyectoFicha>(`/proyectos/${encodeURIComponent(id)}`);
+    proyecto = await peticion;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;
@@ -84,19 +86,21 @@ export default async function FichaProyectoPage({
 
   // El borrador se lee entero aquí, en el mismo render: cambiar de pestaña sigue siendo instantáneo
   const idBorrador = proyecto.versiones.find((v) => v.estado === "borrador")?.id;
-  const borrador = idBorrador ? await leerDocumento(idBorrador) : null;
   // `?version=` abre una versión emitida concreta (B.3); sin él, el borrador o, si no hay, la vigente (B.2)
   const pedida = proyecto.versiones.find((v) => v.estado !== "borrador" && String(v.version) === parametros.version);
-  const verEmitida = pedida ?? (!borrador ? proyecto.vigente : null);
-  const emitida = verEmitida ? await leerDocumento(verEmitida.id) : null;
-  const mostrada = emitida ?? borrador;
+  const verEmitida = pedida ?? (!idBorrador ? proyecto.vigente : null);
   // La pestaña Obra mide la vigente (C.2): desde que se aprueba, o para enseñar la última medición después
-  const vigenteEnObra =
-    proyecto.vigente && (proyecto.etapa === "aprobado" || proyecto.medicion !== null)
-      ? emitida?.id === proyecto.vigente.id
-        ? emitida
-        : await leerDocumento(proyecto.vigente.id)
-      : null;
+  const vigenteQueSeMide =
+    proyecto.vigente && (proyecto.etapa === "aprobado" || proyecto.medicion !== null) ? proyecto.vigente : null;
+  // Los tres documentos dependen del proyecto, no unos de otros: se piden a la vez (SEC.5), y la vigente una sola vez
+  // si además es la que se ve
+  const [borrador, emitida, otraVigente] = await Promise.all([
+    idBorrador ? leerDocumento(idBorrador) : null,
+    verEmitida ? leerDocumento(verEmitida.id) : null,
+    vigenteQueSeMide && vigenteQueSeMide.id !== verEmitida?.id ? leerDocumento(vigenteQueSeMide.id) : null,
+  ]);
+  const mostrada = emitida ?? borrador;
+  const vigenteEnObra = vigenteQueSeMide ? (otraVigente ?? emitida) : null;
   // Recotizando: a qué vigente sustituirá el borrador al emitirse, y si estaba aprobada (B.3)
   const sustituye = borrador && proyecto.vigente
     ? { version: proyecto.vigente.version, aprobada: proyecto.vigente.estado === "aprobada" }

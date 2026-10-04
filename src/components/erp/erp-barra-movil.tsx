@@ -7,6 +7,7 @@ import { useState } from "react";
 import { LogOut, Menu } from "lucide-react";
 
 import logo from "@/assets/gms-logo.webp";
+import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,14 @@ export function ErpBarraMovil({ usuario }: { usuario: Usuario }) {
   const [abierto, setAbierto] = useState(false);
   const [saliendo, setSaliendo] = useState(false);
   const entradas = navegacionPara(usuario);
+  // El menú se cierra cuando LLEGA la página, no al tocar: mientras tanto, la entrada tocada enseña que está abriendo
+  // (SEC.5; sin skeleton, cerrar al tocar dejaba la página vieja a la vista sin señal). Se ajusta al cambiar la ruta,
+  // durante el render y sin efecto
+  const [rutaVista, setRutaVista] = useState(pathname);
+  if (pathname !== rutaVista) {
+    setRutaVista(pathname);
+    setAbierto(false);
+  }
 
   async function cerrarSesion() {
     setSaliendo(true);
@@ -102,14 +111,17 @@ export function ErpBarraMovil({ usuario }: { usuario: Usuario }) {
                 <Link
                   key={entrada.href}
                   href={entrada.href}
-                  onClick={() => setAbierto(false)}
+                  // En la sección en la que ya se está la ruta no cambia, y el menú no se cerraría solo: se cierra al tocar
+                  onClick={() => pathname === entrada.href && setAbierto(false)}
                   aria-current={activo ? "page" : undefined}
                   className={cn(
                     base,
+                    "relative overflow-hidden",
                     activo ? "bg-primary/8 text-primary" : "text-foreground hover:bg-muted",
                   )}
                 >
                   {cuerpo}
+                  <EnlacePendiente />
                 </Link>
               );
             })}

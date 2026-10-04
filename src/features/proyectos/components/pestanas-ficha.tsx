@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PESTANAS, type Pestana } from "@/features/proyectos/pestanas";
@@ -10,25 +9,24 @@ import { PESTANAS, type Pestana } from "@/features/proyectos/pestanas";
  * Las pestañas por asunto de la ficha (decisión 23). El contenido de cada una llega ya pintado por el servidor
  * —la ficha es un solo `GET`—, así que cambiar de pestaña es instantáneo: no hay viaje por toque en el móvil.
  *
- * La URL guarda la pestaña (`?pestana=`) con `replace`, como los filtros de la lista: recargar, volver o
- * compartir el enlace abre la misma vista, y cambiar de pestaña no llena el historial del navegador.
+ * La URL guarda la pestaña (`?pestana=`), como los filtros de la lista: recargar, volver o compartir el enlace abre
+ * la misma vista, y cambiar de pestaña no llena el historial del navegador. Se escribe con `history.replaceState`,
+ * que Next sincroniza con `useSearchParams` **sin volver al servidor**: con `router.replace`, cada toque rehacía la
+ * ficha entera —hasta 4 llamadas a la API— para tirarla (SEC.5). El resto de la URL (`?version=`) se conserva.
+ *
+ * La activa sale de la URL, no de un estado: una acción que lleva a otra pestaña —recotizar desde Obra, B.3 y C.2—
+ * navega sin desmontar la ficha, y la URL manda (sin esto, en el recorrido de C.2 decía «cotización» y se veía Obra).
  */
 export function PestanasFicha({ inicial, paneles }: { inicial: Pestana; paneles: Record<Pestana, React.ReactNode> }) {
-  const router = useRouter();
   const ruta = usePathname();
-  const [activa, setActiva] = useState<Pestana>(inicial);
-  // Una acción que lleva a otra pestaña por la URL —recotizar desde Obra, B.3 y C.2— navega sin desmontar la
-  // ficha: sin esto la URL decía «cotización» y se seguía viendo Obra (recorrido de C.2). Patrón de React para
-  // ajustar el estado cuando cambia una prop, sin efecto
-  const [previa, setPrevia] = useState<Pestana>(inicial);
-  if (inicial !== previa) {
-    setPrevia(inicial);
-    setActiva(inicial);
-  }
+  const parametros = useSearchParams();
+  const pedida = PESTANAS.find((p) => p.id === parametros.get("pestana"))?.id;
+  const activa = pedida ?? inicial;
 
   function cambiar(valor: string) {
-    setActiva(valor as Pestana);
-    router.replace(`${ruta}?pestana=${valor}`, { scroll: false });
+    const siguientes = new URLSearchParams(parametros.toString());
+    siguientes.set("pestana", valor);
+    window.history.replaceState(null, "", `${ruta}?${siguientes.toString()}`);
   }
 
   return (

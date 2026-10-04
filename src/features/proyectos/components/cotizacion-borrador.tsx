@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,10 +62,10 @@ export function CotizacionBorrador({
 
   const agregar = puedeEditar ? (
     <Button asChild variant={cotizacion.items.length === 0 ? "brand" : "outline"} className="h-11 md:h-9">
-      <Link href={rutaDelCotizador(cotizacion.id)}>
+      <Enlace href={rutaDelCotizador(cotizacion.id)}>
         <Plus className="size-4" />
         Agregar ítem
-      </Link>
+      </Enlace>
     </Button>
   ) : null;
 

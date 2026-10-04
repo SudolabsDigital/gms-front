@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { EnlacePendiente } from "@/components/comunes/enlace-pendiente";
 import { cn } from "@/lib/utils";
 
 /**
@@ -53,7 +54,10 @@ export function PageHeader({
                 <BreadcrumbItem>
                   {miga.href ? (
                     <BreadcrumbLink asChild>
-                      <Link href={miga.href}>{miga.etiqueta}</Link>
+                      <Link href={miga.href} className="relative">
+                        {miga.etiqueta}
+                        <EnlacePendiente />
+                      </Link>
                     </BreadcrumbLink>
                   ) : (
                     <BreadcrumbPage>{miga.etiqueta}</BreadcrumbPage>

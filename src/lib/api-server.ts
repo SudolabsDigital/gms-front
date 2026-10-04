@@ -33,6 +33,17 @@ export async function apiPost<T>(ruta: string, cuerpo: unknown): Promise<T> {
   return pedirAlBackend<T>("POST", ruta, cuerpo);
 }
 
+/**
+ * Empieza una petición sin esperarla, para que corra mientras la página espera otra cosa —`auth/me`, casi siempre—:
+ * el `preload` que documenta Next (SEC.5, decisión 75). Quien la necesita la espera después. Si nadie llega a
+ * esperarla —sin permiso, o la sesión redirige—, su fallo queda atendido aquí y no tumba el proceso.
+ */
+export function adelantar<T>(peticion: Promise<T>): Promise<T> {
+  peticion.catch(() => undefined);
+
+  return peticion;
+}
+
 async function pedirAlBackend<T>(metodo: "GET" | "POST", ruta: string, cuerpo?: unknown): Promise<T> {
   const token = await leerToken();
 

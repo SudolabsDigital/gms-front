@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Enlace } from "@/components/comunes/enlace";
 import { FiltroConRecuento, type OpcionDeFiltro } from "@/components/comunes/filtro-con-recuento";
 import { CLASES } from "@/features/materiales/textos";
 import type { Clase } from "@/features/materiales/types";
@@ -41,7 +40,7 @@ export function FiltroClases({ filtro, recuento }: { filtro: FiltroInsumos; recu
       opciones={opciones}
       extremo={
         // Lo inactivo no es una clase: es otro estado, y se pide aparte (decisión 46)
-        <Link
+        <Enlace
           href={urlDeInsumos(filtro, { inactivos: !filtro.inactivos })}
           aria-pressed={filtro.inactivos}
           className={cn(
@@ -50,7 +49,7 @@ export function FiltroClases({ filtro, recuento }: { filtro: FiltroInsumos; recu
           )}
         >
           {filtro.inactivos ? "Viendo inactivos" : "Ver inactivos"}
-        </Link>
+        </Enlace>
       }
     />
   );

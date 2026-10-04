@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ChevronRight, TriangleAlert } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ETAPAS, ETAPAS_EN_CURSO } from "@/features/proyectos/textos";
 import type { AsuntoPendiente, Pendientes } from "@/features/proyectos/types";
@@ -86,9 +86,9 @@ function Asunto({ asunto }: { asunto: AsuntoPendiente }) {
         <ul className="divide-y">
           {asunto.proyectos.map((p) => (
             <li key={p.id}>
-              <Link
+              <Enlace
                 href={destino(asunto.clave, p)}
-                className="hover:bg-muted/50 -mx-2 flex min-h-11 items-center gap-3 rounded-md px-2 py-2"
+                className="hover:bg-muted/50 relative -mx-2 flex min-h-11 items-center gap-3 overflow-hidden rounded-md px-2 py-2"
               >
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
@@ -100,14 +100,14 @@ function Asunto({ asunto }: { asunto: AsuntoPendiente }) {
                   </span>
                 </span>
                 <ChevronRight aria-hidden className="text-muted-foreground size-4 shrink-0" />
-              </Link>
+              </Enlace>
             </li>
           ))}
         </ul>
         {asunto.recuento > asunto.proyectos.length ? (
-          <Link href={todos} className="text-primary mt-1 flex min-h-11 items-center text-sm font-medium md:min-h-8">
+          <Enlace href={todos} className="text-primary relative mt-1 flex min-h-11 items-center text-sm font-medium md:min-h-8">
             Ver los {numero(asunto.recuento, 0)}
-          </Link>
+          </Enlace>
         ) : null}
       </CardContent>
     </Card>
@@ -128,9 +128,9 @@ function AlDia({ enCurso }: { enCurso: Pendientes["en_curso"] }) {
             {etapas.map((e, i) => (
               <span key={e}>
                 {i > 0 ? " · " : ""}
-                <Link href={`/proyectos?etapa=${e}`} className="text-foreground underline-offset-4 hover:underline">
+                <Enlace href={`/proyectos?etapa=${e}`} className="text-foreground underline-offset-4 hover:underline">
                   {numero(enCurso[e] ?? 0, 0)} {ETAPAS[e].toLowerCase()}
-                </Link>
+                </Enlace>
               </span>
             ))}
           </p>

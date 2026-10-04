@@ -6,7 +6,7 @@ import { RUTA_INICIO } from "@/components/erp/navegacion";
 import { EditarFamilia } from "@/features/materiales/components/editar-familia";
 import type { Material } from "@/features/materiales/types";
 import type { Meta } from "@/features/proyectos/types";
-import { apiGet } from "@/lib/api-server";
+import { adelantar, apiGet } from "@/lib/api-server";
 import { plural } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -17,10 +17,11 @@ export const metadata: Metadata = {
 
 /** Las familias de material (MAE.6, `materiales/52-brief-materiales` § 11): cinco filas, alta y edición en hoja */
 export default async function FamiliasPage() {
+  const peticion = adelantar(apiGet<{ datos: Material[]; meta: Meta }>("/materiales?por_pagina=100"));
   const usuario = await exigirUsuario();
   if (!puede(usuario, "catalogo:ver")) return <SinAcceso que="materiales" />;
 
-  const familias = await apiGet<{ datos: Material[]; meta: Meta }>("/materiales?por_pagina=100");
+  const familias = await peticion;
   const gestiona = puede(usuario, "catalogo:gestionar");
 
   return (

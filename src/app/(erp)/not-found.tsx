@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Compass } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
+import { Enlace } from "@/components/comunes/enlace";
 import { Button } from "@/components/ui/button";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
 
@@ -14,7 +14,7 @@ export default function NotFound() {
         descripcion="Puede que la sección todavía no esté construida o que el enlace haya cambiado."
         accion={
           <Button asChild variant="brand">
-            <Link href={RUTA_INICIO}>Volver al inicio</Link>
+            <Enlace href={RUTA_INICIO}>Volver al inicio</Enlace>
           </Button>
         }
       />

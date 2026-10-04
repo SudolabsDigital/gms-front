@@ -11,7 +11,7 @@ import { FiltroEtapas, type FiltroLista, urlDeLista } from "@/features/proyectos
 import { ListaProyectos } from "@/features/proyectos/components/lista-proyectos";
 import { ETAPAS } from "@/features/proyectos/textos";
 import type { Etapa, ListaProyectos as Lista } from "@/features/proyectos/types";
-import { apiGet } from "@/lib/api-server";
+import { adelantar, apiGet } from "@/lib/api-server";
 import { moneda, plural } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -41,13 +41,15 @@ function leerFiltro(crudo: Awaited<Parametros>): FiltroLista & { pagina: number 
  * pueden compartir, recargar y volver atrás sin perderlos, como en `/obras`.
  */
 export default async function ProyectosPage({ searchParams }: { searchParams: Parametros }) {
+  const filtro = leerFiltro(await searchParams);
+  const consulta = urlDeLista(filtro).replace(/^\/proyectos\??/, "");
+  const peticion = adelantar(apiGet<Lista>(`/proyectos?${consulta}${consulta ? "&" : ""}pagina=${filtro.pagina}`));
+
   const usuario = await exigirUsuario();
 
   if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="proyectos" />;
 
-  const filtro = leerFiltro(await searchParams);
-  const consulta = urlDeLista(filtro).replace(/^\/proyectos\??/, "");
-  const lista = await apiGet<Lista>(`/proyectos?${consulta}${consulta ? "&" : ""}pagina=${filtro.pagina}`);
+  const lista = await peticion;
   const puedeCrear = puede(usuario, "proyectos:crear");
   const hayAlgunProyecto = Object.values(lista.meta.recuento_por_etapa).some((n) => n > 0);
 

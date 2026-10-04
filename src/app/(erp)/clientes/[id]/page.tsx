@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageCircle, Phone } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
@@ -13,7 +13,7 @@ import { enlaceParaEscribirA } from "@/config/site-config";
 import { EditarCliente } from "@/features/clientes/components/editar-cliente";
 import { documentoLegible, type ClienteFicha } from "@/features/clientes/types";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
-import { ApiError, apiGet } from "@/lib/api-server";
+import { adelantar, ApiError, apiGet } from "@/lib/api-server";
 import { moneda, plural } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
@@ -27,13 +27,15 @@ export const metadata: Metadata = {
  * se nombra en un solo sitio —«Falta: DNI o RUC»— porque es lo que las cotizaciones necesitan y nadie completa.
  */
 export default async function FichaClientePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const peticion = adelantar(apiGet<ClienteFicha>(`/clientes/${encodeURIComponent(id)}`));
+
   const usuario = await exigirUsuario();
   if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="clientes" />;
 
-  const { id } = await params;
   let cliente: ClienteFicha;
   try {
-    cliente = await apiGet<ClienteFicha>(`/clientes/${encodeURIComponent(id)}`);
+    cliente = await peticion;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;
@@ -129,7 +131,7 @@ export default async function FichaClientePage({ params }: { params: Promise<{ i
           <ul className="divide-y">
             {cliente.proyectos.map((p) => (
               <li key={p.id}>
-                <Link href={`/proyectos/${p.id}`} className="hover:bg-muted/40 active:bg-muted/60 flex min-h-11 flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:gap-3">
+                <Enlace href={`/proyectos/${p.id}`} className="hover:bg-muted/40 active:bg-muted/60 flex min-h-11 flex-col gap-1 px-4 py-3 md:flex-row md:items-center md:gap-3">
                   <span className="text-muted-foreground font-mono text-xs md:w-28 md:shrink-0">{p.codigo}</span>
                   <span className="min-w-0 flex-1 font-medium break-words">{p.nombre}</span>
                   <span className="flex items-center justify-between gap-3 md:justify-end">
@@ -141,7 +143,7 @@ export default async function FichaClientePage({ params }: { params: Promise<{ i
                       </span>
                     ) : null}
                   </span>
-                </Link>
+                </Enlace>
               </li>
             ))}
           </ul>

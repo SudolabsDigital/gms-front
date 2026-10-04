@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { BarraFijaMovil } from "@/components/comunes/barra-fija-movil";
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,7 @@ export function AccionesEtapa({
   const reimprimirCorte =
     conCorte && !imprimirCorte ? (
       <Button asChild variant="outline" className="h-11 md:h-9">
-        <Link href={hojaDeCorte}>Lista de corte</Link>
+        <Enlace href={hojaDeCorte}>Lista de corte</Enlace>
       </Button>
     ) : null;
   const secundarias = posibles.filter((e) => e !== principalDirecta);
@@ -208,9 +208,9 @@ export function AccionesEtapa({
     <RecotizarConMedidas proyectoId={proyecto.id} items={recotizarConObra.items} className="h-11 w-full md:h-9" />
   ) : confirmarMedicion ? (
     <Button asChild variant="brand" className="h-11 w-full md:h-9">
-      <Link href={`/proyectos/${proyecto.id}?pestana=obra#medir`}>
+      <Enlace href={`/proyectos/${proyecto.id}?pestana=obra#medir`}>
         {proyecto.medicion ? "Volver a medir" : "Confirmar medición"}
-      </Link>
+      </Enlace>
     </Button>
   ) : aprobar ? (
     <AprobarCotizacion vigente={aprobar} />
@@ -220,7 +220,7 @@ export function AccionesEtapa({
     <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
   ) : imprimirCorte ? (
     <Button asChild variant="brand" className="h-11 w-full md:h-9">
-      <Link href={hojaDeCorte}>Imprimir lista de corte</Link>
+      <Enlace href={hojaDeCorte}>Imprimir lista de corte</Enlace>
     </Button>
   ) : principalDirecta ? (
     <Button variant="brand" className="h-11 w-full md:h-9" onClick={() => abrir(principalDirecta)}>

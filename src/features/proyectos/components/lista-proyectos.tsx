@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { TablaDeRegistros, TarjetasDeRegistros, type Columna } from "@/components/comunes/lista-de-registros";
 import { Button } from "@/components/ui/button";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
@@ -160,12 +160,12 @@ export function ListaProyectos({
           <div className="flex gap-2">
             {meta.pagina > 1 ? (
               <Button asChild variant="outline" size="sm">
-                <Link href={hrefPagina(meta.pagina - 1)}>Anterior</Link>
+                <Enlace href={hrefPagina(meta.pagina - 1)}>Anterior</Enlace>
               </Button>
             ) : null}
             {meta.pagina < meta.ultima_pagina ? (
               <Button asChild variant="outline" size="sm">
-                <Link href={hrefPagina(meta.pagina + 1)}>Siguiente</Link>
+                <Enlace href={hrefPagina(meta.pagina + 1)}>Siguiente</Enlace>
               </Button>
             ) : null}
           </div>

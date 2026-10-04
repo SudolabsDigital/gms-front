@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Buscador } from "@/components/comunes/buscador";
+import { Enlace } from "@/components/comunes/enlace";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ListaClientes } from "@/features/clientes/components/lista-clientes";
 import type { ListaClientesConRecuento } from "@/features/clientes/types";
 import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
-import { apiGet } from "@/lib/api-server";
+import { adelantar, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -27,15 +27,17 @@ const POR_PAGINA = 50;
  * encuentra como se escriba (decisión 51). Sin «Nuevo cliente»: nacen con su proyecto (decisión 50).
  */
 export default async function ClientesPage({ searchParams }: { searchParams: Parametros }) {
-  const usuario = await exigirUsuario();
-  if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="clientes" />;
-
   const crudo = await searchParams;
   const buscar = typeof crudo.buscar === "string" ? crudo.buscar.trim().slice(0, 100) : "";
   const pagina = Math.max(1, Number.parseInt(typeof crudo.pagina === "string" ? crudo.pagina : "", 10) || 1);
 
   const consulta = buscar ? `buscar=${encodeURIComponent(buscar)}&` : "";
-  const lista = await apiGet<ListaClientesConRecuento>(`/clientes?${consulta}pagina=${pagina}&por_pagina=${POR_PAGINA}`);
+  const peticion = adelantar(apiGet<ListaClientesConRecuento>(`/clientes?${consulta}pagina=${pagina}&por_pagina=${POR_PAGINA}`));
+
+  const usuario = await exigirUsuario();
+  if (!puede(usuario, "proyectos:ver")) return <SinAcceso que="clientes" />;
+
+  const lista = await peticion;
   const { meta } = lista;
   const hrefPagina = (n: number) => `/clientes?${consulta}pagina=${n}`;
 
@@ -76,12 +78,12 @@ export default async function ClientesPage({ searchParams }: { searchParams: Par
           <div className="flex gap-2">
             {meta.pagina > 1 ? (
               <Button asChild variant="outline" className="h-11 md:h-8">
-                <Link href={hrefPagina(meta.pagina - 1)}>Anterior</Link>
+                <Enlace href={hrefPagina(meta.pagina - 1)}>Anterior</Enlace>
               </Button>
             ) : null}
             {meta.pagina < meta.ultima_pagina ? (
               <Button asChild variant="outline" className="h-11 md:h-8">
-                <Link href={hrefPagina(meta.pagina + 1)}>Siguiente</Link>
+                <Enlace href={hrefPagina(meta.pagina + 1)}>Siguiente</Enlace>
               </Button>
             ) : null}
           </div>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { ArrowLeft, Info, LayoutTemplate } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
+import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import {
@@ -223,10 +223,10 @@ function CabeceraDestino({ destino }: { destino: DestinoDeCotizacion }) {
         <span className="font-medium break-words">{destino.nombre}</span>
       </p>
       <Button asChild variant="outline" size="sm" className="h-11 shrink-0 md:h-8">
-        <Link href={`/proyectos/${destino.proyectoId}?pestana=cotizacion`}>
+        <Enlace href={`/proyectos/${destino.proyectoId}?pestana=cotizacion`}>
           <ArrowLeft className="size-4" />
           Volver al proyecto ({destino.items} {destino.items === 1 ? "ítem" : "ítems"})
-        </Link>
+        </Enlace>
       </Button>
     </div>
   );

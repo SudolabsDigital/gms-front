@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+import { Enlace } from "@/components/comunes/enlace";
 import { PageHeader } from "@/components/comunes/page-header";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { RUTA_INICIO } from "@/components/erp/navegacion";
@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BotonImprimir } from "@/features/proyectos/components/boton-imprimir";
 import { HojaDeCorte } from "@/features/proyectos/components/hoja-de-corte";
 import type { ListaDeCorte } from "@/features/proyectos/types";
-import { ApiError, apiGet } from "@/lib/api-server";
+import { adelantar, ApiError, apiGet } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -32,17 +32,19 @@ function mensajeDelServidor(datos: unknown): string | null {
  * que ofrece reintentar.
  */
 export default async function ListaDeCortePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const ficha = `/proyectos/${encodeURIComponent(id)}`;
+  const peticion = adelantar(apiGet<ListaDeCorte>(`${ficha}/despiece`));
+
   const usuario = await exigirUsuario();
 
   if (!puede(usuario, "despiece:ver")) return <SinAcceso que="la lista de corte" />;
 
-  const { id } = await params;
-  const ficha = `/proyectos/${encodeURIComponent(id)}`;
   let lista: ListaDeCorte | null = null;
   let fueraDeEtapa: string | null = null;
 
   try {
-    lista = await apiGet<ListaDeCorte>(`${ficha}/despiece`);
+    lista = await peticion;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
     if (!(error instanceof ApiError && error.status === 422)) throw error;
@@ -51,10 +53,10 @@ export default async function ListaDeCortePage({ params }: { params: Promise<{ i
 
   const volver = (
     <Button asChild variant="outline" className="h-11 md:h-9">
-      <Link href={ficha}>
+      <Enlace href={ficha}>
         <ArrowLeft className="size-4" />
         Volver a la ficha
-      </Link>
+      </Enlace>
     </Button>
   );
 
