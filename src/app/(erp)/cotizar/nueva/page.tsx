@@ -27,6 +27,9 @@ type Parametros = Promise<{ [clave: string]: string | string[] | undefined }>;
  *
  * Con `?cotizacion=<id>` cotiza **para un proyecto** (tajada B.1): la cabecera dice para cuál y, tras
  * calcular, aparece «Agregar al proyecto». Sin él, es el cálculo en seco de siempre.
+ *
+ * Con `?tipo=<id>` abre en ese tipo: es lo que manda «Cotizar» desde Plantillas, y hasta la sesión 32 se ignoraba
+ * (abría siempre el primero).
  */
 export default async function NuevaCotizacionPage({ searchParams }: { searchParams: Parametros }) {
   // El layout se renderiza EN PARALELO con la página: no garantiza nada aquí. Cada página
@@ -34,7 +37,8 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
   const usuario = await exigirUsuario();
   const tipos = await apiGet<Tipo[]>("/tipos");
 
-  const crudo = (await searchParams).cotizacion;
+  const parametros = await searchParams;
+  const crudo = parametros.cotizacion;
   const cotizacionId = typeof crudo === "string" ? crudo : null;
   let destino: DestinoDeCotizacion | null = null;
 
@@ -74,13 +78,13 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
     };
   }
 
-  // Abre ya calculado: el primer tipo con sus medidas de referencia, las mismas que propone la barra (P1). Si el
-  // cálculo no sale, abre como antes, esperando «Calcular»
-  const primero = tipos[0];
-  const resultadoInicial = primero
-    ? await apiPost<Despiece>(`/tipos/${encodeURIComponent(primero.id)}/calcular`, {
-        ancho: primero.ancho_default ?? 300,
-        alto: primero.alto_default ?? 170,
+  // Abre ya calculado: el tipo pedido —o el primero— con sus medidas de referencia, las mismas que propone la barra
+  // (P1). Si el cálculo no sale, abre como antes, esperando «Calcular»
+  const inicial = tipos.find((tipo) => tipo.id === parametros.tipo) ?? tipos[0];
+  const resultadoInicial = inicial
+    ? await apiPost<Despiece>(`/tipos/${encodeURIComponent(inicial.id)}/calcular`, {
+        ancho: inicial.ancho_default ?? 300,
+        alto: inicial.alto_default ?? 170,
       }).catch(() => null)
     : null;
 
@@ -89,6 +93,7 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
       tipos={tipos}
       puedeVerDinero={puede(usuario, "costeo:ver")}
       destino={destino}
+      tipoInicialId={inicial?.id}
       resultadoInicial={resultadoInicial}
     />
   );

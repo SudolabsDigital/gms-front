@@ -30,19 +30,23 @@ export function CotizadorPanel({
   tipos,
   puedeVerDinero,
   destino: destinoInicial = null,
+  tipoInicialId,
   resultadoInicial = null,
 }: {
   tipos: Tipo[];
   puedeVerDinero: boolean;
   /** Con proyecto, tras calcular aparece «Agregar al proyecto» (tajada B.1). Sin él, cálculo en seco */
   destino?: DestinoDeCotizacion | null;
-  /** El primer tipo ya calculado con sus medidas de referencia: la pantalla abre con su plano (P1) */
+  /** El tipo con que abre (`?tipo=`, lo que manda «Cotizar» desde Plantillas); sin él, el primero */
+  tipoInicialId?: string;
+  /** El tipo inicial ya calculado con sus medidas de referencia: la pantalla abre con su plano (P1) */
   resultadoInicial?: Despiece | null;
 }) {
+  const inicial = tipos.find((tipo) => tipo.id === tipoInicialId) ?? tipos[0];
   const [destino, setDestino] = useState(destinoInicial);
-  const [tipoId, setTipoId] = useState<string>(tipos[0]?.id ?? "");
-  const [ancho, setAncho] = useState<string>(String(tipos[0]?.ancho_default ?? 300));
-  const [alto, setAlto] = useState<string>(String(tipos[0]?.alto_default ?? 170));
+  const [tipoId, setTipoId] = useState<string>(inicial?.id ?? "");
+  const [ancho, setAncho] = useState<string>(String(inicial?.ancho_default ?? 300));
+  const [alto, setAlto] = useState<string>(String(inicial?.alto_default ?? 170));
 
   const [resultado, setResultado] = useState<Despiece | null>(resultadoInicial);
   /** Las entradas del resultado a la vista: lo que «Agregar al proyecto» manda, aunque la barra ya diga otra cosa */
