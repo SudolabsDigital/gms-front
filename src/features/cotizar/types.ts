@@ -110,6 +110,8 @@ export type Advertencia = {
  *
  * Coordenadas en centímetros con origen en la esquina INFERIOR IZQUIERDA y la Y
  * creciendo hacia arriba, como un plano de taller. El SVG invierte la Y al pintar.
+ *
+ * `PiezaPlano` y `VidrioPlano` son de la v1 (las reglas); la v2 (la red) está más abajo.
  */
 export type PiezaPlano = {
   insumo: string;
@@ -148,13 +150,82 @@ export type CotaPlano = {
   principal: boolean;
 };
 
-export type Geometria = {
+/** El plano de las reglas (v1): lo guardan las cotizaciones de antes de DIS.2, y no se migra (`DIS-08`). */
+export type GeometriaV1 = {
   ejes_x: number[];
   ejes_y: number[];
   piezas: PiezaPlano[];
   vidrios: VidrioPlano[];
   cotas: CotaPlano[];
 };
+
+export type Coordenada = [number, number];
+
+/** Qué tan cierta es la POSICIÓN de una pieza (`DIS-05`): una hipótesis se dibuja y no se corta. */
+export type Posicion = "confirmada" | "deducida" | "hipotesis";
+
+/**
+ * Una pieza del plano de la red de puntos (`disenos/50-api` § 1). Lo que lleva depende de su forma, y el front
+ * no deduce nada: ni la certeza, ni el color, ni cuánto mide un tramo.
+ */
+export type PiezaPlanoV2 = {
+  /** Estable dentro de una respuesta: enlaza el plano con la lista */
+  id: string;
+  codigo: string;
+  insumo: string;
+  rol?: string | null;
+  forma: "camino" | "rectangulo" | "punto" | "alojada";
+  posicion: Posicion;
+  se_corta: boolean;
+  /** Piezas iguales una detrás de otra: se dibuja una vez y se rotula «×n» */
+  multiplicidad: number;
+  color: string;
+  color_acabado: string | null;
+  /** camino: cada tramo, una lista de puntos */
+  tramos?: Coordenada[][];
+  /** camino: la suma de `largos` */
+  largo?: number;
+  /** camino: lo que mide cada tramo, en su orden */
+  largos?: number[];
+  /** camino: cada tramo es una pieza, o se corta una medida con la suma (el anclaje) */
+  corte?: "por_tramo" | "junto";
+  /** rectángulo: dos esquinas opuestas */
+  esquinas?: Coordenada[];
+  ancho?: number;
+  alto?: number;
+  clase?: VidrioPlano["clase"];
+  /** punto: las anclas; su número es la cantidad */
+  anclas?: Coordenada[];
+  /** alojada: va dentro de las piezas de este insumo, por `factor` */
+  anfitrion?: string;
+  factor?: number;
+};
+
+/** Lo que se corta y la red todavía no ubica: nunca se omite (`DIS-04`). */
+export type SinSitio = {
+  insumo: string;
+  regla: string;
+  motivo: string;
+  color: string;
+};
+
+/** El plano de la red de puntos (v2, `PC-GMS-011`). */
+export type GeometriaV2 = {
+  version: 2;
+  version_diseno: number;
+  ejes_x: number[];
+  ejes_y: number[];
+  piezas: PiezaPlanoV2[];
+  sin_sitio: SinSitio[];
+  cotas: CotaPlano[];
+};
+
+/** El dibujo acepta las dos: v1 se pinta como siempre (`disenos/51-ui` P10). */
+export type Geometria = GeometriaV1 | GeometriaV2;
+
+export function esPlanoV2(geometria: Geometria): geometria is GeometriaV2 {
+  return "version" in geometria && geometria.version === 2;
+}
 
 export type Despiece = {
   tipo: { codigo: string; composicion: ("F" | "D")[]; version: number };

@@ -1,10 +1,14 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Crosshair } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LeyendaDeCerteza, PieDelPlano } from "@/features/cotizar/components/pie-del-plano";
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
-import type { Despiece, LineaDespiece } from "@/features/cotizar/types";
+import { leerInsumo, piezasUbicadas } from "@/features/cotizar/lectura-del-plano";
+import { esPlanoV2, type Despiece, type GeometriaV2, type LineaDespiece } from "@/features/cotizar/types";
 import {
   familiaDe,
   FAMILIAS,
@@ -26,17 +30,24 @@ import { cn } from "@/lib/utils";
  * una función de verificación que solo aparece con ratón no existe para media plantilla.
  * Además, así el aislamiento se queda fijo mientras se mira el plano o se compara con la
  * pieza real que se tiene en la mano.
+ *
+ * Con el plano de la red (v2) TODA pieza se elige y se ve —también tocándola en el plano—, la
+ * hipótesis del 3206 entra en la lista sin cortarse, y lo que no tiene sitio lo dice (`disenos/51-ui`).
  */
 export function PanelPerfiles({
   despiece,
   insumoResaltado,
   alResaltar,
+  velo = null,
 }: {
   despiece: Despiece;
   insumoResaltado: string | null;
   alResaltar: (codigo: string | null) => void;
+  /** Encima del plano si es de otras medidas (P8) */
+  velo?: ReactNode;
 }) {
-  const grupos = agrupar(despiece);
+  const plano = despiece.geometria && esPlanoV2(despiece.geometria) ? despiece.geometria : null;
+  const grupos = agrupar(despiece, plano);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
@@ -104,10 +115,27 @@ export function PanelPerfiles({
                             <span className="mt-0.5 block text-xs tabular-nums">
                               {pieza.cortes.join(" · ")}
                             </span>
+
+                            {/* Lo que no es seguro, o no tiene sitio, se marca en la lista y no solo en el plano */}
+                            {pieza.distintivos.length > 0 ? (
+                              <span className="mt-1 flex flex-wrap gap-1">
+                                {pieza.distintivos.map((d) => (
+                                  <Badge
+                                    key={d}
+                                    variant="outline"
+                                    className={cn("h-auto py-0 text-[11px]", d === "sin sitio" && "border-dashed")}
+                                  >
+                                    {d}
+                                  </Badge>
+                                ))}
+                              </span>
+                            ) : null}
                           </span>
 
                           <span className="text-muted-foreground shrink-0 pt-0.5 text-right text-xs tabular-nums">
-                            {pieza.totalCm > 0 ? (
+                            {!pieza.seCorta ? (
+                              <span className="block">no se corta</span>
+                            ) : pieza.totalCm > 0 ? (
                               <>
                                 <span className="block">total</span>
                                 <span className="text-foreground block font-medium">
@@ -135,15 +163,36 @@ export function PanelPerfiles({
         </div>
       </div>
 
-      {despiece.geometria ? (
+      {plano ? (
+        // En el móvil el plano va ARRIBA y se queda fijo bajo la barra de navegación, y la lista corre debajo:
+        // elegir no obliga a desplazarse (P5; antes el plano quedaba 1.174 px por debajo de la pieza pulsada)
+        <div className="bg-background sticky top-14 z-[11] order-first -mx-4 border-b px-4 pt-1 pb-2 lg:top-24 lg:z-auto lg:order-none lg:mx-0 lg:self-start lg:border-0 lg:p-0">
+          <div className="relative">
+            <VentanaSVG
+              geometria={plano}
+              ancho={despiece.metricas.ancho}
+              alto={despiece.metricas.alto}
+              insumoResaltado={insumoResaltado}
+              alElegir={alResaltar}
+              className="mx-auto h-auto max-h-[34svh] w-full lg:max-h-none"
+            />
+            {velo}
+          </div>
+          <LeyendaDeCerteza plano={plano} className="mt-1 justify-center" />
+          <PieDelPlano plano={plano} despiece={despiece} insumo={insumoResaltado} className="mt-1.5 text-center" />
+        </div>
+      ) : despiece.geometria ? (
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <VentanaSVG
-            geometria={despiece.geometria}
-            ancho={despiece.metricas.ancho}
-            alto={despiece.metricas.alto}
-            insumoResaltado={insumoResaltado}
-            className="h-auto w-full"
-          />
+          <div className="relative">
+            <VentanaSVG
+              geometria={despiece.geometria}
+              ancho={despiece.metricas.ancho}
+              alto={despiece.metricas.alto}
+              insumoResaltado={insumoResaltado}
+              className="h-auto w-full"
+            />
+            {velo}
+          </div>
 
           <p className="text-muted-foreground mt-2 text-center text-xs">
             {insumoResaltado
@@ -170,6 +219,10 @@ type PiezaAgrupada = {
   totalCm: number;
   /** «4 × 140 cm», «2 × 60 × 30 cm»: cómo se corta realmente. */
   cortes: string[];
+  /** Lo que el plano dice de su posición: «deducida», «hipótesis · no se corta», «sin sitio» */
+  distintivos: string[];
+  /** La hipótesis del 3206 se dibuja y no se corta: está en la lista sin total */
+  seCorta: boolean;
 };
 
 /**
@@ -180,8 +233,11 @@ type PiezaAgrupada = {
  * enciende el 8115 entero. Que la lista tuviera dos filas que hacen exactamente lo mismo
  * al pulsarlas sería desconcertante, así que se juntan y se enumeran sus roles y sus
  * medidas de corte, que es lo que de verdad distingue una línea de otra.
+ *
+ * Con el plano de la red, cada fila lleva lo que el plano sabe de su posición, y lo que se
+ * DIBUJA sin cortarse —la hipótesis del 3206— entra también, al final de su familia (P6).
  */
-function agrupar(despiece: Despiece): Record<Familia, PiezaAgrupada[]> {
+function agrupar(despiece: Despiece, plano: GeometriaV2 | null): Record<Familia, PiezaAgrupada[]> {
   const grupos = {} as Record<Familia, PiezaAgrupada[]>;
   const porCodigo = new Map<string, { familia: Familia; pieza: PiezaAgrupada }>();
 
@@ -214,8 +270,34 @@ function agrupar(despiece: Despiece): Record<Familia, PiezaAgrupada[]> {
         cantidad: linea.cantidad,
         totalCm: linea.total_cm ?? 0,
         cortes: [corte],
+        distintivos: plano ? distintivosDe(plano, linea.insumo) : [],
+        seCorta: true,
       },
     });
+  }
+
+  // Lo que el plano dibuja y no se corta no tiene línea en el despiece (`DIS-I08`): se lista igual
+  if (plano) {
+    for (const pieza of plano.piezas) {
+      if (pieza.se_corta || porCodigo.has(pieza.insumo)) continue;
+
+      const lectura = leerInsumo(piezasUbicadas(plano, pieza.insumo));
+
+      porCodigo.set(pieza.insumo, {
+        familia: familiaDe(pieza.rol, null),
+        pieza: {
+          codigo: pieza.insumo,
+          nombre: pieza.rol ?? pieza.insumo,
+          color: pieza.color,
+          roles: [],
+          cantidad: lectura.piezas,
+          totalCm: 0,
+          cortes: lectura.medidas,
+          distintivos: distintivosDe(plano, pieza.insumo),
+          seCorta: false,
+        },
+      });
+    }
   }
 
   for (const { familia, pieza } of porCodigo.values()) {
@@ -223,6 +305,18 @@ function agrupar(despiece: Despiece): Record<Familia, PiezaAgrupada[]> {
   }
 
   return grupos;
+}
+
+/** Lo que el plano sabe de la posición de un insumo, dicho en la lista (`DIS-04`, `DIS-05`) */
+function distintivosDe(plano: GeometriaV2, insumo: string): string[] {
+  if (plano.sin_sitio.some((s) => s.insumo === insumo)) return ["sin sitio"];
+
+  const { posiciones } = leerInsumo(piezasUbicadas(plano, insumo));
+
+  if (posiciones.includes("hipotesis")) return ["hipótesis · no se corta"];
+  if (posiciones.includes("deducida")) return ["deducida"];
+
+  return [];
 }
 
 /** Cómo se corta una línea, en el lenguaje del taller: «4 × 140 cm». */

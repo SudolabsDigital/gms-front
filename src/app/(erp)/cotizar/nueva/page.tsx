@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { DestinoDeCotizacion } from "@/features/cotizar/components/agregar-al-proyecto";
 import { CotizadorPanel } from "@/features/cotizar/components/cotizador-panel";
-import type { Tipo } from "@/features/cotizar/types";
+import type { Despiece, Tipo } from "@/features/cotizar/types";
 import type { Cotizacion, ProyectoFicha } from "@/features/proyectos/types";
-import { ApiError, apiGet } from "@/lib/api-server";
+import { ApiError, apiGet, apiPost } from "@/lib/api-server";
 import { puede } from "@/lib/permisos";
 import { exigirUsuario } from "@/lib/session";
 
@@ -74,11 +74,22 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
     };
   }
 
+  // Abre ya calculado: el primer tipo con sus medidas de referencia, las mismas que propone la barra (P1). Si el
+  // cálculo no sale, abre como antes, esperando «Calcular»
+  const primero = tipos[0];
+  const resultadoInicial = primero
+    ? await apiPost<Despiece>(`/tipos/${encodeURIComponent(primero.id)}/calcular`, {
+        ancho: primero.ancho_default ?? 300,
+        alto: primero.alto_default ?? 170,
+      }).catch(() => null)
+    : null;
+
   return (
     <CotizadorPanel
       tipos={tipos}
       puedeVerDinero={puede(usuario, "costeo:ver")}
       destino={destino}
+      resultadoInicial={resultadoInicial}
     />
   );
 }

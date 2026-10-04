@@ -30,20 +30,25 @@ export function CotizadorPanel({
   tipos,
   puedeVerDinero,
   destino: destinoInicial = null,
+  resultadoInicial = null,
 }: {
   tipos: Tipo[];
   puedeVerDinero: boolean;
   /** Con proyecto, tras calcular aparece «Agregar al proyecto» (tajada B.1). Sin él, cálculo en seco */
   destino?: DestinoDeCotizacion | null;
+  /** El primer tipo ya calculado con sus medidas de referencia: la pantalla abre con su plano (P1) */
+  resultadoInicial?: Despiece | null;
 }) {
   const [destino, setDestino] = useState(destinoInicial);
   const [tipoId, setTipoId] = useState<string>(tipos[0]?.id ?? "");
   const [ancho, setAncho] = useState<string>(String(tipos[0]?.ancho_default ?? 300));
   const [alto, setAlto] = useState<string>(String(tipos[0]?.alto_default ?? 170));
 
-  const [resultado, setResultado] = useState<Despiece | null>(null);
+  const [resultado, setResultado] = useState<Despiece | null>(resultadoInicial);
   /** Las entradas del resultado a la vista: lo que «Agregar al proyecto» manda, aunque la barra ya diga otra cosa */
-  const [calculado, setCalculado] = useState<{ tipoId: string; ancho: string; alto: string } | null>(null);
+  const [calculado, setCalculado] = useState<{ tipoId: string; ancho: string; alto: string } | null>(
+    resultadoInicial ? { tipoId, ancho, alto } : null,
+  );
   const [errores, setErrores] = useState<ErrorApi | null>(null);
   const [calculando, iniciarCalculo] = useTransition();
 
@@ -112,6 +117,10 @@ export function CotizadorPanel({
   const advertencias = resultado?.advertencias ?? [];
   const graves = advertencias.filter((a) => a.nivel === "warn");
   const notas = advertencias.filter((a) => a.nivel !== "warn");
+
+  // Lo escrito ya no es lo calculado: el plano a la vista es de otras medidas y se vela (P8, `G-40`)
+  const desfasado =
+    calculado !== null && (Number(calculado.ancho) !== Number(ancho) || Number(calculado.alto) !== Number(alto) || ancho === "" || alto === "");
 
   return (
     // Con destino, la barra fija de «Agregar al proyecto» ocupa el pie en el móvil: el último bloque no debe quedar debajo
@@ -184,6 +193,7 @@ export function CotizadorPanel({
           puedeVerDinero={puedeVerDinero}
           insumoResaltado={insumoResaltado}
           alResaltar={setInsumoResaltado}
+          medidasDelPlano={desfasado && calculado ? { ancho: calculado.ancho, alto: calculado.alto } : null}
         />
       ) : errores ? null : (
         <p className="text-muted-foreground flex flex-1 items-center justify-center gap-2 py-16 text-sm">

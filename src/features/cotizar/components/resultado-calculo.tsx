@@ -25,8 +25,9 @@ import { FilaMonto } from "@/components/comunes/fila-monto";
 import { StatTile } from "@/components/comunes/stat-tile";
 import { TerminoTecnico } from "@/components/comunes/termino-tecnico";
 import { PanelPerfiles } from "@/features/cotizar/components/panel-perfiles";
+import { LeyendaDeCerteza, PieDelPlano, VeloDeOtrasMedidas } from "@/features/cotizar/components/pie-del-plano";
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
-import type { Despiece } from "@/features/cotizar/types";
+import { esPlanoV2, type Despiece } from "@/features/cotizar/types";
 import { medida, moneda, numero, porcentaje } from "@/lib/formato";
 
 /**
@@ -46,14 +47,19 @@ export function ResultadoCalculo({
   puedeVerDinero,
   insumoResaltado,
   alResaltar,
+  medidasDelPlano = null,
 }: {
   despiece: Despiece;
   puedeVerDinero: boolean;
   insumoResaltado: string | null;
   alResaltar: (codigo: string | null) => void;
+  /** Si lo escrito ya no es lo calculado: las medidas con que se calculó lo que se ve (P8) */
+  medidasDelPlano?: { ancho: string; alto: string } | null;
 }) {
   const { metricas, costeo } = despiece;
   const conCosteo = puedeVerDinero && costeo;
+  const plano = despiece.geometria && esPlanoV2(despiece.geometria) ? despiece.geometria : null;
+  const velo = medidasDelPlano ? <VeloDeOtrasMedidas ancho={medidasDelPlano.ancho} alto={medidasDelPlano.alto} /> : null;
 
   return (
     <Tabs defaultValue="modelo" className="flex min-h-0 flex-1 flex-col gap-4">
@@ -77,14 +83,34 @@ export function ResultadoCalculo({
 
       {/* ── Modelo ─────────────────────────────────────────────────────────── */}
       <TabsContent value="modelo" className="flex min-h-0 flex-1 flex-col">
-        {despiece.geometria ? (
+        {plano ? (
+          // El plano grande también se elige tocándolo, con la selección que comparte con «Perfiles» (decisión 61)
           <>
-            <VentanaSVG
-              geometria={despiece.geometria}
-              ancho={metricas.ancho}
-              alto={metricas.alto}
-              className="mx-auto h-auto max-h-[68svh] w-full max-w-4xl"
-            />
+            <div className="relative">
+              <VentanaSVG
+                geometria={plano}
+                ancho={metricas.ancho}
+                alto={metricas.alto}
+                insumoResaltado={insumoResaltado}
+                alElegir={alResaltar}
+                className="mx-auto h-auto max-h-[68svh] w-full max-w-4xl"
+              />
+              {velo}
+            </div>
+            <LeyendaDeCerteza plano={plano} className="mt-2 justify-center" />
+            <PieDelPlano plano={plano} despiece={despiece} insumo={insumoResaltado} className="mx-auto mt-2 max-w-2xl text-center" />
+          </>
+        ) : despiece.geometria ? (
+          <>
+            <div className="relative">
+              <VentanaSVG
+                geometria={despiece.geometria}
+                ancho={metricas.ancho}
+                alto={metricas.alto}
+                className="mx-auto h-auto max-h-[68svh] w-full max-w-4xl"
+              />
+              {velo}
+            </div>
             <p className="text-muted-foreground mt-3 text-center text-xs">
               El plano lo calcula el motor en la misma pasada que el despiece: lo que se
               dibuja es exactamente lo que se corta.
@@ -152,6 +178,7 @@ export function ResultadoCalculo({
           despiece={despiece}
           insumoResaltado={insumoResaltado}
           alResaltar={alResaltar}
+          velo={velo}
         />
       </TabsContent>
 
