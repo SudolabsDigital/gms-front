@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
-import { Enlace } from "@/components/comunes/enlace";
 import { TablaDeRegistros, TarjetasDeRegistros, type Columna } from "@/components/comunes/lista-de-registros";
 import { Button } from "@/components/ui/button";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
@@ -60,8 +59,6 @@ export function ListaProyectos({
   // En «Por cobrar» la cifra que importa es lo que falta, no el total de la cotización (V12)
   const conSaldo = inicial.datos.some((fila) => "saldo" in fila);
   const cifra = (fila: ProyectoFila) => (conSaldo ? fila.saldo : fila.total_vigente);
-  // Una función no cruza del servidor al cliente: la URL de cada página se arma aquí
-  const hrefPagina = (n: number) => `/proyectos?${consulta}${consulta ? "&" : ""}pagina=${n}`;
   // Directo a la sección de su etapa: sin el viaje de más de la redirección de `/proyectos/{id}` (SEC.9b)
   const enlace = (fila: ProyectoFila) => rutaDeObra(fila.id, fila.etapa);
 
@@ -152,27 +149,10 @@ export function ListaProyectos({
         enlace={enlace}
         principal="nombre"
         columnas={columnas}
+        // El marco —el buscador arriba, el total y las páginas abajo— lo pone `TablaDeDatos` en la página (SEC.9c)
+        incrustada
       />
 
-      {meta.ultima_pagina > 1 ? (
-        <nav aria-label="Páginas" className="text-muted-foreground hidden items-center justify-between text-sm md:flex">
-          <span>
-            Página {meta.pagina} de {meta.ultima_pagina} · {meta.total} proyectos
-          </span>
-          <div className="flex gap-2">
-            {meta.pagina > 1 ? (
-              <Button asChild variant="outline" size="sm">
-                <Enlace href={hrefPagina(meta.pagina - 1)}>Anterior</Enlace>
-              </Button>
-            ) : null}
-            {meta.pagina < meta.ultima_pagina ? (
-              <Button asChild variant="outline" size="sm">
-                <Enlace href={hrefPagina(meta.pagina + 1)}>Siguiente</Enlace>
-              </Button>
-            ) : null}
-          </div>
-        </nav>
-      ) : null}
     </>
   );
 }

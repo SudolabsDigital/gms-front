@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { PestanasDeSubruta } from "@/components/comunes/pestanas-de-subruta";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
 import { EditarFamilia } from "@/features/materiales/components/editar-familia";
+import { subrutasDeMateriales } from "@/features/materiales/subrutas";
 import type { Material } from "@/features/materiales/types";
 import type { Meta } from "@/features/proyectos/types";
 import { adelantar, apiGet } from "@/lib/api-server";
@@ -36,11 +38,11 @@ export default async function FamiliasPage() {
     <MarcoDeTrabajo barra={barra}>
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
         <CabeceraDeSeccion
-          volver={{ href: "/materiales", etiqueta: "Materiales" }}
           titulo="Familias de material"
           descripcion="Aluminio, vidrio, acero…: agrupan los insumos para saber cuánto se consume de cada uno."
           acciones={gestiona ? <EditarFamilia /> : null}
         />
+        <PestanasDeSubruta etiqueta="Apartados de materiales" opciones={subrutasDeMateriales(usuario)} />
 
         <ul className="bg-card divide-y rounded-md border shadow-sm">
           {familias.datos.map((f) => (

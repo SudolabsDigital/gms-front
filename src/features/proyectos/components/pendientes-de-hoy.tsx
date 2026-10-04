@@ -1,11 +1,13 @@
 import { ChevronRight, TriangleAlert } from "lucide-react";
 
 import { Enlace } from "@/components/comunes/enlace";
+import { PestanasConCifra } from "@/components/comunes/pestanas-con-cifra";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { rutaDeSeccion, type Seccion } from "@/features/proyectos/pestanas";
 import { ETAPAS, ETAPAS_EN_CURSO } from "@/features/proyectos/textos";
 import type { AsuntoPendiente, Pendientes } from "@/features/proyectos/types";
 import { diaDe, diaLegible, haceDias, moneda, numero } from "@/lib/formato";
+import { cn } from "@/lib/utils";
 
 /*
  * Inicio, «qué hacer hoy» (`proyectos/54-brief-inicio`, decisión 43). Los asuntos llegan del servidor ya ordenados
@@ -17,43 +19,57 @@ type Proyecto = AsuntoPendiente["proyectos"][number];
 
 const ASUNTOS: Record<
   AsuntoPendiente["clave"],
-  { titulo: string; seccion: Seccion | "corte"; detalle: (p: Proyecto) => string; todos: string }
+  { titulo: string; corto: string; seccion: Seccion | "corte"; detalle: (p: Proyecto) => string; todos: string }
 > = {
   vencidas: {
+    corto: "Vencidas",
     titulo: "Cotizaciones vencidas",
     seccion: "cotizacion",
     detalle: (p) => `venció el ${vence(p)} · recotizar`,
     todos: "/proyectos?etapa=cotizado",
   },
   por_vencer: {
+    corto: "Por vencer",
     titulo: "Cotizaciones por vencer",
     seccion: "cotizacion",
     detalle: (p) => `vence el ${vence(p)}`,
     todos: "/proyectos?etapa=cotizado",
   },
   leads: {
+    corto: "Leads sin cotizar",
     titulo: "Leads sin cotizar",
     seccion: "resumen",
     detalle: (p) => `llegó ${haceDias(p.etapa_desde)}`,
     todos: "/proyectos?etapa=lead",
   },
   sin_medir: {
+    corto: "Sin medir",
     titulo: "Aprobados sin medir",
     seccion: "obra",
     detalle: (p) => `aprobado ${haceDias(p.etapa_desde)}`,
     todos: "/proyectos?etapa=aprobado",
   },
   produccion: {
+    corto: "Corte por imprimir",
     titulo: "Listas de corte por imprimir",
     seccion: "corte",
     detalle: (p) => `en producción ${haceDias(p.etapa_desde)}`,
     todos: "/proyectos?etapa=produccion",
   },
   por_cobrar: {
+    corto: "Por cobrar",
     titulo: "Por cobrar",
     seccion: "cobros",
     detalle: (p) => (p.saldo !== undefined ? `debe ${moneda(p.saldo)}` : `entregado ${haceDias(p.etapa_desde)}`),
     todos: "/proyectos?vista=por_cobrar",
+  },
+  // SEC.9c: lo cotizado que ni venció ni vence pronto; antes no salía en Inicio y se quedaba sin seguimiento
+  esperando: {
+    corto: "Esperando respuesta",
+    titulo: "Cotizadas esperando respuesta",
+    seccion: "cotizacion",
+    detalle: (p) => `vence el ${vence(p)}`,
+    todos: "/proyectos?etapa=cotizado",
   },
 };
 
@@ -71,7 +87,8 @@ function Asunto({ asunto }: { asunto: AsuntoPendiente }) {
   const vencido = asunto.clave === "vencidas";
 
   return (
-    <Card className={vencido ? "border-warning-fuerte/60" : undefined}>
+    // El ancla de su cifra en la tira de arriba; el margen deja la tarjeta debajo de la barra de contexto
+    <Card id={`asunto-${asunto.clave}`} className={cn("scroll-mt-[calc(var(--alto-barra-contexto)+1rem)]", vencido && "border-warning-fuerte/60")}>
       <CardHeader className="flex flex-row items-baseline justify-between gap-3 pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
           {vencido ? <TriangleAlert aria-hidden className="text-warning-fuerte size-4" /> : null}
@@ -145,10 +162,27 @@ export function PendientesDeHoy({ pendientes }: { pendientes: Pendientes }) {
   if (pendientes.asuntos.length === 0) return <AlDia enCurso={pendientes.en_curso} />;
 
   return (
-    <div className="grid items-start gap-3 md:grid-cols-2">
-      {pendientes.asuntos.map((asunto) => (
-        <Asunto key={asunto.clave} asunto={asunto} />
-      ))}
-    </div>
+    <>
+      {/* Cuántos de cada cosa, de un vistazo y en orden de urgencia (SEC.9c); cada cifra lleva a su tarjeta. No
+          filtra: Inicio enseña todo lo de hoy a la vez (decisión 43) */}
+      <PestanasConCifra
+        etiqueta="Lo de hoy, por asunto"
+        opciones={pendientes.asuntos.map((asunto) => ({
+          clave: asunto.clave,
+          etiqueta: ASUNTOS[asunto.clave].corto,
+          cifra: asunto.recuento,
+          detalle: asunto.total !== undefined ? moneda(asunto.total) : undefined,
+          // El color de advertencia es solo de lo vencido: si todo fuera amarillo, nada avisaría
+          tono: asunto.clave === "vencidas" ? "aviso" : undefined,
+          href: `#asunto-${asunto.clave}`,
+          activa: false,
+        }))}
+      />
+      <div className="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {pendientes.asuntos.map((asunto) => (
+          <Asunto key={asunto.clave} asunto={asunto} />
+        ))}
+      </div>
+    </>
   );
 }

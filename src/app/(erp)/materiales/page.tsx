@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Layers, Tags } from "lucide-react";
 
 import { Buscador } from "@/components/comunes/buscador";
 import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { PestanasDeSubruta } from "@/components/comunes/pestanas-de-subruta";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
+import { TablaDeDatos } from "@/components/comunes/tabla-de-datos";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
-import { Button } from "@/components/ui/button";
 import { EditarInsumo } from "@/features/materiales/components/editar-insumo";
 import { FiltroClases, type FiltroInsumos, urlDeInsumos } from "@/features/materiales/components/filtro-clases";
 import { ListaInsumos } from "@/features/materiales/components/lista-insumos";
+import { subrutasDeMateriales } from "@/features/materiales/subrutas";
 import { CLASES } from "@/features/materiales/textos";
 import type { Clase, ListaInsumos as Lista } from "@/features/materiales/types";
 import { adelantar, apiGet } from "@/lib/api-server";
@@ -64,27 +65,10 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
         <CabeceraDeSeccion
           titulo="Materiales"
           descripcion="Todo lo que se consume —perfiles, vidrios, accesorios, consumibles—, cuánto cuesta y dónde se usa."
-          acciones={
-            <>
-              {/* Las familias con que se agrupa el consumo (MAE.6): se consultan con el mismo permiso que los insumos */}
-              <Button asChild variant="ghost" className="h-11 md:h-9">
-                <Enlace href="/materiales/familias">
-                  <Layers className="size-4" />
-                  Familias
-                </Enlace>
-              </Button>
-              {cargarPrecios ? (
-                <Button asChild variant="outline" className="h-11 md:h-9">
-                  <Enlace href="/materiales/precios">
-                    <Tags className="size-4" />
-                    Cargar precios
-                  </Enlace>
-                </Button>
-              ) : null}
-              {puede(usuario, "catalogo:gestionar") ? <EditarInsumo /> : null}
-            </>
-          }
+          acciones={puede(usuario, "catalogo:gestionar") ? <EditarInsumo /> : null}
         />
+        {/* Familias y Cargar precios eran botones de esta cabecera: ahora son apartados, en las tres páginas (SEC.9c) */}
+        <PestanasDeSubruta etiqueta="Apartados de materiales" opciones={subrutasDeMateriales(usuario)} />
 
         {sinPrecio > 0 && !filtro.inactivos ? (
           <Notificacion tono="advertencia" titulo={`${plural(sinPrecio, "insumo sin precio", "insumos sin precio")}`}>
@@ -100,24 +84,29 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
           </Notificacion>
         ) : null}
 
-        <Buscador
-          accion="/materiales"
-          id="buscar-insumos"
-          etiqueta="Buscar insumos"
-          placeholder="Código o nombre"
-          valor={filtro.buscar}
-          conservar={{ clase: filtro.clase, estado: filtro.inactivos ? "inactivos" : null }}
-        />
-
         <FiltroClases filtro={filtro} recuento={lista.meta.recuento_por_clase} />
 
-        {lista.datos.length === 0 ? (
-          <p className="text-muted-foreground py-8 text-center text-sm">
-            {filtro.buscar ? `Ningún insumo coincide con «${filtro.buscar}».` : filtro.inactivos ? "No hay insumos inactivos." : "No hay insumos en esta clase."}
-          </p>
-        ) : (
-          <ListaInsumos filas={lista.datos} />
-        )}
+        <TablaDeDatos
+          herramientas={
+            <Buscador
+              accion="/materiales"
+              id="buscar-insumos"
+              etiqueta="Buscar insumos"
+              placeholder="Código o nombre"
+              valor={filtro.buscar}
+              conservar={{ clase: filtro.clase, estado: filtro.inactivos ? "inactivos" : null }}
+            />
+          }
+          pie={lista.datos.length > 0 ? <span>Total: {plural(lista.meta.total, "insumo", "insumos")}</span> : null}
+        >
+          {lista.datos.length === 0 ? (
+            <p className="text-muted-foreground py-8 text-center text-sm">
+              {filtro.buscar ? `Ningún insumo coincide con «${filtro.buscar}».` : filtro.inactivos ? "No hay insumos inactivos." : "No hay insumos en esta clase."}
+            </p>
+          ) : (
+            <ListaInsumos filas={lista.datos} />
+          )}
+        </TablaDeDatos>
       </div>
     </MarcoDeTrabajo>
   );

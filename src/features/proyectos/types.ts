@@ -44,7 +44,7 @@ export type Meta = {
 
 /** Un asunto de Inicio (`GET inicio`, decisión 43): su recuento real y los 3 primeros. El dinero, solo con `costeo:ver` */
 export type AsuntoPendiente = {
-  clave: "vencidas" | "por_vencer" | "leads" | "sin_medir" | "produccion" | "por_cobrar";
+  clave: "vencidas" | "por_vencer" | "leads" | "sin_medir" | "produccion" | "por_cobrar" | "esperando";
   recuento: number;
   total?: number;
   proyectos: {

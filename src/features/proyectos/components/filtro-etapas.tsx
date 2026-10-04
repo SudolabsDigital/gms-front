@@ -1,6 +1,7 @@
-import { FiltroConRecuento, type OpcionDeFiltro } from "@/components/comunes/filtro-con-recuento";
+import { PestanasConCifra, type OpcionConCifra } from "@/components/comunes/pestanas-con-cifra";
 import { ETAPAS, ETAPAS_EN_CURSO } from "@/features/proyectos/textos";
 import type { Etapa } from "@/features/proyectos/types";
+import { moneda } from "@/lib/formato";
 
 export type FiltroLista = { vista: "vivos" | "cerrados" | "por_cobrar" | "todos"; etapa: Etapa | null; buscar: string };
 
@@ -18,32 +19,36 @@ export function urlDeLista(filtro: FiltroLista, cambios: Partial<FiltroLista> = 
 }
 
 /**
- * Las etapas y vistas de la lista, con su recuento (`proyectos/51-ui` § lista), dibujadas por `FiltroConRecuento`. El
- * recuento viene del servidor (`meta.recuento_por_etapa` y `recuento_por_vista`), con la misma búsqueda aplicada.
+ * Las etapas y vistas de la lista, con su recuento (`proyectos/51-ui` § lista), dibujadas por `PestanasConCifra`
+ * (SEC.9c). El recuento viene del servidor (`meta.recuento_por_etapa` y `recuento_por_vista`), con la misma búsqueda
+ * aplicada, y el importe de «Por cobrar» también (`por_cobrar_total`, solo a quien ve dinero): aquí no se suma nada.
  * «En curso» es la vista por omisión: la lista es de trabajo vivo.
  */
 export function FiltroEtapas({
   filtro,
   recuento,
   porVista,
+  porCobrarTotal,
 }: {
   filtro: FiltroLista;
   recuento: Record<Etapa, number>;
   /** Las vistas las cuenta el servidor: «Cerrados» ya no es la suma de sus etapas (decisión 40) */
   porVista: Record<"vivos" | "cerrados" | "por_cobrar", number>;
+  /** La suma de los saldos de «Por cobrar», del servidor. Sin `costeo:ver` no viaja (`CAL-04`) */
+  porCobrarTotal?: number;
 }) {
-  const opciones: OpcionDeFiltro[] = [
+  const opciones: OpcionConCifra[] = [
     {
       clave: "vivos",
       etiqueta: "En curso",
-      recuento: porVista.vivos,
+      cifra: porVista.vivos,
       href: urlDeLista(filtro, { vista: "vivos", etapa: null }),
       activa: !filtro.etapa && filtro.vista === "vivos",
     },
     ...ETAPAS_EN_CURSO.map((etapa) => ({
       clave: etapa,
       etiqueta: ETAPAS[etapa],
-      recuento: recuento[etapa] ?? 0,
+      cifra: recuento[etapa] ?? 0,
       href: urlDeLista(filtro, { etapa }),
       activa: filtro.etapa === etapa,
     })),
@@ -51,18 +56,20 @@ export function FiltroEtapas({
     {
       clave: "por_cobrar",
       etiqueta: "Por cobrar",
-      recuento: porVista.por_cobrar,
+      cifra: porVista.por_cobrar,
+      detalle: porCobrarTotal !== undefined && porVista.por_cobrar > 0 ? moneda(porCobrarTotal) : undefined,
+      tono: porVista.por_cobrar > 0 ? "aviso" : undefined,
       href: urlDeLista(filtro, { vista: "por_cobrar", etapa: null }),
       activa: !filtro.etapa && filtro.vista === "por_cobrar",
     },
     {
       clave: "cerrados",
       etiqueta: "Cerrados",
-      recuento: porVista.cerrados,
+      cifra: porVista.cerrados,
       href: urlDeLista(filtro, { vista: "cerrados", etapa: null }),
       activa: !filtro.etapa && filtro.vista === "cerrados",
     },
   ];
 
-  return <FiltroConRecuento etiqueta="Filtrar por etapa" opciones={opciones} />;
+  return <PestanasConCifra etiqueta="Filtrar por etapa" opciones={opciones} />;
 }

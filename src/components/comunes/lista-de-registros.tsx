@@ -41,6 +41,8 @@ type PropsTabla<T> = Comunes<T> & {
   columnas: Columna<T>[];
   /** La clave de la columna que nombra la fila: lleva el enlace */
   principal: string;
+  /** Dentro de `TablaDeDatos`, que ya pone el marco: la tabla no dibuja otro borde (SEC.9c) */
+  incrustada?: boolean;
 };
 
 type PropsTarjetas<T> = Comunes<T> & {
@@ -51,9 +53,9 @@ type PropsTarjetas<T> = Comunes<T> & {
 const ANILLO = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /** El escritorio: la tabla densa (`TR-01`), con la fila entera enlazada */
-export function TablaDeRegistros<T>({ filas, clave, enlace, atenuada, columnas, principal }: PropsTabla<T>) {
+export function TablaDeRegistros<T>({ filas, clave, enlace, atenuada, columnas, principal, incrustada = false }: PropsTabla<T>) {
   return (
-    <div className="bg-card hidden overflow-hidden rounded-md border shadow-sm md:block">
+    <div className={cn("hidden md:block", !incrustada && "bg-card overflow-hidden rounded-md border shadow-sm")}>
       <table className="w-full text-sm">
         <thead className="bg-muted/40 text-muted-foreground text-left text-xs">
           <tr>

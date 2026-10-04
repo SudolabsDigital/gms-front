@@ -45,7 +45,7 @@ export default async function InicioPage() {
   return (
     <MarcoDeTrabajo barra={barra}>
       {/* Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta */}
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 pb-24 md:pb-0">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 pb-24 md:pb-0">
         <CabeceraDeSeccion
           titulo={`Hola, ${nombre}`}
           descripcion="Lo que necesita atención hoy, de lo más urgente a lo que puede esperar."

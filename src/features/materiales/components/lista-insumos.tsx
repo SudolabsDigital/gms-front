@@ -87,6 +87,8 @@ export function ListaInsumos({ filas }: { filas: InsumoFila[] }) {
       atenuada={(fila) => !fila.activo}
       principal="nombre"
       columnas={columnas}
+      // Va dentro de `TablaDeDatos`, con el buscador arriba y el total abajo (SEC.9c)
+      incrustada
       tarjeta={(fila) => (
         <>
           <div className="flex items-center justify-between gap-2">
