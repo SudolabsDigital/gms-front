@@ -2,19 +2,18 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MessageCircle, Phone } from "lucide-react";
 
-import { Buscador } from "@/components/comunes/buscador";
 import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
-import { PanelDeLista, type FilaDePanel, type GrupoDeLista } from "@/components/erp/panel-de-lista";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enlaceParaEscribirA } from "@/config/site-config";
 import { EditarCliente } from "@/features/clientes/components/editar-cliente";
-import { documentoLegible, type ClienteFicha, type ClienteFila, type ListaClientesConRecuento } from "@/features/clientes/types";
+import { PanelDeClientes, rutaDelPanelDeClientes } from "@/features/clientes/components/panel-de-clientes";
+import { datosQueFaltan, documentoLegible, type ClienteFicha, type ListaClientesConRecuento } from "@/features/clientes/types";
 import { InsigniaEtapa } from "@/features/proyectos/components/insignia-etapa";
 import { rutaDeObra } from "@/features/proyectos/pestanas";
 import { adelantar, ApiError, apiGet } from "@/lib/api-server";
@@ -30,8 +29,8 @@ export const metadata: Metadata = {
  * La ficha del cliente (`clientes/52-brief-clientes` § 4): cómo escribirle, qué obras tuvo y cuánto debe. Lo que falta
  * se nombra en un solo sitio —«Falta: DNI o RUC»— porque es lo que las cotizaciones necesitan y nadie completa.
  *
- * Con la lista al lado (SEC.9d, decisión 76): quien debe arriba, el resto debajo, y se pasa de un cliente a otro sin
- * volver a la lista. Las dos lecturas salen a la vez; `?buscar=` filtra el panel, no la ficha.
+ * Con la lista al lado (SEC.9d, decisión 76; `PanelDeClientes`, el mismo de la portada): se pasa de un cliente a otro
+ * sin volver. Las dos lecturas salen a la vez; `?buscar=` filtra el panel, no la ficha.
  */
 export default async function FichaClientePage({
   params,
@@ -43,9 +42,7 @@ export default async function FichaClientePage({
   const [{ id }, crudo] = await Promise.all([params, searchParams]);
   const buscarPanel = typeof crudo.buscar === "string" ? crudo.buscar.trim().slice(0, 100) : "";
   const peticion = adelantar(apiGet<ClienteFicha>(`/clientes/${encodeURIComponent(id)}`));
-  const peticionLista = adelantar(
-    apiGet<ListaClientesConRecuento>(`/clientes?orden=debe&por_pagina=100${buscarPanel ? `&buscar=${encodeURIComponent(buscarPanel)}` : ""}`),
-  );
+  const peticionLista = adelantar(apiGet<ListaClientesConRecuento>(rutaDelPanelDeClientes(buscarPanel)));
 
   const usuario = await exigirUsuario();
   if (!puede(usuario, "proyectos:ver")) {
@@ -74,40 +71,12 @@ export default async function FichaClientePage({
     ["Email", cliente.email],
     ["Dirección", [cliente.direccion, cliente.distrito].filter(Boolean).join(", ") || null],
   ] as const;
-  const falta = [
-    !cliente.documento && "DNI o RUC",
-    !cliente.telefono && "teléfono",
-    !cliente.email && "email",
-    !cliente.direccion && "dirección",
-  ].filter(Boolean) as string[];
+  const falta = datosQueFaltan(cliente);
 
   const barra = (
     <BarraDeContexto ruta={[{ etiqueta: "Clientes", href: "/clientes" }, { etiqueta: cliente.nombre, selector: "clientes" }]} />
   );
-  const lista = await peticionLista;
-  const panel = (
-    <PanelDeLista
-      titulo="Clientes"
-      buscador={
-        <Buscador
-          accion={`/clientes/${cliente.id}`}
-          id="buscar-panel-clientes"
-          etiqueta="Buscar clientes"
-          placeholder="Nombre, teléfono o DNI"
-          valor={buscarPanel}
-          enfocar={false}
-        />
-      }
-      grupos={gruposDelPanel(lista.datos, buscarPanel ? `?buscar=${encodeURIComponent(buscarPanel)}` : "")}
-      pie={
-        lista.meta.total > lista.datos.length ? (
-          <Enlace href="/clientes" className="font-medium hover:underline">
-            Ver los {lista.meta.total} en Clientes
-          </Enlace>
-        ) : null
-      }
-    />
-  );
+  const panel = <PanelDeClientes lista={await peticionLista} buscar={buscarPanel} accion={`/clientes/${cliente.id}`} />;
 
   return (
     <MarcoDeTrabajo barra={barra} panel={panel} panelAncho>
@@ -200,27 +169,4 @@ export default async function FichaClientePage({
       </div>
     </MarcoDeTrabajo>
   );
-}
-
-/**
- * Quien debe arriba —de más a menos, la cifra del servidor (`CLI-I07`)— y el resto por nombre. El servidor ya los manda
- * en ese orden (`orden=debe`), así que «Deben» sale entero aunque haya más de los 100 que caben. Sin `costeo:ver` el
- * dinero no viaja y la lista va en un solo grupo: no se agrupa por lo que no se puede ver. Cada fila lleva la búsqueda
- * del panel (`consulta`), para que pasar de un cliente a otro no la pierda.
- */
-function gruposDelPanel(clientes: ClienteFila[], consulta: string): GrupoDeLista[] {
-  const fila = (c: ClienteFila): FilaDePanel => ({
-    href: `/clientes/${c.id}${consulta}`,
-    titulo: c.nombre,
-    detalle: c.telefono ?? plural(c.proyectos_count, "proyecto", "proyectos"),
-    monto: (c.debe ?? 0) > 0 ? { etiqueta: "debe", texto: moneda(c.debe ?? 0), tono: "aviso" } : undefined,
-  });
-
-  if (!clientes.some((c) => c.debe !== undefined)) return [{ titulo: "Clientes", filas: clientes.map(fila) }];
-
-  const deben = clientes.filter((c) => (c.debe ?? 0) > 0);
-  return [
-    { titulo: "Deben", filas: deben.map(fila) },
-    { titulo: "Al día", filas: clientes.filter((c) => !((c.debe ?? 0) > 0)).map(fila) },
-  ];
 }

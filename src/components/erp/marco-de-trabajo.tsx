@@ -16,24 +16,31 @@ export function MarcoDeTrabajo({
   barra,
   panel,
   panelAncho = false,
+  panelEnMovil = false,
   children,
 }: {
   barra: ReactNode;
-  /** Las secciones de un espacio o la lista de un apartado; en el móvil no se pinta */
+  /** Las secciones de un espacio o la lista de un apartado; en el móvil no se pinta, salvo con `panelEnMovil` */
   panel?: ReactNode;
   /** Una lista con nombre e importe (`PanelDeLista`) pide 288 px; unas secciones, 240 */
   panelAncho?: boolean;
+  /**
+   * En el móvil, el panel va en el flujo, antes del contenido: cuando el panel **es** la acción principal de la página
+   * —encontrar a un cliente en la portada de Clientes (`52-brief-clientes` § 2)— y en el móvil no habría otro sitio
+   */
+  panelEnMovil?: boolean;
   children: ReactNode;
 }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       {barra}
-      <div className="flex min-w-0 flex-1">
+      <div className={cn("flex min-w-0 flex-1", panelEnMovil && "flex-col md:flex-row")}>
         {panel ? (
           <aside
             className={cn(
-              "bg-card sticky top-[var(--alto-barra-contexto)] hidden h-[calc(100svh-var(--alto-barra-contexto))] shrink-0 overflow-y-auto border-r md:block print:hidden",
-              panelAncho ? "w-72" : "w-60",
+              "bg-card shrink-0 md:sticky md:top-[var(--alto-barra-contexto)] md:block md:h-[calc(100svh-var(--alto-barra-contexto))] md:overflow-y-auto md:border-r md:border-b-0 print:hidden",
+              panelEnMovil ? "border-b" : "hidden",
+              panelAncho ? "md:w-72" : "md:w-60",
             )}
           >
             {panel}

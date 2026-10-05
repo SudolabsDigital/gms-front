@@ -34,11 +34,14 @@ export function PanelDeLista({
   titulo,
   buscador,
   grupos,
+  vacio = "Nadie coincide.",
   pie,
 }: {
   titulo: string;
   buscador?: ReactNode;
   grupos: GrupoDeLista[];
+  /** Lo que se dice si no hay ninguna fila: con búsqueda, «Nadie coincide con «x».» (el brief de cada módulo) */
+  vacio?: string;
   pie?: ReactNode;
 }) {
   const ruta = usePathname();
@@ -48,7 +51,7 @@ export function PanelDeLista({
     <nav aria-label={titulo} className="flex flex-col">
       {buscador ? <div className="border-b p-3 [&>form]:max-w-none">{buscador}</div> : null}
       <div className="flex flex-col px-2 py-1">
-        {visibles.length === 0 ? <p className="text-muted-foreground px-2 py-6 text-center text-sm">Nadie coincide.</p> : null}
+        {visibles.length === 0 ? <p className="text-muted-foreground px-2 py-6 text-center text-sm">{vacio}</p> : null}
         {visibles.map((grupo, i) => (
           <div key={grupo.titulo} className={cn("py-2", i > 0 && "border-t")}>
             <p className="text-muted-foreground flex justify-between px-2 pb-1.5 text-[11px] font-semibold tracking-wider uppercase">

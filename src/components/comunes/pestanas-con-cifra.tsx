@@ -9,7 +9,7 @@ export type OpcionConCifra = {
   etiqueta: string;
   /** Cuántos: lo cuenta el servidor, con la misma búsqueda aplicada (`G-32`); sin cifra, no se pinta */
   cifra?: number | string | null;
-  /** Lo que acompaña a la cifra en el escritorio: un importe que da el servidor («S/ 390.87») */
+  /** Lo que acompaña a la cifra en el escritorio, del servidor: un importe («S/ 390.87») o un dato («+8 en 30 días») */
   detalle?: string;
   /** Solo lo que pide atención lleva tono; el resto, ninguno */
   tono?: Tono;
