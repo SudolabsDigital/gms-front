@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
 import { rutaDelCotizador } from "@/features/proyectos/components/cotizar-proyecto";
 import { DocumentoCotizacion } from "@/features/proyectos/components/documento-cotizacion";
+import { EditarLinea } from "@/features/proyectos/components/editar-linea";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import type { Cotizacion, ItemCotizacion, Sustitucion } from "@/features/proyectos/types";
 import { medida, moneda } from "@/lib/formato";
@@ -38,6 +39,7 @@ export function CotizacionBorrador({
 }) {
   const router = useRouter();
   const [quitando, setQuitando] = useState<ItemCotizacion | null>(null);
+  const [editando, setEditando] = useState<ItemCotizacion | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const veDinero = cotizacion.total !== undefined;
@@ -97,7 +99,14 @@ export function CotizacionBorrador({
           ) : (
             <ul className="divide-y">
               {cotizacion.items.map((item) => (
-                <FilaItem key={item.id} item={item} veDinero={veDinero} puedeQuitar={puedeEditar} alQuitar={() => setQuitando(item)} />
+                <FilaItem
+                  key={item.id}
+                  item={item}
+                  veDinero={veDinero}
+                  editable={puedeEditar}
+                  alEditar={() => setEditando(item)}
+                  alQuitar={() => setQuitando(item)}
+                />
               ))}
             </ul>
           )}
@@ -138,6 +147,9 @@ export function CotizacionBorrador({
           </Button>
         </div>
       </PanelResponsivo>
+
+      {/* Remonta con cada línea: el formulario parte siempre de lo que esa línea tiene ahora */}
+      <EditarLinea key={editando?.id ?? "ninguna"} item={editando} documento={cotizacion} alCerrar={() => setEditando(null)} />
     </div>
   );
 }
@@ -146,13 +158,16 @@ export function CotizacionBorrador({
 export function FilaItem({
   item,
   veDinero,
-  puedeQuitar,
+  editable,
+  alEditar,
   alQuitar,
 }: {
   item: ItemCotizacion;
   veDinero: boolean;
-  puedeQuitar: boolean;
-  /** Opcional: la emitida la pinta el servidor, que no puede pasar funciones */
+  /** Solo el borrador: lo emitido no cambia */
+  editable: boolean;
+  /** Opcionales: la emitida la pinta el servidor, que no puede pasar funciones */
+  alEditar?: () => void;
   alQuitar?: () => void;
 }) {
   // En la línea, solo lo que cambia una decisión; el precio se avisa una vez, en el documento (R22 del recorrido UX.0)
@@ -192,11 +207,22 @@ export function FilaItem({
             <span className="text-muted-foreground block text-xs">costo</span>
           </span>
         ) : null}
-        {puedeQuitar && alQuitar ? (
-          <Button variant="ghost" size="control-compacto" className="text-muted-foreground px-2" onClick={alQuitar}>
-            <Trash2 className="size-4" />
-            <span className="sr-only md:not-sr-only">Quitar</span>
-          </Button>
+        {editable ? (
+          // En el móvil solo los iconos, de 44 px; el nombre lo lee el lector de pantalla
+          <div className="flex gap-1">
+            {alEditar ? (
+              <Button variant="ghost" size="control-compacto" className="text-muted-foreground px-2" onClick={alEditar}>
+                <Pencil className="size-4" />
+                <span className="sr-only md:not-sr-only">Editar</span>
+              </Button>
+            ) : null}
+            {alQuitar ? (
+              <Button variant="ghost" size="control-compacto" className="text-muted-foreground px-2" onClick={alQuitar}>
+                <Trash2 className="size-4" />
+                <span className="sr-only md:not-sr-only">Quitar</span>
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </li>

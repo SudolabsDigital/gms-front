@@ -84,7 +84,7 @@ export function CotizacionEmitida({
         <CardContent>
           <ul className="divide-y">
             {cotizacion.items.map((item) => (
-              <FilaItem key={item.id} item={item} veDinero={veDinero} puedeQuitar={false} />
+              <FilaItem key={item.id} item={item} veDinero={veDinero} editable={false} />
             ))}
           </ul>
         </CardContent>
