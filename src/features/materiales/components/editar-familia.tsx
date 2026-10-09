@@ -67,7 +67,7 @@ export function EditarFamilia({ familia }: { familia?: Material }) {
       <Label htmlFor={`familia-${clave}`}>{etiqueta}</Label>
       <Input
         id={`familia-${clave}`}
-        className="h-11 md:h-9"
+        size="control"
         value={datos[clave]}
         onChange={(e) => campo(clave, e.target.value)}
         aria-invalid={errorDe(clave) ? true : undefined}
@@ -81,12 +81,12 @@ export function EditarFamilia({ familia }: { familia?: Material }) {
   return (
     <>
       {familia ? (
-        <Button variant="ghost" size="sm" className="h-11 md:h-8" onClick={abrir} aria-label={`Editar ${familia.nombre}`}>
+        <Button variant="ghost" size="control-compacto" onClick={abrir} aria-label={`Editar ${familia.nombre}`}>
           <Pencil className="size-4" />
           Editar
         </Button>
       ) : (
-        <Button variant="brand" className="h-11 md:h-9" onClick={abrir}>
+        <Button variant="brand" size="control" onClick={abrir}>
           <Plus className="size-4" />
           Nueva familia
         </Button>
@@ -105,7 +105,7 @@ export function EditarFamilia({ familia }: { familia?: Material }) {
               Código <span className="font-mono font-semibold">{familia.codigo}</span>
             </p>
           ) : (
-            texto("codigo", "Código", { maxLength: 20, placeholder: "PL", className: "h-11 font-mono uppercase md:h-9" })
+            texto("codigo", "Código", { maxLength: 20, placeholder: "PL", className: "font-mono uppercase" })
           )}
           {texto("nombre", "Nombre", { maxLength: 100, placeholder: "Plástico" })}
           {texto("unidad_consumo", "Unidad de consumo", { maxLength: 20, placeholder: "kg · m2 · m · unidad", list: "unidades-de-consumo" })}
@@ -114,7 +114,7 @@ export function EditarFamilia({ familia }: { familia?: Material }) {
               <option key={u} value={u} />
             ))}
           </datalist>
-          <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando}>
+          <Button type="submit" variant="brand" size="control" disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             {familia ? "Guardar" : "Dar de alta"}
           </Button>

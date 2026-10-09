@@ -119,7 +119,7 @@ export function EmitirCotizacion({
   return (
     <>
       {/* `type="button"`: dentro del formulario del documento, un botón sin tipo lo envía (así nacía V03) */}
-      <Button type="button" variant={variante} className={className ?? "h-11 w-full md:h-9"} onClick={abrir} disabled={guardando}>
+      <Button type="button" variant={variante} size="control" className={className ?? "w-full"} onClick={abrir} disabled={guardando}>
         {guardando ? <Loader2 className="size-4 animate-spin" /> : null}
         {porGuardar ? "Guardar y emitir" : "Emitir"}
       </Button>
@@ -159,11 +159,11 @@ export function EmitirCotizacion({
               ) : null}
               {/* Es el punto de no retorno: la salida se ofrece con palabras, no solo con la ✕ (recorrido UX.0, R28) */}
               <div className="flex flex-col gap-2 md:flex-row-reverse">
-                <Button variant="brand" className="h-11 md:h-9" onClick={emitir} disabled={trabajando}>
+                <Button variant="brand" size="control" onClick={emitir} disabled={trabajando}>
                   {trabajando ? <Loader2 className="size-4 animate-spin" /> : null}
                   Emitir y numerar
                 </Button>
-                <Button variant="outline" className="h-11 md:h-9" onClick={() => (guardo ? cerrar() : setAbierto(false))} disabled={trabajando}>
+                <Button variant="outline" size="control" onClick={() => (guardo ? cerrar() : setAbierto(false))} disabled={trabajando}>
                   Cancelar
                 </Button>
               </div>

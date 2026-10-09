@@ -113,7 +113,7 @@ export function RegistrarCobro({
 
   return (
     <>
-      <Button variant={variante} className={className ?? "h-11 md:h-9"} onClick={abrir}>
+      <Button variant={variante} size="control" className={className} onClick={abrir}>
         {etiqueta}
       </Button>
 
@@ -137,7 +137,7 @@ export function RegistrarCobro({
             <Input
               id="cobro-monto"
               inputMode="decimal"
-              className="h-11 font-mono tabular-nums md:h-9"
+              size="control" className="font-mono tabular-nums"
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
               aria-invalid={campo("monto") ? true : undefined}
@@ -154,7 +154,7 @@ export function RegistrarCobro({
             <Input
               id="cobro-fecha"
               type="date"
-              className="h-11 md:h-9"
+              size="control"
               min={diaDe(proyecto.created_at)}
               max={diaDeHoy()}
               value={fecha}
@@ -171,7 +171,7 @@ export function RegistrarCobro({
             <Label htmlFor="cobro-referencia">N.º de operación (opcional)</Label>
             <Input
               id="cobro-referencia"
-              className="h-11 md:h-9"
+              size="control"
               maxLength={80}
               value={referencia}
               onChange={(e) => setReferencia(e.target.value)}
@@ -181,7 +181,7 @@ export function RegistrarCobro({
             <ErrorDeCampo campo="cobro-referencia">{campo("referencia")}</ErrorDeCampo>
           </div>
 
-          <Button variant="brand" className="h-11 md:h-9" onClick={registrar} disabled={enviando || monto.trim() === "" || fecha === ""}>
+          <Button variant="brand" size="control" onClick={registrar} disabled={enviando || monto.trim() === "" || fecha === ""}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Registrar {TIPOS_COBRO[tipo].toLowerCase()}
           </Button>

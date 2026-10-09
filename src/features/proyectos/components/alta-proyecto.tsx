@@ -165,7 +165,7 @@ export function AltaProyecto({
             <Label htmlFor="proyecto-nombre">Qué quiere</Label>
             <Input
               id="proyecto-nombre"
-              className="h-11 md:h-9"
+              size="control"
               placeholder="Mampara de ducha — Jr. Ancash 450"
               value={datos.nombre}
               maxLength={150}
@@ -184,7 +184,7 @@ export function AltaProyecto({
               id="proyecto-enlace"
               type="url"
               inputMode="url"
-              className="h-11 md:h-9"
+              size="control"
               placeholder="Pegue el enlace que llegó por WhatsApp"
               value={datos.enlace_origen}
               onChange={(e) => campo("enlace_origen", e.target.value)}
@@ -211,7 +211,7 @@ export function AltaProyecto({
                   <Label htmlFor="proyecto-direccion">Dirección de obra</Label>
                   <Input
                     id="proyecto-direccion"
-                    className="h-11 md:h-9"
+                    size="control"
                     value={datos.direccion_obra}
                     maxLength={200}
                     onChange={(e) => campo("direccion_obra", e.target.value)}
@@ -224,7 +224,7 @@ export function AltaProyecto({
                   <Label htmlFor="proyecto-distrito">Distrito</Label>
                   <Input
                     id="proyecto-distrito"
-                    className="h-11 md:h-9"
+                    size="control"
                     value={datos.distrito}
                     maxLength={80}
                     onChange={(e) => campo("distrito", e.target.value)}
@@ -245,7 +245,7 @@ export function AltaProyecto({
 
           {/* Pegado al pie mientras se desplaza: con «Más datos» abierto quedaba 146 px fuera de la vista (UX.0, R31) */}
           <div className="bg-background sticky bottom-0 -mb-1 pt-2 pb-1">
-            <Button type="submit" variant="brand" className="h-11 w-full md:h-9" disabled={enviando}>
+            <Button type="submit" variant="brand" size="control" className="w-full" disabled={enviando}>
               {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
               Registrar proyecto
             </Button>

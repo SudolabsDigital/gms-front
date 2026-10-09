@@ -77,7 +77,7 @@ export default async function NuevaCotizacionPage({ searchParams }: { searchPara
             <p className="text-muted-foreground text-sm">
               Un documento emitido no cambia: el cliente ya lo vio. Para otra propuesta, recotice desde el proyecto.
             </p>
-            <Button asChild variant="outline" className="h-11 md:h-9">
+            <Button asChild variant="outline" size="control">
               <Enlace href={rutaDeSeccion(cotizacion.proyecto_id, "cotizacion")}>Volver al proyecto</Enlace>
             </Button>
           </div>

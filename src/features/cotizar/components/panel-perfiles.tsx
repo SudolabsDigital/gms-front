@@ -69,7 +69,7 @@ export function PanelPerfiles({
             (familia) => (
               <section key={familia} className="flex flex-col gap-1.5">
                 <h3 className="text-xs font-medium">{FAMILIAS[familia].etiqueta}</h3>
-                <p className="text-muted-foreground -mt-1 text-[11px]">
+                <p className="text-muted-foreground -mt-1 text-xs">
                   {FAMILIAS[familia].descripcion}
                 </p>
 
@@ -106,7 +106,7 @@ export function PanelPerfiles({
                             </span>
 
                             {pieza.roles.length > 0 ? (
-                              <span className="text-muted-foreground block text-[11px] leading-tight">
+                              <span className="text-muted-foreground block text-xs leading-tight">
                                 {pieza.roles.join(" · ")}
                               </span>
                             ) : null}
@@ -123,7 +123,7 @@ export function PanelPerfiles({
                                   <Badge
                                     key={d}
                                     variant="outline"
-                                    className={cn("h-auto py-0 text-[11px]", d === "sin sitio" && "border-dashed")}
+                                    className={cn("h-auto py-0 text-xs", d === "sin sitio" && "border-dashed")}
                                   >
                                     {d}
                                   </Badge>

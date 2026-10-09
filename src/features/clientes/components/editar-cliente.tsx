@@ -115,7 +115,7 @@ export function EditarCliente({ cliente }: { cliente: Cliente }) {
 
   return (
     <>
-      <Button variant="outline" size="sm" className="h-11 md:h-8" onClick={abrir}>
+      <Button variant="outline" size="control-compacto" onClick={abrir}>
         <Pencil className="size-4" />
         Editar datos
       </Button>
@@ -150,7 +150,7 @@ export function EditarCliente({ cliente }: { cliente: Cliente }) {
                     id={id}
                     type={tipo}
                     inputMode={modo}
-                    className="h-11 md:h-9"
+                    size="control"
                     value={datos[clave]}
                     maxLength={max}
                     onChange={(e) => campo(clave, e.target.value)}
@@ -171,7 +171,7 @@ export function EditarCliente({ cliente }: { cliente: Cliente }) {
               <Textarea id="cliente-notas" rows={3} value={datos.notas} onChange={(e) => campo("notas", e.target.value)} />
             </div>
 
-            <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando}>
+            <Button type="submit" variant="brand" size="control" disabled={enviando}>
               {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
               Guardar
             </Button>

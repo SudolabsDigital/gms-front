@@ -5,6 +5,7 @@ import { Buscador } from "@/components/comunes/buscador";
 import { Enlace } from "@/components/comunes/enlace";
 import { EmptyState } from "@/components/comunes/empty-state";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { TablaDeDatos } from "@/components/comunes/tabla-de-datos";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
@@ -68,7 +69,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pa
   return (
     <MarcoDeTrabajo barra={barra}>
       {/* Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta */}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-24 md:gap-5 md:pb-0">
+      <CuerpoDeSeccion ancho="amplio" className="pb-24 md:pb-0">
         <CabeceraDeSeccion
           titulo="Proyectos"
           descripcion="Cada trabajo, del primer mensaje del cliente a la entrega. La lista muestra lo que está en curso; lo cerrado está en su pestaña."
@@ -147,7 +148,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pa
             </TablaDeDatos>
           </>
         )}
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

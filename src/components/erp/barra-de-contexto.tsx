@@ -89,7 +89,7 @@ export async function BarraDeContexto({ ruta, estado }: { ruta: TramoDeRuta[]; e
         {puede(usuario, "proyectos:crear") ? <AltaProyecto variante="outline" disparador="barra" /> : null}
         {process.env.NODE_ENV !== "production" ? (
           // Que nadie confunda la base de pruebas con la del taller
-          <span className="border-warning/40 bg-warning/10 text-warning-fuerte rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase">
+          <span className="border-warning/40 bg-warning/10 text-warning-fuerte rounded px-1.5 py-0.5 font-mono text-xs font-semibold tracking-wider uppercase">
             Desarrollo
           </span>
         ) : null}

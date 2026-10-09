@@ -69,7 +69,7 @@ export function CotizacionEmitida({
             <p className="text-sm">Para que el cliente la apruebe, recotice con los precios de hoy.</p>
           ) : null}
           {enviar ? (
-            <Button asChild variant="outline" className="text-whatsapp mt-2 h-11 md:h-8 md:justify-self-start">
+            <Button asChild variant="outline" size="control-compacto" className="text-whatsapp mt-2 md:justify-self-start">
               <a href={enviar} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="size-4" />
                 Enviar por WhatsApp

@@ -119,7 +119,7 @@ export function MedicionEnObra({
 
       {sePuedeMedir && yaConfirmada && !remedir ? (
         <div id="medir" className="scroll-mt-4">
-          <Button variant="outline" className="h-11 md:h-9" onClick={() => setRemedir(true)}>
+          <Button variant="outline" size="control" onClick={() => setRemedir(true)}>
             <Ruler className="size-4" />
             Volver a medir
           </Button>
@@ -203,7 +203,7 @@ export function MedicionEnObra({
 
             {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
-            <Button variant="brand" className="h-11 md:h-9" onClick={enviar} disabled={enviando}>
+            <Button variant="brand" size="control" onClick={enviar} disabled={enviando}>
               {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
               Registrar medición
             </Button>
@@ -314,7 +314,7 @@ export function RecotizarConMedidas({
 
   return (
     <>
-      <Button variant="brand" className={className ?? "h-11 md:h-9"} onClick={() => { setAbierto(true); setError(null); }}>
+      <Button variant="brand" size="control" className={className} onClick={() => { setAbierto(true); setError(null); }}>
         Recotizar con estas medidas
       </Button>
       <PanelResponsivo
@@ -329,7 +329,7 @@ export function RecotizarConMedidas({
             medición otra vez: un toque, porque ya trae estas cotas.
           </p>
           {error ? <Notificacion tono="error">{error}</Notificacion> : null}
-          <Button variant="brand" className="h-11 md:h-9" onClick={recotizar} disabled={enviando}>
+          <Button variant="brand" size="control" onClick={recotizar} disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Abrir la versión con estas medidas
           </Button>

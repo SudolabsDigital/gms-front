@@ -212,6 +212,41 @@ const INVARIANTES = [
     salida: "Usa `CabeceraDeSeccion` de `@/components/comunes/cabecera-de-seccion`; la ruta va en `BarraDeContexto`.",
   },
   {
+    id: "INV-E09",
+    nombre: "el alto de un control del ERP por su variante, no a mano",
+    // SEC.6 (2026-10-09): el par «44 px en el táctil, 36 o 32 en el escritorio» estaba escrito a mano 105 veces, con dos
+    // altos de escritorio y ninguna regla para elegir. Se decide en `lib/interfaz.ts` y llega por `size="control"` o
+    // `size="control-compacto"`; lo que no es un componente del sistema usa las constantes de ese archivo
+    patron: /(?<![\w-])h-11(?![\w-])(?=[^"'`\n]*?(?<![\w-])md:h-[89](?![\w-]))/g,
+    solo: ["src/features/", "src/app/(erp)/", "src/components/erp/", "src/components/comunes/"],
+    // Organismos del portal que viven en `comunes/`: SEC.6 es del ERP
+    exentos: ["src/components/comunes/acciones-contenido.tsx", "src/components/comunes/tarjeta-contenido.tsx"],
+    umbral: 0,
+    salida: "Usa `size=\"control\"` (campos y acciones del contenido) o `size=\"control-compacto\"` (barras y filas) en `Button`, `Input` o `SelectTrigger`; en otro elemento, `ALTO_DE_CONTROL` de `@/lib/interfaz`.",
+  },
+  {
+    id: "INV-E10",
+    nombre: "ningún texto del ERP por debajo de 12 px",
+    // SEC.6: 20 textos de 10 y 11 px en paneles, insignias, el riel y el cotizador. El contenido va a 14 px (`text-sm`),
+    // los metadatos a 12 (`text-xs`) y nada por debajo
+    patron: /text-\[1[01]px\]/g,
+    solo: ["src/features/", "src/app/(erp)/", "src/components/erp/", "src/components/comunes/"],
+    exentos: ["src/components/comunes/acciones-contenido.tsx", "src/components/comunes/tarjeta-contenido.tsx"],
+    umbral: 0,
+    salida: "Usa `text-xs` (12 px) para metadatos y `text-sm` (14 px) para el contenido.",
+  },
+  {
+    id: "INV-E11",
+    nombre: "el ancho de una página del ERP por CuerpoDeSeccion",
+    // SEC.6: 13 envoltorios de página con su `max-w-*` y cinco valores para tres usos. El ancho sale de lo que la página
+    // muestra —una lista, una ficha, un formulario—, no de cada archivo
+    patron: /(?<![\w-])max-w-[3-7]xl(?![\w-])/g,
+    solo: ["src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Envuelve el contenido en `<CuerpoDeSeccion ancho=\"amplio\" | \"ficha\" | \"formulario\">` de `@/components/comunes/cuerpo-de-seccion`.",
+  },
+  {
     id: "INV-N01",
     nombre: "los avisos flotantes por notificar()",
     // Decisión 33 (2026-09-26): 19 llamadas a `toast` en 15 archivos, cada una con su título, su duración y su tono.

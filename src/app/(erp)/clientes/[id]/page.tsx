@@ -5,6 +5,7 @@ import { MessageCircle, Phone } from "lucide-react";
 import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -80,7 +81,7 @@ export default async function FichaClientePage({
 
   return (
     <MarcoDeTrabajo barra={barra} panel={panel} panelAncho>
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+      <CuerpoDeSeccion ancho="ficha">
         <CabeceraDeSeccion
           volver={{ href: "/clientes", etiqueta: "Clientes" }}
           titulo={cliente.nombre}
@@ -88,7 +89,7 @@ export default async function FichaClientePage({
           acciones={
             <>
               {whatsapp ? (
-                <Button asChild variant="outline" className="text-whatsapp h-11 md:h-8">
+                <Button asChild variant="outline" size="control-compacto" className="text-whatsapp">
                   <a href={whatsapp} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="size-4" />
                     WhatsApp
@@ -96,7 +97,7 @@ export default async function FichaClientePage({
                 </Button>
               ) : null}
               {telefono ? (
-                <Button asChild variant="outline" className="h-11 md:hidden">
+                <Button asChild variant="outline" size="control" className="md:hidden">
                   <a href={`tel:${telefono}`}>
                     <Phone className="size-4" />
                     Llamar
@@ -166,7 +167,7 @@ export default async function FichaClientePage({
             </ul>
           </CardContent>
         </Card>
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

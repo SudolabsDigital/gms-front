@@ -79,7 +79,7 @@ export default async function CotizacionPage({ params, searchParams }: { params:
                 Todavía no hay cotización. Se arma en el cotizador: cada ventana se calcula y se agrega al proyecto con su
                 cantidad y dónde va.
               </p>
-              <CotizarProyecto proyectoId={proyecto.id} className="h-11 md:h-9" />
+              <CotizarProyecto proyectoId={proyecto.id} className="w-auto" />
             </div>
           ) : (
             "Todavía no hay cotización."

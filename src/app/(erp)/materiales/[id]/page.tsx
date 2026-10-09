@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -71,7 +72,7 @@ export default async function InsumoPage({ params }: { params: Promise<{ id: str
 
   return (
     <MarcoDeTrabajo barra={barra}>
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+      <CuerpoDeSeccion ancho="ficha">
         <CabeceraDeSeccion
           volver={{ href: "/materiales", etiqueta: "Materiales" }}
           titulo={insumo.nombre_comercial}
@@ -202,7 +203,7 @@ export default async function InsumoPage({ params }: { params: Promise<{ id: str
             </Card>
           ) : null}
         </div>
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

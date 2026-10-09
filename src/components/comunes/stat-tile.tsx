@@ -45,7 +45,7 @@ export function StatTile({
       </span>
 
       {ayuda ? (
-        <span className="text-muted-foreground/80 text-[11px] leading-tight text-pretty">
+        <span className="text-muted-foreground/80 text-xs leading-tight text-pretty">
           {ayuda}
         </span>
       ) : null}

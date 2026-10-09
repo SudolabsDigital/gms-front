@@ -44,7 +44,7 @@ export function ActividadInsumo({ insumo }: { insumo: InsumoFicha }) {
   }
 
   return (
-    <Button variant="outline" className="h-11 md:h-9" onClick={cambiar} disabled={enviando}>
+    <Button variant="outline" size="control" onClick={cambiar} disabled={enviando}>
       {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
       {insumo.activo ? "Desactivar" : "Activar otra vez"}
     </Button>

@@ -54,7 +54,7 @@ export function PanelDeLista({
         {visibles.length === 0 ? <p className="text-muted-foreground px-2 py-6 text-center text-sm">{vacio}</p> : null}
         {visibles.map((grupo, i) => (
           <div key={grupo.titulo} className={cn("py-2", i > 0 && "border-t")}>
-            <p className="text-muted-foreground flex justify-between px-2 pb-1.5 text-[11px] font-semibold tracking-wider uppercase">
+            <p className="text-muted-foreground flex justify-between px-2 pb-1.5 text-xs font-semibold tracking-wider uppercase">
               <span>{grupo.titulo}</span>
               <span className="font-mono">{grupo.filas.length}</span>
             </p>
@@ -83,7 +83,7 @@ export function PanelDeLista({
                       {fila.monto ? (
                         <span className={cn("text-right font-mono text-xs font-semibold whitespace-nowrap", TONOS[fila.monto.tono ?? "neutro"])}>
                           {fila.monto.etiqueta ? (
-                            <span className="text-muted-foreground block font-sans text-[11px] font-medium">{fila.monto.etiqueta}</span>
+                            <span className="text-muted-foreground block font-sans text-xs font-medium">{fila.monto.etiqueta}</span>
                           ) : null}
                           {fila.monto.texto}
                         </span>

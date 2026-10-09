@@ -37,7 +37,7 @@ export function PanelDeSeccion({ cabecera, grupos }: { cabecera?: ReactNode; gru
       <div className="flex flex-col px-2 py-1">
         {visibles.map((grupo, i) => (
           <div key={grupo.titulo} className={cn("py-2", i > 0 && "border-t")}>
-            <p className="text-muted-foreground px-2 pb-1.5 text-[11px] font-semibold tracking-wider uppercase">
+            <p className="text-muted-foreground px-2 pb-1.5 text-xs font-semibold tracking-wider uppercase">
               {grupo.titulo}
             </p>
             <ul className="flex flex-col gap-0.5">
@@ -49,7 +49,7 @@ export function PanelDeSeccion({ cabecera, grupos }: { cabecera?: ReactNode; gru
                     {item.icono}
                     <span className="min-w-0 flex-1 truncate">{item.etiqueta}</span>
                     {item.inerte ? (
-                      <span className="shrink-0 text-[11px]">{item.inerte}</span>
+                      <span className="shrink-0 text-xs">{item.inerte}</span>
                     ) : item.dato ? (
                       <InsigniaDeDato dato={item.dato} />
                     ) : null}

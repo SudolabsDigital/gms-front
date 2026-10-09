@@ -83,11 +83,11 @@ export function Notificacion({
           <div className="mt-1 flex flex-wrap gap-2">
             {acciones.map((accion) =>
               accion.href ? (
-                <Button key={accion.etiqueta} asChild variant="outline" size="sm" className="h-11 md:h-8">
+                <Button key={accion.etiqueta} asChild variant="outline" size="control-compacto">
                   <Link href={accion.href}>{accion.etiqueta}</Link>
                 </Button>
               ) : (
-                <Button key={accion.etiqueta} variant="outline" size="sm" className="h-11 md:h-8" onClick={accion.onClick}>
+                <Button key={accion.etiqueta} variant="outline" size="control-compacto" onClick={accion.onClick}>
                   {accion.etiqueta}
                 </Button>
               ),

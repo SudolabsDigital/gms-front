@@ -80,7 +80,7 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
 
   return (
     <>
-      <Button variant="outline" size="sm" className="h-11 md:h-8" onClick={abrir} aria-label={`Cambiar ${parametro.nombre}`}>
+      <Button variant="outline" size="control-compacto" onClick={abrir} aria-label={`Cambiar ${parametro.nombre}`}>
         <Pencil className="size-4" />
         Cambiar
       </Button>
@@ -106,7 +106,7 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
               <Input
                 id={campoId}
                 inputMode="decimal"
-                className="h-11 max-w-40 font-mono tabular-nums md:h-9"
+                size="control" className="max-w-40 font-mono tabular-nums"
                 value={valor}
                 onChange={(e) => {
                   setValor(e.target.value);
@@ -125,7 +125,7 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
               </p>
             ) : null}
           </div>
-          <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando || escrito === ""}>
+          <Button type="submit" variant="brand" size="control" disabled={enviando || escrito === ""}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Guardar
           </Button>

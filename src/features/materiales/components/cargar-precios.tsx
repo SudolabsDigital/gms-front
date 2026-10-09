@@ -81,7 +81,7 @@ export function CargarPrecios({ insumos }: { insumos: InsumoFila[] }) {
 
   const porClase = (Object.keys(CLASES) as Clase[]).map((clase) => [clase, insumos.filter((i) => i.clase === clase)] as const).filter(([, filas]) => filas.length > 0);
   const boton = (
-    <Button variant="brand" className="h-11 w-full md:h-9 md:w-auto" onClick={guardar} disabled={enviando || cambios.length === 0 || invalidos.length > 0}>
+    <Button variant="brand" size="control" className="w-full md:w-auto" onClick={guardar} disabled={enviando || cambios.length === 0 || invalidos.length > 0}>
       {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
       Guardar precios
     </Button>
@@ -92,7 +92,7 @@ export function CargarPrecios({ insumos }: { insumos: InsumoFila[] }) {
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="max-w-md flex-1 space-y-1.5">
           <Label htmlFor="precios-motivo">Motivo, para todos (opcional)</Label>
-          <Input id="precios-motivo" className="h-11 md:h-9" maxLength={200} value={motivo} placeholder="Lista de octubre del proveedor" onChange={(e) => setMotivo(e.target.value)} />
+          <Input id="precios-motivo" size="control" maxLength={200} value={motivo} placeholder="Lista de octubre del proveedor" onChange={(e) => setMotivo(e.target.value)} />
         </div>
         <div className="hidden items-center gap-3 md:flex">
           <span className="text-muted-foreground text-sm">{cambios.length === 0 ? "Sin cambios" : plural(cambios.length, "cambia", "cambian")}</span>
@@ -139,7 +139,7 @@ export function CargarPrecios({ insumos }: { insumos: InsumoFila[] }) {
                       <Input
                         aria-label={`Precio nuevo de ${i.codigo}`}
                         inputMode="decimal"
-                        className="h-11 text-right font-mono tabular-nums md:h-8"
+                        size="control-compacto" className="text-right font-mono tabular-nums"
                         value={texto}
                         onChange={(e) => setNuevos((n) => ({ ...n, [i.id]: e.target.value }))}
                       />

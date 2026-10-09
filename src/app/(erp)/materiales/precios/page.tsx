@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { PestanasDeSubruta } from "@/components/comunes/pestanas-de-subruta";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
@@ -34,14 +35,14 @@ export default async function CargarPreciosPage() {
 
   return (
     <MarcoDeTrabajo barra={barra}>
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+      <CuerpoDeSeccion ancho="ficha">
         <CabeceraDeSeccion
           titulo="Cargar precios"
           descripcion="Escriba solo los que cambian. Se guardan juntos: o todos o ninguno. Las cotizaciones emitidas que los usan quedan marcadas como desactualizadas."
         />
         <PestanasDeSubruta etiqueta="Apartados de materiales" opciones={subrutasDeMateriales(usuario)} />
         <CargarPrecios insumos={lista.datos} />
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

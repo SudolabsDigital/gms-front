@@ -123,7 +123,7 @@ export function BuscadorCliente({
           <Label htmlFor="cliente-nombre">Nombre o razón social</Label>
           <Input
             id="cliente-nombre"
-            className="h-11 md:h-9"
+            size="control"
             value={valor.nombre}
             maxLength={150}
             onChange={(e) => alCambiar({ ...valor, nombre: e.target.value })}
@@ -140,7 +140,7 @@ export function BuscadorCliente({
             autoComplete="tel"
             // El nombre ya viene de lo buscado: lo siguiente es el teléfono (recorrido UX.0, R30)
             autoFocus
-            className="h-11 md:h-9"
+            size="control"
             placeholder="964 123 456"
             value={valor.telefono}
             maxLength={30}
@@ -156,7 +156,7 @@ export function BuscadorCliente({
               <p className="text-warning-fuerte">
                 Ya existe <b>{repetido.nombre}</b> con ese número.
               </p>
-              <Button type="button" variant="outline" className="h-11 self-start md:h-8" onClick={() => alCambiar({ modo: "existente", cliente: repetido })}>
+              <Button type="button" variant="outline" size="control-compacto" className="self-start" onClick={() => alCambiar({ modo: "existente", cliente: repetido })}>
                 Usar a {repetido.nombre}
               </Button>
             </div>
@@ -176,7 +176,7 @@ export function BuscadorCliente({
         <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
         <Input
           id="cliente-buscar"
-          className="h-11 pl-9 md:h-9"
+          size="control" className="pl-9"
           placeholder="Nombre, teléfono o DNI/RUC"
           value={texto}
           autoComplete="off"

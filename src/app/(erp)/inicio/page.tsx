@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { Enlace } from "@/components/comunes/enlace";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -45,7 +46,7 @@ export default async function InicioPage() {
   return (
     <MarcoDeTrabajo barra={barra}>
       {/* Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta */}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 pb-24 md:pb-0">
+      <CuerpoDeSeccion ancho="amplio" className="pb-24 md:pb-0">
         <CabeceraDeSeccion
           titulo={`Hola, ${nombre}`}
           descripcion="Lo que necesita atención hoy, de lo más urgente a lo que puede esperar."
@@ -53,7 +54,7 @@ export default async function InicioPage() {
         <PendientesDeHoy pendientes={pendientes} />
         {/* En el escritorio, «Nuevo proyecto» está en la barra de contexto */}
         {puede(usuario, "proyectos:crear") ? <AltaProyecto disparador="movil" /> : null}
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }
@@ -75,7 +76,7 @@ function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+    <CuerpoDeSeccion ancho="ficha">
       <CabeceraDeSeccion
         titulo={`Hola, ${nombre}`}
         descripcion="GMS Integra calcula ventanas y mamparas a medida: usted da las medidas y el sistema devuelve el plano, la lista de corte y el precio."
@@ -125,7 +126,7 @@ function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<
                   <span className="flex items-center gap-2">
                     <span className="font-medium">{entrada.titulo}</span>
                     {entrada.disponible ? null : (
-                      <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-[10px]">
+                      <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
                         Pronto
                       </span>
                     )}
@@ -162,7 +163,7 @@ function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<
           })}
         </div>
       </section>
-    </div>
+    </CuerpoDeSeccion>
   );
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -51,7 +52,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Par
       panelAncho
       panelEnMovil
     >
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 md:gap-5">
+      <CuerpoDeSeccion ancho="ficha">
         <CabeceraDeSeccion
           titulo="Clientes"
           descripcion="A quién se le ha hecho o se le está haciendo un trabajo: sus datos, sus proyectos y lo que debe."
@@ -65,7 +66,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Par
         ) : (
           <PortadaDeClientes resumen={resumen} />
         )}
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

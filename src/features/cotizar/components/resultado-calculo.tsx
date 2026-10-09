@@ -29,6 +29,7 @@ import { LeyendaDeCerteza, PieDelPlano, VeloDeOtrasMedidas } from "@/features/co
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
 import { esPlanoV2, type Despiece } from "@/features/cotizar/types";
 import { medida, moneda, numero, porcentaje } from "@/lib/formato";
+import { ALTO_DE_CONTROL } from "@/lib/interfaz";
 
 /**
  * El resultado del cálculo, repartido en pestañas.
@@ -75,7 +76,7 @@ export function ResultadoCalculo({
         className="grid w-full grid-cols-3 gap-0 border-b group-data-horizontal/tabs:h-auto md:flex md:justify-start md:gap-2"
       >
         {PESTANAS_RESULTADO.filter((p) => conCosteo || p.id !== "costeo").map((p) => (
-          <TabsTrigger key={p.id} value={p.id} className="h-11 px-1 md:h-9 md:flex-none md:px-3">
+          <TabsTrigger key={p.id} value={p.id} className={`${ALTO_DE_CONTROL} px-1 md:flex-none md:px-3`}>
             {p.etiqueta}
           </TabsTrigger>
         ))}

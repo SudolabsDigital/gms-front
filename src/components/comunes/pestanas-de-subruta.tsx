@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { Enlace } from "@/components/comunes/enlace";
 import { InsigniaDeDato, type Dato } from "@/components/comunes/insignia-de-dato";
+import { ALTO_DE_CONTROL } from "@/lib/interfaz";
 import { cn } from "@/lib/utils";
 
 export type OpcionDeSubruta = {
@@ -48,7 +49,8 @@ export function PestanasDeSubruta({
                 prefetch={prefetch}
                 aria-current={activa ? "page" : undefined}
                 className={cn(
-                  "-mb-px flex h-11 items-center gap-2 border-b-2 px-3 text-sm whitespace-nowrap md:h-9",
+                  ALTO_DE_CONTROL,
+                  "-mb-px flex items-center gap-2 border-b-2 px-3 text-sm whitespace-nowrap",
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                   activa
                     ? "border-primary text-foreground font-semibold"

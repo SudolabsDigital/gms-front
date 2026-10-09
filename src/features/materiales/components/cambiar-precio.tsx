@@ -99,7 +99,7 @@ export function CambiarPrecio({
 
   return (
     <>
-      <Button variant={variante} size={compacto ? "sm" : "default"} className={compacto ? "h-11 md:h-8" : "h-11 md:h-9"} onClick={abrir}>
+      <Button variant={variante} size={compacto ? "control-compacto" : "control"} onClick={abrir}>
         <Tag className="size-4" />
         {compacto ? "Precio" : "Cambiar precio"}
       </Button>
@@ -124,7 +124,7 @@ export function CambiarPrecio({
             <Input
               id="precio-nuevo"
               inputMode="decimal"
-              className="h-11 font-mono tabular-nums md:h-9"
+              size="control" className="font-mono tabular-nums"
               value={precio}
               onChange={(e) => {
                 setPrecio(e.target.value);
@@ -143,9 +143,9 @@ export function CambiarPrecio({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="precio-motivo">Motivo (opcional)</Label>
-            <Input id="precio-motivo" className="h-11 md:h-9" maxLength={200} value={motivo} placeholder="Lista de octubre del proveedor" onChange={(e) => setMotivo(e.target.value)} />
+            <Input id="precio-motivo" size="control" maxLength={200} value={motivo} placeholder="Lista de octubre del proveedor" onChange={(e) => setMotivo(e.target.value)} />
           </div>
-          <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando || precio.trim() === ""}>
+          <Button type="submit" variant="brand" size="control" disabled={enviando || precio.trim() === ""}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Guardar precio
           </Button>

@@ -103,7 +103,7 @@ export function AgregarAlProyecto({
           <Input
             id="agregar-cantidad"
             inputMode="numeric"
-            className="h-11 font-mono tabular-nums md:h-9"
+            size="control" className="font-mono tabular-nums"
             value={cantidad}
             aria-invalid={errorDe("cantidad") ? true : undefined}
             aria-describedby={describeError("agregar-cantidad", errorDe("cantidad"))}
@@ -117,7 +117,7 @@ export function AgregarAlProyecto({
           <Label htmlFor="agregar-ubicacion">Dónde va</Label>
           <Input
             id="agregar-ubicacion"
-            className="h-11 md:h-9"
+            size="control"
             maxLength={80}
             value={ubicacion}
             placeholder="Sala · Dormitorio 2…"

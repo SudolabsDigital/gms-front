@@ -95,7 +95,7 @@ export function AprobarCotizacion({
 
   return (
     <>
-      <Button variant={variante} className={className ?? "h-11 w-full md:h-9"} onClick={abrir}>
+      <Button variant={variante} size="control" className={className ?? "w-full"} onClick={abrir}>
         Registrar aprobación
       </Button>
 
@@ -132,7 +132,7 @@ export function AprobarCotizacion({
                 <Input
                   id="aprobada-el"
                   type="date"
-                  className="h-11 md:h-9"
+                  size="control"
                   min={emitidaEl}
                   max={hoy}
                   value={dia}
@@ -157,11 +157,11 @@ export function AprobarCotizacion({
 
               {/* La salida con palabras, como en «Emitir» (R28): registrar el sí mueve la etapa (V07) */}
               <div className="flex flex-col gap-2 md:flex-row-reverse">
-                <Button variant="brand" className="h-11 md:h-9" onClick={aprobar} disabled={trabajando || dia === ""}>
+                <Button variant="brand" size="control" onClick={aprobar} disabled={trabajando || dia === ""}>
                   {trabajando ? <Loader2 className="size-4 animate-spin" /> : null}
                   Registrar aprobación
                 </Button>
-                <Button variant="outline" className="h-11 md:h-9" onClick={() => setAbierto(false)} disabled={trabajando}>
+                <Button variant="outline" size="control" onClick={() => setAbierto(false)} disabled={trabajando}>
                   Cancelar
                 </Button>
               </div>

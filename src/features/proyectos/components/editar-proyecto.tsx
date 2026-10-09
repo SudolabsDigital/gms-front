@@ -162,7 +162,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
   return (
     <>
       {/* 44 px en el móvil, como el resto de la cabecera de la ficha (`52-brief-ficha`) */}
-      <Button variant="outline" size="sm" className="h-11 md:h-8" onClick={abrir}>
+      <Button variant="outline" size="control-compacto" onClick={abrir}>
         <Pencil className="size-4" />
         Editar datos
       </Button>
@@ -199,7 +199,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
               <Label htmlFor="editar-nombre">Nombre</Label>
               <Input
                 id="editar-nombre"
-                className="h-11 md:h-9"
+                size="control"
                 value={datos.nombre}
                 maxLength={150}
                 onChange={(e) => campo("nombre", e.target.value)}
@@ -219,7 +219,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
                   type="tel"
                   inputMode="tel"
                   autoComplete="tel"
-                  className="h-11 md:h-9"
+                  size="control"
                   placeholder="964 123 456"
                   value={telefono}
                   maxLength={30}
@@ -254,7 +254,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
                 <Input
                   id={`editar-${clave}`}
                   type={tipo}
-                  className="h-11 md:h-9"
+                  size="control"
                   value={datos[clave]}
                   onChange={(e) => campo(clave, e.target.value)}
                   aria-invalid={errorDe(clave) ? true : undefined}
@@ -269,7 +269,7 @@ export function EditarProyecto({ proyecto }: { proyecto: ProyectoFicha }) {
               <Textarea id="editar-notas" rows={3} value={datos.notas} onChange={(e) => campo("notas", e.target.value)} />
             </div>
 
-            <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando}>
+            <Button type="submit" variant="brand" size="control" disabled={enviando}>
               {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
               Guardar
             </Button>

@@ -156,7 +156,7 @@ export function CompositorTipo({
                   }
                 >
                   {panel}
-                  <span className="text-[10px] font-normal opacity-70">
+                  <span className="text-xs font-normal opacity-70">
                     {panel === "F" ? "fijo" : "corre."}
                   </span>
                 </button>

@@ -44,7 +44,7 @@ export function Buscador({
           defaultValue={valor}
           placeholder={placeholder}
           aria-label={etiqueta}
-          className="h-11 pl-9 md:h-9"
+          size="control" className="pl-9"
         />
       </form>
       {enfocar ? <FocoEnEscritorio id={id} /> : null}

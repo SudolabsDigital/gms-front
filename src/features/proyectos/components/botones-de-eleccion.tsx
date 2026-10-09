@@ -1,6 +1,7 @@
 import { useId } from "react";
 
 import { describeError, ErrorDeCampo } from "@/components/comunes/error-de-campo";
+import { ALTO_DE_CONTROL_COMPACTO } from "@/lib/interfaz";
 import { cn } from "@/lib/utils";
 
 /**
@@ -34,7 +35,8 @@ export function BotonesDeEleccion<T extends string>({
             aria-pressed={valor === opcion}
             onClick={() => alCambiar(opcion)}
             className={cn(
-              "h-11 rounded-md border px-3 text-sm transition-colors md:h-8",
+              ALTO_DE_CONTROL_COMPACTO,
+              "rounded-md border px-3 text-sm transition-colors",
               valor === opcion ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted/60",
             )}
           >

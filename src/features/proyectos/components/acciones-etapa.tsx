@@ -119,12 +119,12 @@ export function AccionesEtapa({
       ? posibles.find((e) => !CON_MOTIVO.includes(e))
       : undefined;
   // Emitir la versión nueva pasa delante de aprobar la vigente, pero el sí de la vigente sigue a mano
-  const aprobarSecundaria = aprobar && emitirPrimero ? <AprobarCotizacion proyectoId={proyecto.id} vigente={aprobar} variante="outline" className="h-11 md:h-9" /> : null;
+  const aprobarSecundaria = aprobar && emitirPrimero ? <AprobarCotizacion proyectoId={proyecto.id} vigente={aprobar} variante="outline" className="w-auto" /> : null;
   const hojaDeCorte = `/proyectos/${proyecto.id}/corte`;
   // Después de producción la hoja se reimprime: secundaria, debajo de la principal
   const reimprimirCorte =
     conCorte && !imprimirCorte ? (
-      <Button asChild variant="outline" className="h-11 md:h-9">
+      <Button asChild variant="outline" size="control">
         <Enlace href={hojaDeCorte}>Lista de corte</Enlace>
       </Button>
     ) : null;
@@ -199,9 +199,9 @@ export function AccionesEtapa({
       sustituye={vigente ? { version: vigente.version, aprobada: vigente.estado === "aprobada" } : null}
     />
   ) : recotizarConObra ? (
-    <RecotizarConMedidas proyectoId={proyecto.id} items={recotizarConObra.items} className="h-11 w-full md:h-9" />
+    <RecotizarConMedidas proyectoId={proyecto.id} items={recotizarConObra.items} className="w-full" />
   ) : confirmarMedicion ? (
-    <Button asChild variant="brand" className="h-11 w-full md:h-9">
+    <Button asChild variant="brand" size="control" className="w-full">
       <Enlace href={rutaDeSeccion(proyecto.id, "obra", "#medir")}>
         {proyecto.medicion ? "Volver a medir" : "Confirmar medición"}
       </Enlace>
@@ -209,15 +209,15 @@ export function AccionesEtapa({
   ) : aprobar ? (
     <AprobarCotizacion proyectoId={proyecto.id} vigente={aprobar} />
   ) : cobrarSaldo ? (
-    <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" tipoInicial="saldo" className="h-11 w-full md:h-9" />
+    <RegistrarCobro proyecto={proyecto} etiqueta="Registrar saldo" variante="brand" tipoInicial="saldo" className="w-full" />
   ) : cotizar ? (
     <CotizarProyecto proyectoId={proyecto.id} etiqueta={hayBorrador ? "Seguir cotizando" : "Cotizar"} />
   ) : imprimirCorte ? (
-    <Button asChild variant="brand" className="h-11 w-full md:h-9">
+    <Button asChild variant="brand" size="control" className="w-full">
       <Enlace href={hojaDeCorte}>Imprimir lista de corte</Enlace>
     </Button>
   ) : principalDirecta ? (
-    <Button variant="brand" className="h-11 w-full md:h-9" onClick={() => abrir(principalDirecta)}>
+    <Button variant="brand" size="control" className="w-full" onClick={() => abrir(principalDirecta)}>
       {VERBO[principalDirecta] ?? ETAPAS[principalDirecta]}
     </Button>
   ) : null;
@@ -235,7 +235,7 @@ export function AccionesEtapa({
           <Button
             key={etapa}
             variant="outline"
-            className="h-11 md:h-9"
+            size="control"
             onClick={() => abrir(etapa)}
           >
             {VERBO[etapa] ?? ETAPAS[etapa]}
@@ -286,7 +286,7 @@ export function AccionesEtapa({
 
           <Button
             variant={exigeMotivo ? "destructive" : "brand"}
-            className="h-11 md:h-9"
+            size="control"
             onClick={confirmar}
             // Sin motivo el botón no se habilita; el servidor lo exige igual (`MOTIVO_REQUERIDO`)
             disabled={enviando || (exigeMotivo && motivo.trim() === "")}

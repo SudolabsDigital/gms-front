@@ -38,11 +38,10 @@ export function RecotizarProyecto({
   const [abriendo, setAbriendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pestana = rutaDeSeccion(proyectoId, "cotizacion");
-  const clase = className ?? "h-11 md:h-9";
 
   if (hayBorrador) {
     return (
-      <Button asChild variant="outline" className={clase}>
+      <Button asChild variant="outline" size="control" className={className}>
         <Enlace href={pestana}>Seguir recotizando</Enlace>
       </Button>
     );
@@ -69,7 +68,7 @@ export function RecotizarProyecto({
 
   return (
     <>
-      <Button variant="outline" className={clase} onClick={() => { setAbierto(true); setError(null); }}>
+      <Button variant="outline" size="control" className={className} onClick={() => { setAbierto(true); setError(null); }}>
         Recotizar
       </Button>
 
@@ -89,7 +88,7 @@ export function RecotizarProyecto({
 
           {error ? <Notificacion tono="error">{error}</Notificacion> : null}
 
-          <Button variant="brand" className="h-11 md:h-9" onClick={recotizar} disabled={abriendo}>
+          <Button variant="brand" size="control" onClick={recotizar} disabled={abriendo}>
             {abriendo ? <Loader2 className="size-4 animate-spin" /> : null}
             Abrir la v{nueva}
           </Button>

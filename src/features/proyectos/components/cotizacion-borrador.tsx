@@ -61,7 +61,7 @@ export function CotizacionBorrador({
   }
 
   const agregar = puedeEditar ? (
-    <Button asChild variant={cotizacion.items.length === 0 ? "brand" : "outline"} className="h-11 md:h-9">
+    <Button asChild variant={cotizacion.items.length === 0 ? "brand" : "outline"} size="control">
       <Enlace href={rutaDelCotizador(cotizacion.id)}>
         <Plus className="size-4" />
         Agregar ítem
@@ -132,7 +132,7 @@ export function CotizacionBorrador({
       >
         <div className="flex flex-col gap-4">
           {error ? <Notificacion tono="error">{error}</Notificacion> : null}
-          <Button variant="destructive" className="h-11 md:h-9" onClick={quitar} disabled={enviando}>
+          <Button variant="destructive" size="control" onClick={quitar} disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
             Quitar
           </Button>
@@ -193,7 +193,7 @@ export function FilaItem({
           </span>
         ) : null}
         {puedeQuitar && alQuitar ? (
-          <Button variant="ghost" size="sm" className="text-muted-foreground h-11 px-2 md:h-8" onClick={alQuitar}>
+          <Button variant="ghost" size="control-compacto" className="text-muted-foreground px-2" onClick={alQuitar}>
             <Trash2 className="size-4" />
             <span className="sr-only md:not-sr-only">Quitar</span>
           </Button>

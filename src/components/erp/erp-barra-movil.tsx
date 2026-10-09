@@ -100,7 +100,7 @@ export function ErpBarraMovil({ usuario }: { usuario: Usuario }) {
                     className={cn(base, "text-muted-foreground/45")}
                   >
                     {cuerpo}
-                    <span className="bg-muted ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px]">
+                    <span className="bg-muted ml-auto shrink-0 rounded px-1.5 py-0.5 text-xs">
                       Pronto
                     </span>
                   </div>
@@ -138,7 +138,7 @@ export function ErpBarraMovil({ usuario }: { usuario: Usuario }) {
               <span className="block truncate text-sm leading-tight font-medium">
                 {usuario.nombre}
               </span>
-              <span className="text-muted-foreground block text-[11px] leading-tight">
+              <span className="text-muted-foreground block text-xs leading-tight">
                 {usuario.rol_etiqueta}
               </span>
             </span>

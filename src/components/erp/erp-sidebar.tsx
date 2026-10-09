@@ -72,7 +72,7 @@ export function ErpSidebar({ usuario }: { usuario: Usuario }) {
                       {etiqueta}
                       <span
                         className={cn(
-                          "bg-muted ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] whitespace-nowrap",
+                          "bg-muted ml-auto shrink-0 rounded px-1.5 py-0.5 text-xs whitespace-nowrap",
                           alDesplegar,
                         )}
                       >

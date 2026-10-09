@@ -238,7 +238,7 @@ export function DocumentoCotizacion({
                 <Label htmlFor="descuento_motivo">Motivo del descuento</Label>
                 <Input
                   id="descuento_motivo"
-                  className="h-11 md:h-9"
+                  size="control"
                   maxLength={200}
                   value={datos.descuento_motivo}
                   placeholder="Cierre por WhatsApp · Cliente frecuente…"
@@ -269,7 +269,7 @@ export function DocumentoCotizacion({
 
             {puedeEditar ? (
               <div className="flex flex-col gap-2 md:flex-row md:justify-end">
-                <Button type="submit" variant={cambios.length > 0 ? "brand" : "outline"} className="h-11 md:h-9" disabled={enviando || cambios.length === 0 || faltaMotivo}>
+                <Button type="submit" variant={cambios.length > 0 ? "brand" : "outline"} size="control" disabled={enviando || cambios.length === 0 || faltaMotivo}>
                   {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
                   Guardar
                 </Button>
@@ -279,7 +279,7 @@ export function DocumentoCotizacion({
                     sustituye={sustituye}
                     variante={cambios.length > 0 ? "outline" : "brand"}
                     // Con líneas, en el móvil «Emitir» ya está en la barra fija del riel: aquí era un tercer botón (V11)
-                    className={cotizacion.items.length > 0 ? "hidden md:inline-flex md:h-9" : "h-11 md:h-9"}
+                    className={cotizacion.items.length > 0 ? "hidden md:inline-flex" : "w-auto"}
                   />
                 ) : null}
               </div>
@@ -321,7 +321,7 @@ function CampoNumero({
       <Input
         id={id}
         inputMode={entero ? "numeric" : "decimal"}
-        className="h-11 font-mono tabular-nums md:h-9"
+        size="control" className="font-mono tabular-nums"
         value={valor}
         placeholder={marcador}
         disabled={deshabilitado}

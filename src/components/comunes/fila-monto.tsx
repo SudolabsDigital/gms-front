@@ -32,7 +32,7 @@ export function FilaMonto({
           {etiqueta}
         </span>
         {ayuda ? (
-          <p className="text-muted-foreground/80 text-[11px] leading-tight">{ayuda}</p>
+          <p className="text-muted-foreground/80 text-xs leading-tight">{ayuda}</p>
         ) : null}
       </div>
 

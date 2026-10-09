@@ -223,7 +223,7 @@ function CabeceraDestino({ destino }: { destino: DestinoDeCotizacion }) {
         <span className="text-muted-foreground"> · v{destino.version} borrador · </span>
         <span className="font-medium break-words">{destino.nombre}</span>
       </p>
-      <Button asChild variant="outline" size="sm" className="h-11 shrink-0 md:h-8">
+      <Button asChild variant="outline" size="control-compacto" className="shrink-0">
         <Enlace href={rutaDeSeccion(destino.proyectoId, "cotizacion")}>
           <ArrowLeft className="size-4" />
           Volver al proyecto ({destino.items} {destino.items === 1 ? "ítem" : "ítems"})

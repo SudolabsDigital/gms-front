@@ -4,6 +4,7 @@ import { Buscador } from "@/components/comunes/buscador";
 import { Enlace } from "@/components/comunes/enlace";
 import { Notificacion } from "@/components/comunes/notificacion";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { PestanasDeSubruta } from "@/components/comunes/pestanas-de-subruta";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { TablaDeDatos } from "@/components/comunes/tabla-de-datos";
@@ -61,7 +62,7 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
 
   return (
     <MarcoDeTrabajo barra={barra}>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-5">
+      <CuerpoDeSeccion ancho="amplio">
         <CabeceraDeSeccion
           titulo="Materiales"
           descripcion="Todo lo que se consume —perfiles, vidrios, accesorios, consumibles—, cuánto cuesta y dónde se usa."
@@ -107,7 +108,7 @@ export default async function MaterialesPage({ searchParams }: { searchParams: P
             <ListaInsumos filas={lista.datos} />
           )}
         </TablaDeDatos>
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

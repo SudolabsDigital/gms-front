@@ -2,6 +2,7 @@ import { Enlace } from "@/components/comunes/enlace";
 import { PestanasConCifra, type OpcionConCifra } from "@/components/comunes/pestanas-con-cifra";
 import { CLASES } from "@/features/materiales/textos";
 import type { Clase } from "@/features/materiales/types";
+import { ALTO_DE_CONTROL } from "@/lib/interfaz";
 import { cn } from "@/lib/utils";
 
 export type FiltroInsumos = { clase: Clase | null; inactivos: boolean; buscar: string };
@@ -44,7 +45,8 @@ export function FiltroClases({ filtro, recuento }: { filtro: FiltroInsumos; recu
           href={urlDeInsumos(filtro, { inactivos: !filtro.inactivos })}
           aria-pressed={filtro.inactivos}
           className={cn(
-            "flex h-11 shrink-0 items-center rounded-full border px-3 text-sm whitespace-nowrap md:h-9 md:self-center",
+            ALTO_DE_CONTROL,
+            "flex shrink-0 items-center rounded-full border px-3 text-sm whitespace-nowrap md:self-center",
             filtro.inactivos ? "border-primary text-foreground font-medium" : "text-muted-foreground hover:text-foreground",
           )}
         >

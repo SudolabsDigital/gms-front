@@ -21,7 +21,7 @@ export function InsigniaDeDato({ dato, className }: { dato: Dato; className?: st
   return (
     <span
       className={cn(
-        "shrink-0 rounded-full px-1.5 py-px text-[11px] font-semibold whitespace-nowrap tabular-nums",
+        "shrink-0 rounded-full px-1.5 py-px text-xs font-semibold whitespace-nowrap tabular-nums",
         TONOS[dato.tono ?? "neutro"],
         className,
       )}

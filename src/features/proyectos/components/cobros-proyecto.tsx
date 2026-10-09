@@ -129,7 +129,7 @@ export function CobrosProyecto({
                     {puedeAnular && !anulado ? (
                       <Button
                         variant="ghost"
-                        className="h-11 md:h-8"
+                        size="control-compacto"
                         onClick={() => {
                           setAnulando(cobro);
                           setMotivo("");
@@ -166,7 +166,7 @@ export function CobrosProyecto({
             />
           </div>
           {error ? <Notificacion tono="error">{error}</Notificacion> : null}
-          <Button variant="destructive" className="h-11 md:h-9" onClick={anular} disabled={enviando || motivo.trim() === ""}>
+          <Button variant="destructive" size="control" onClick={anular} disabled={enviando || motivo.trim() === ""}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Anular cobro
           </Button>

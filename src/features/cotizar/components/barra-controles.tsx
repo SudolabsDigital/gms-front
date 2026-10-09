@@ -63,7 +63,7 @@ export function BarraControles({
         </Label>
         <Select value={tipoId} onValueChange={alCambiarTipo}>
           {/* 44 px en el móvil: cotizar en obra es operación de primera (decisión 18) */}
-          <SelectTrigger id="tipo" className="w-full data-[size=default]:h-11 md:data-[size=default]:h-9">
+          <SelectTrigger id="tipo" size="control" className="w-full">
             <SelectValue placeholder="Seleccione un tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -98,7 +98,7 @@ export function BarraControles({
         />
       </div>
 
-      <Button onClick={alCalcular} disabled={calculando || bloqueado} variant="brand" className="h-11 md:h-9">
+      <Button onClick={alCalcular} disabled={calculando || bloqueado} variant="brand" size="control">
         {calculando ? (
           <>
             <Loader2 className="size-4 animate-spin" />
@@ -140,8 +140,9 @@ function CampoMedida({
           onChange={(evento) => alCambiar(evento.target.value)}
           aria-invalid={juicio.estado === "error"}
           aria-describedby={juicio.mensaje ? `${id}-nota` : undefined}
+          size="control"
           className={cn(
-            "h-11 w-28 pr-9 tabular-nums md:h-9",
+            "w-28 pr-9 tabular-nums",
             juicio.estado === "aviso" && "border-warning",
           )}
         />
@@ -157,7 +158,7 @@ function CampoMedida({
         <p
           id={`${id}-nota`}
           className={cn(
-            "flex max-w-56 items-start gap-1 text-[11px] leading-tight",
+            "flex max-w-56 items-start gap-1 text-xs leading-tight",
             juicio.estado === "error" ? "text-destructive-fuerte" : "text-muted-foreground",
           )}
         >

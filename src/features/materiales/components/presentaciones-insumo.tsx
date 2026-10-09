@@ -82,11 +82,11 @@ export function PresentacionesInsumo({
               ) : null}
               {gestiona && !p.es_compra ? (
                 <>
-                  <Button variant="ghost" size="sm" className="h-11 md:h-8" disabled={trabajando === p.id} onClick={() => accion(p.id, "POST", `/api/v1/presentaciones/${p.id}/compra`, `${p.nombre} es ahora la de compra`)}>
+                  <Button variant="ghost" size="control-compacto" disabled={trabajando === p.id} onClick={() => accion(p.id, "POST", `/api/v1/presentaciones/${p.id}/compra`, `${p.nombre} es ahora la de compra`)}>
                     {trabajando === p.id ? <Loader2 className="size-4 animate-spin" /> : null}
                     Hacer de compra
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground h-11 md:h-8" disabled={trabajando === p.id} onClick={() => accion(p.id, "DELETE", `/api/v1/presentaciones/${p.id}`, `${p.nombre} quitada`)}>
+                  <Button variant="ghost" size="control-compacto" className="text-muted-foreground" disabled={trabajando === p.id} onClick={() => accion(p.id, "DELETE", `/api/v1/presentaciones/${p.id}`, `${p.nombre} quitada`)}>
                     Quitar
                   </Button>
                 </>
@@ -143,7 +143,7 @@ function AgregarPresentacion({ insumo }: { insumo: InsumoFicha }) {
       <Label htmlFor={`presentacion-${clave}`}>{etiqueta}</Label>
       <Input
         id={`presentacion-${clave}`}
-        className="h-11 md:h-9"
+        size="control"
         value={datos[clave]}
         onChange={(e) => campo(clave, e.target.value)}
         aria-invalid={errorDe(clave) ? true : undefined}
@@ -156,7 +156,7 @@ function AgregarPresentacion({ insumo }: { insumo: InsumoFicha }) {
 
   return (
     <>
-      <Button variant="outline" className="h-11 self-start md:h-9" onClick={() => setAbierto(true)}>
+      <Button variant="outline" size="control" className="self-start" onClick={() => setAbierto(true)}>
         <Plus className="size-4" />
         Agregar presentación
       </Button>
@@ -171,16 +171,16 @@ function AgregarPresentacion({ insumo }: { insumo: InsumoFicha }) {
           {texto("nombre", "Nombre", { maxLength: 40, placeholder: area ? "plancha 244×183" : insumo.tipo_medida === "lineal" ? "barra 585" : "caja" })}
           {area ? (
             <div className="grid grid-cols-2 gap-3">
-              {texto("ancho_cm", "Ancho (cm)", { inputMode: "decimal", className: "h-11 font-mono md:h-9" })}
-              {texto("alto_cm", "Alto (cm)", { inputMode: "decimal", className: "h-11 font-mono md:h-9" })}
+              {texto("ancho_cm", "Ancho (cm)", { inputMode: "decimal", className: "font-mono" })}
+              {texto("alto_cm", "Alto (cm)", { inputMode: "decimal", className: "font-mono" })}
             </div>
           ) : (
             texto("contenido", insumo.tipo_medida === "lineal" ? "Largo (cm)" : "Unidades que trae", {
               inputMode: insumo.tipo_medida === "lineal" ? "decimal" : "numeric",
-              className: "h-11 font-mono md:h-9",
+              className: "font-mono",
             })
           )}
-          <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando}>
+          <Button type="submit" variant="brand" size="control" disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             Agregar
           </Button>

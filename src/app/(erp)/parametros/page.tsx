@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -38,7 +39,7 @@ export default async function ParametrosPage() {
 
   return (
     <MarcoDeTrabajo barra={barra}>
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+      <CuerpoDeSeccion ancho="formulario">
         <CabeceraDeSeccion
           titulo="Parámetros"
           descripcion="Los valores con que cotiza el sistema: cuánto vale una cotización, qué margen y anticipo se sugieren, a cuánto se cobra la mano de obra."
@@ -87,7 +88,7 @@ export default async function ParametrosPage() {
             </section>
           );
         })}
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

@@ -44,7 +44,7 @@ export function CotizarProyecto({
   }
 
   return (
-    <Button variant={variante} className={className ?? "h-11 w-full md:h-9"} onClick={cotizar} disabled={abriendo}>
+    <Button variant={variante} size="control" className={className ?? "w-full"} onClick={cotizar} disabled={abriendo}>
       {abriendo ? <Loader2 className="size-4 animate-spin" /> : null}
       {etiqueta}
     </Button>

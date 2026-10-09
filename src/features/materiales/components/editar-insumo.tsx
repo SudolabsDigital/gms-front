@@ -15,6 +15,7 @@ import { BotonesDeEleccion } from "@/features/proyectos/components/botones-de-el
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
 import type { Meta } from "@/features/proyectos/types";
 import { erroresPorCampo, mensajeDeError, pedir } from "@/lib/api-cliente";
+import { ALTO_DE_CONTROL } from "@/lib/interfaz";
 import { notificar } from "@/lib/notificar";
 
 type Campos = {
@@ -61,7 +62,7 @@ function camposDe(i: InsumoFicha): Campos {
   };
 }
 
-const SELECT = "border-input bg-background h-11 w-full rounded-md border px-3 text-sm md:h-9";
+const SELECT = `border-input bg-background w-full rounded-md border px-3 text-sm ${ALTO_DE_CONTROL}`;
 
 /**
  * Alta y edición de un insumo (`materiales/50-api`, `51-ui`). **Sin precio**: el precio se cambia aparte, porque deja
@@ -146,7 +147,7 @@ export function EditarInsumo({ insumo }: { insumo?: InsumoFicha }) {
       <Label htmlFor={`insumo-${clave}`}>{etiqueta}</Label>
       <Input
         id={`insumo-${clave}`}
-        className="h-11 md:h-9"
+        size="control"
         value={datos[clave]}
         onChange={(e) => campo(clave, e.target.value)}
         aria-invalid={errorDe(clave) ? true : undefined}
@@ -159,7 +160,7 @@ export function EditarInsumo({ insumo }: { insumo?: InsumoFicha }) {
 
   return (
     <>
-      <Button variant={insumo ? "outline" : "brand"} className="h-11 md:h-9" onClick={abrir}>
+      <Button variant={insumo ? "outline" : "brand"} size="control" onClick={abrir}>
         {insumo ? <Pencil className="size-4" /> : <Plus className="size-4" />}
         {insumo ? "Editar" : "Nuevo insumo"}
       </Button>
@@ -174,7 +175,7 @@ export function EditarInsumo({ insumo }: { insumo?: InsumoFicha }) {
           {errorGeneral ? <Notificacion tono="error">{errorGeneral}</Notificacion> : null}
 
           <div className="grid grid-cols-[7rem_minmax(0,1fr)] gap-3">
-            {texto("codigo", "Código", { maxLength: 30, className: "h-11 font-mono md:h-9" })}
+            {texto("codigo", "Código", { maxLength: 30, className: "font-mono" })}
             {texto("nombre_comercial", "Nombre", { maxLength: 150 })}
           </div>
 
@@ -183,7 +184,7 @@ export function EditarInsumo({ insumo }: { insumo?: InsumoFicha }) {
 
           {/* La presentación de compra nace con el alta; después se cambia en «Cómo se compra» (decisión 48) */}
           {!insumo && datos.tipo_medida === "lineal"
-            ? texto("largo_barra_cm", "Largo de barra o rollo (cm)", { inputMode: "decimal", className: "h-11 font-mono md:h-9" })
+            ? texto("largo_barra_cm", "Largo de barra o rollo (cm)", { inputMode: "decimal", className: "font-mono" })
             : null}
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -213,8 +214,8 @@ export function EditarInsumo({ insumo }: { insumo?: InsumoFicha }) {
 
           <div className="grid gap-3 sm:grid-cols-3">
             {!insumo ? texto("presentacion", "Se compra en", { maxLength: 40, placeholder: datos.tipo_medida === "lineal" ? "barra" : datos.tipo_medida === "area" ? "m²" : "unidad" }) : null}
-            {texto("peso_kg_por_metro", "Peso (kg/m)", { inputMode: "decimal", className: "h-11 font-mono md:h-9" })}
-            {texto("color_hex", "Color en el plano", { placeholder: "#9CA3AF", className: "h-11 font-mono md:h-9" })}
+            {texto("peso_kg_por_metro", "Peso (kg/m)", { inputMode: "decimal", className: "font-mono" })}
+            {texto("color_hex", "Color en el plano", { placeholder: "#9CA3AF", className: "font-mono" })}
           </div>
 
           <label className="flex min-h-11 items-center gap-2 text-sm md:min-h-8">
@@ -227,7 +228,7 @@ export function EditarInsumo({ insumo }: { insumo?: InsumoFicha }) {
             Pieza única: no admite empalme
           </label>
 
-          <Button type="submit" variant="brand" className="h-11 md:h-9" disabled={enviando}>
+          <Button type="submit" variant="brand" size="control" disabled={enviando}>
             {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
             {insumo ? "Guardar" : "Dar de alta"}
           </Button>

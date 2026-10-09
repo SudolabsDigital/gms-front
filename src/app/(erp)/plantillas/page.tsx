@@ -3,6 +3,7 @@ import { Calculator, LayoutTemplate } from "lucide-react";
 
 import { EmptyState } from "@/components/comunes/empty-state";
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { TarjetaEnlace } from "@/components/comunes/tarjeta-enlace";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,13 +46,13 @@ export default async function PlantillasPage() {
   if (!diseno) {
     return (
       <MarcoDeTrabajo barra={barra}>
-        <div className="mx-auto w-full max-w-5xl">
+        <CuerpoDeSeccion ancho="amplio">
           <EmptyState
             icono={LayoutTemplate}
             titulo="No hay diseños cargados"
             descripcion="Un diseño agrupa los tipos de una serie y las reglas que los calculan. Sin al menos uno, no hay nada que componer ni cotizar."
           />
-        </div>
+        </CuerpoDeSeccion>
       </MarcoDeTrabajo>
     );
   }
@@ -60,7 +61,7 @@ export default async function PlantillasPage() {
 
   return (
     <MarcoDeTrabajo barra={barra}>
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <CuerpoDeSeccion ancho="amplio">
         <CabeceraDeSeccion
           titulo={diseno.nombre}
           descripcion={
@@ -124,7 +125,7 @@ export default async function PlantillasPage() {
 
                     <div className="flex w-full max-w-64 flex-1 flex-col gap-1">
                       <TiraComposicion composicion={tipo.composicion} />
-                      <p className="text-muted-foreground text-[11px]">
+                      <p className="text-muted-foreground text-xs">
                         Referencia {numero(tipo.ancho_default)} ×{" "}
                         {numero(tipo.alto_default)} cm
                       </p>
@@ -145,7 +146,7 @@ export default async function PlantillasPage() {
           En los esquemas, <strong>F</strong> es un panel fijo —no se mueve— y{" "}
           <strong>D</strong> una hoja corrediza, la que se desliza para abrir.
         </p>
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }

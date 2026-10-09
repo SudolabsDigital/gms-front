@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ClipboardList, FileText, History, MessageCircle, Phone, Printer, Ruler, ShieldCheck, Wallet } from "lucide-react";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { Enlace } from "@/components/comunes/enlace";
 import type { Dato } from "@/components/comunes/insignia-de-dato";
 import { PestanasDeSubruta } from "@/components/comunes/pestanas-de-subruta";
@@ -70,7 +71,7 @@ export default async function ObraLayout({ children, params }: { children: React
   const accionesDeContacto = (
     <>
       {whatsapp ? (
-        <Button asChild variant="outline" className="text-whatsapp h-11 md:h-8">
+        <Button asChild variant="outline" size="control-compacto" className="text-whatsapp">
           <a href={whatsapp} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="size-4" />
             WhatsApp
@@ -78,7 +79,7 @@ export default async function ObraLayout({ children, params }: { children: React
         </Button>
       ) : null}
       {telefono ? (
-        <Button asChild variant="outline" className="h-11 md:hidden">
+        <Button asChild variant="outline" size="control" className="md:hidden">
           <a href={`tel:${telefono}`}>
             <Phone className="size-4" />
             Llamar
@@ -100,7 +101,7 @@ export default async function ObraLayout({ children, params }: { children: React
     >
       <BorradorEnEdicion>
         {/* Espacio abajo en el móvil: la barra fija de la acción de la etapa no debe tapar el contenido */}
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-28 md:pb-0 print:max-w-none print:pb-0">
+        <CuerpoDeSeccion ancho="amplio" className="pb-28 md:pb-0 print:max-w-none print:pb-0">
           <div className="flex flex-col gap-3 md:hidden print:hidden">
             <CabeceraDeSeccion
               volver={{ href: "/proyectos", etiqueta: "Proyectos" }}
@@ -166,7 +167,7 @@ export default async function ObraLayout({ children, params }: { children: React
               </Card>
             </aside>
           </div>
-        </div>
+        </CuerpoDeSeccion>
       </BorradorEnEdicion>
     </MarcoDeTrabajo>
   );
@@ -190,7 +191,7 @@ function Cifras({ proyecto, enLinea = false }: { proyecto: ProyectoFicha; enLine
     <dl className={enLinea ? "text-muted-foreground flex gap-4 text-sm" : "grid grid-cols-2 gap-x-3 gap-y-0.5"}>
       {cifras.map(([etiqueta, valor, debe]) => (
         <div key={etiqueta} className={enLinea ? "flex gap-1.5" : undefined}>
-          <dt className={enLinea ? undefined : "text-muted-foreground text-[11px]"}>{etiqueta}</dt>
+          <dt className={enLinea ? undefined : "text-muted-foreground text-xs"}>{etiqueta}</dt>
           <dd className={`font-mono font-semibold tabular-nums ${debe ? "text-warning-fuerte" : "text-foreground"}`}>{valor}</dd>
         </div>
       ))}

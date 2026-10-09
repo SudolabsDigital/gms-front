@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
 import { PestanasDeSubruta } from "@/components/comunes/pestanas-de-subruta";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
@@ -36,7 +37,7 @@ export default async function FamiliasPage() {
 
   return (
     <MarcoDeTrabajo barra={barra}>
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+      <CuerpoDeSeccion ancho="formulario">
         <CabeceraDeSeccion
           titulo="Familias de material"
           descripcion="Aluminio, vidrio, acero…: agrupan los insumos para saber cuánto se consume de cada uno."
@@ -57,7 +58,7 @@ export default async function FamiliasPage() {
             </li>
           ))}
         </ul>
-      </div>
+      </CuerpoDeSeccion>
     </MarcoDeTrabajo>
   );
 }
