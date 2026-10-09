@@ -38,9 +38,10 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
-        // Los del ERP (SEC.6): 44 px en el táctil; en el escritorio 36, o 32 en barras y filas
-        control: `${ALTO_DE_CONTROL} gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2`,
-        "control-compacto": `${ALTO_DE_CONTROL_COMPACTO} gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2`,
+        // Los del ERP (SEC.6): 44 px en el táctil, también de ancho —un botón de solo icono no se queda en 34—; en el
+        // escritorio 36 de alto, o 32 en barras y filas
+        control: `${ALTO_DE_CONTROL} min-w-11 gap-1.5 px-2.5 md:min-w-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2`,
+        "control-compacto": `${ALTO_DE_CONTROL_COMPACTO} min-w-11 gap-1.5 px-2.5 md:min-w-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2`,
       },
     },
     defaultVariants: {
