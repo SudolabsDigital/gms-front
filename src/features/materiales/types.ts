@@ -3,6 +3,7 @@
  * es opcional A PROPÓSITO: sin `costeo:ver` no viaja (`MAT-I09`), y la pantalla lo nota por su ausencia.
  */
 import type { Meta } from "@/features/proyectos/types";
+import type { UsoDeInsumo } from "@/features/series/types";
 
 export type Clase = "perfil" | "vidrio" | "accesorio" | "consumible";
 export type TipoMedida = "lineal" | "area" | "unidad";
@@ -31,6 +32,9 @@ export type InsumoFicha = InsumoFila & {
   peso_kg_por_metro: number | null;
   color_hex: string | null;
   updated_at: string;
+  /** Dónde lo usa hoy cada versión publicada, con su certeza (`series/50-api`): lo que enseña «Dónde se usa» */
+  usos: UsoDeInsumo[];
+  /** Las reglas, también las viejas: deciden si se puede dar de baja (`MAT-I07`) */
   reglas: { id: string; codigo: string; rol: string | null; ambito: string | null; como: "insumo" | "origen"; activa: boolean }[];
   presentaciones: Presentacion[];
   historial?: { presentacion: string | null; precio_anterior: number; precio_nuevo: number; motivo: string | null; por: string | null; fecha: string }[];

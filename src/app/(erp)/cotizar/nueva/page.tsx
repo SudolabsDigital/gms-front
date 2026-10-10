@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 type Parametros = Promise<{ [clave: string]: string | string[] | undefined }>;
 
 /**
- * Sin encabezado de página, a diferencia de Inicio y Plantillas.
+ * Sin encabezado de página, a diferencia de Inicio y Series.
  *
  * La barra de contexto ya dice dónde se está —«Cotizar», o la obra para la que se cotiza—, así que un
  * título «Cotizador» solo repetiría esa información a cambio de empujar el plano hacia abajo. Esta es una
@@ -30,8 +30,8 @@ type Parametros = Promise<{ [clave: string]: string | string[] | undefined }>;
  * Con `?cotizacion=<id>` cotiza **para un proyecto** (tajada B.1): la cabecera dice para cuál y, tras
  * calcular, aparece «Agregar al proyecto». Sin él, es el cálculo en seco de siempre.
  *
- * Con `?tipo=<id>` abre en ese tipo: es lo que manda «Cotizar» desde Plantillas, y hasta la sesión 32 se ignoraba
- * (abría siempre el primero).
+ * Con `?tipo=<id>` abre en ese tipo: es lo que manda una tarjeta de la pestaña Tipos de la serie (antes, «Cotizar» de
+ * Plantillas), y hasta la sesión 32 se ignoraba (abría siempre el primero).
  */
 export default async function NuevaCotizacionPage({ searchParams }: { searchParams: Parametros }) {
   const parametros = await searchParams;

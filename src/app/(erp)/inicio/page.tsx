@@ -89,7 +89,7 @@ function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<
           <Paso
             numero={1}
             titulo="Se define el tipo"
-            descripcion="En Plantillas se dice cómo se compone la ventana: cuántos paneles y cuáles corren."
+            descripcion="En Series, cada serie dice cómo se compone su ventana: cuántos paneles y cuáles corren."
           />
           <Paso
             numero={2}

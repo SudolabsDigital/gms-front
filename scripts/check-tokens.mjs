@@ -180,11 +180,14 @@ const INVARIANTES = [
     patron: /^(?![\s\S]*MarcoDeTrabajo)[\s\S]*export default/g,
     archivoEntero: true,
     solo: ["src/app/(erp)/"],
-    // Las secciones de la obra heredan el marco de `proyectos/[id]/layout.tsx` (SEC.9b), que sí lo nombra
+    // Las secciones de la obra heredan el marco de `proyectos/[id]/layout.tsx` (SEC.9b), que sí lo nombra; las pestañas
+    // de la serie, el de `series/[codigo]/layout.tsx` (SEC.2, decisión 79). `/plantillas` solo redirige a `/series`
     exentos: [
       "src/app/(erp)/layout.tsx",
       "src/app/(erp)/error.tsx",
+      "src/app/(erp)/plantillas/page.tsx",
       ...["", "/resumen", "/cotizacion", "/obra", "/cobros", "/historia", "/corte"].map((s) => `src/app/(erp)/proyectos/[id]${s}/page.tsx`),
+      ...["", "/materiales", "/parametros"].map((s) => `src/app/(erp)/series/[codigo]${s}/page.tsx`),
     ],
     umbral: 0,
     salida: "Envuelve la página en `<MarcoDeTrabajo barra={<BarraDeContexto ruta={…} />}>` de `@/components/erp/marco-de-trabajo`, también la rama de `SinAcceso`.",
@@ -234,6 +237,19 @@ const INVARIANTES = [
     exentos: ["src/components/comunes/acciones-contenido.tsx", "src/components/comunes/tarjeta-contenido.tsx"],
     umbral: 0,
     salida: "Usa `text-xs` (12 px) para metadatos y `text-sm` (14 px) para el contenido.",
+  },
+  {
+    id: "INV-E12",
+    nombre: "ningún nombre de serie ni de diseño escrito en las pantallas del ERP",
+    // SEC.2 (decisión 81, `SER-I03`): la serie y el diseño los dice la API. Una pantalla que los nombra miente el día que
+    // llegue la segunda serie —«Calibrado contra el cuaderno de la serie Nova» lo hacía en Parámetros—. Medido al
+    // declararla: 0 fuera de los comentarios. Los comentarios no cuentan: explicar con el ejemplo de hoy no es afirmarlo
+    patron: /\b(?:Nova|NOVA|Puente Escondido)\b/g,
+    solo: ["src/features/", "src/app/(erp)/", "src/components/erp/", "src/components/comunes/"],
+    sinComentarios: true,
+    exentos: [],
+    umbral: 0,
+    salida: "Lee el nombre de la serie o del diseño de la API (`GET series/{codigo}`, `tipo.diseno`): la interfaz no sabe cuántas series hay.",
   },
   {
     id: "INV-E11",
@@ -468,6 +484,13 @@ for (const o of OBJETIVOS) {
 /** Normaliza a rutas con `/` para que los exentos funcionen igual en Windows y en CI. */
 const rutaRelativa = (archivo) => relative(RAIZ, archivo).split("\\").join("/");
 
+/**
+ * `sinComentarios`: el texto sin `/* … *\/` (también los de JSX) ni `// …` —el que empieza la línea o va tras un
+ * espacio, no el de una URL—, con las mismas líneas para que el aviso siga señalando la buena.
+ */
+const sinComentarios = (texto) =>
+  texto.replace(/\/\*[\s\S]*?\*\//g, (bloque) => bloque.replace(/[^\n]/g, "")).replace(/(^|[ \t])\/\/.*$/gm, "$1");
+
 const resultados = INVARIANTES.map((inv) => {
   const porArchivo = new Map();
   let total = 0;
@@ -478,7 +501,8 @@ const resultados = INVARIANTES.map((inv) => {
     // `solo` acota una regla a una parte del árbol: la del dinero no mira el portal, donde «total» cuenta
     if (inv.solo && !inv.solo.some((prefijo) => rel.startsWith(prefijo))) continue;
 
-    const contenido = readFileSync(archivo, "utf8");
+    const crudo = readFileSync(archivo, "utf8");
+    const contenido = inv.sinComentarios ? sinComentarios(crudo) : crudo;
     // `archivoEntero`: reglas sobre el orden dentro de un archivo (INV-E04), que ninguna línea sola puede ver. Se
     // anota la línea donde acaba la coincidencia
     if (inv.archivoEntero) {

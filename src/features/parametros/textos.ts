@@ -1,15 +1,18 @@
 import type { GrupoParametro } from "@/features/parametros/types";
 
-/** Los tres bloques de `/parametros`, en el orden del brief (`parametros/52-brief-parametros` § 3) */
-export const GRUPOS: { grupo: GrupoParametro; titulo: string; frase: string }[] = [
+/**
+ * Los bloques de `/parametros`, en el orden del brief (`parametros/52-brief-parametros` § 3). Solo los generales
+ * (decisión 79): el cálculo de cada diseño se consulta en la pestaña Parámetros de su serie.
+ */
+export const GRUPOS: { grupo: Exclude<GrupoParametro, "calculo">; titulo: string; frase: string }[] = [
   { grupo: "comercial", titulo: "Comerciales", frase: "Cuentan para lo que se emita desde ahora; lo ya emitido no cambia." },
   { grupo: "mano_de_obra", titulo: "Mano de obra", frase: "Cambiarla desactualiza las cotizaciones emitidas vigentes: el cliente tiene la de entonces." },
-  { grupo: "calculo", titulo: "Cálculo del diseño", frase: "Calibrado contra el cuaderno de la serie Nova. Se ajusta con Sudolabs." },
 ];
 
 /**
- * Qué hace cada parámetro, en palabras del taller. La `descripcion` de la base son notas de desarrollo y no viaja
- * (`parametros/50-api` § fila); un parámetro nuevo sin ayuda aquí se muestra solo con su nombre.
+ * Qué hace cada parámetro, en palabras del taller —en Parámetros y en la pestaña de cada serie—. La `descripcion` de la
+ * base son notas de desarrollo y no viaja (`parametros/50-api` § fila); un parámetro nuevo sin ayuda aquí se muestra
+ * solo con su nombre.
  */
 export const AYUDA: Record<string, string> = {
   VIGENCIA_DIAS: "Cuántos días vale una cotización desde que se emite.",

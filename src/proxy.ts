@@ -18,11 +18,17 @@ const RUTA_LOGIN = "/login";
 const RUTA_INICIO_ERP = "/inicio";
 const COOKIE_SESION = "gms_sesion";
 
-/** Zonas privadas del ERP. Las páginas públicas (landing, /catalogo, /blog) quedan fuera. */
+/**
+ * Zonas privadas del ERP. Las páginas públicas (landing, /catalogo, /blog) quedan fuera. `/series` y `/materiales`,
+ * desde SEC.2: un enlace compartido sin sesión llega al login con su destino. `/proyectos` y `/clientes` esperan a
+ * SEC.3, que saca esta lista del menú (`G-30`).
+ */
 const PREFIJOS_PROTEGIDOS = [
   "/inicio",
   "/parametros",
   "/plantillas",
+  "/series",
+  "/materiales",
   "/cotizar",
   "/produccion",
 ];

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import type { ReglaDeComposicion } from "@/features/series/types";
 import { COLOR_CORREDIZO } from "@/lib/catalogo-visual";
 import { notificar } from "@/lib/notificar";
 import { cn } from "@/lib/utils";
@@ -24,12 +25,21 @@ import { erroresPorCampo, pedir } from "@/lib/api-cliente";
  * [AVISO] Este componente NO deriva NADA de la composición —ni bloques, ni juntas, ni
  * carriles— aunque en JavaScript sería trivial. Toda variable derivada vive en el motor
  * (PC-GMS-006). Aquí solo se edita una secuencia de letras.
+ *
+ * Cuántos paneles y cuántas corredizas hacen falta lo dice el diseño (`regla`, decisión 80): el compositor no lo sabe
+ * de antemano, y el servidor vuelve a comprobarlo.
  */
 
 type Panel = "F" | "D";
 
-const COMPOSICION_INICIAL: Panel[] = ["F", "D", "F"];
 const MAXIMO_PANELES = 20;
+
+/** F-D-F, alargado con fijos si el diseño pide más paneles */
+function composicionInicial(regla: ReglaDeComposicion): Panel[] {
+  const inicial: Panel[] = ["F", "D", "F"];
+  while (inicial.length < regla.min_paneles) inicial.push("F");
+  return inicial;
+}
 
 /** Los campos que pintan su error debajo. Si se añade uno en el JSX, se añade aquí. */
 const CAMPOS_CON_ERROR_VISIBLE = ["codigo"];
@@ -37,12 +47,14 @@ const CAMPOS_CON_ERROR_VISIBLE = ["codigo"];
 export function CompositorTipo({
   disenoId,
   disenoNombre,
+  regla,
   codigoSugerido,
   conTarjeta = true,
   alGuardar,
 }: {
   disenoId: string;
   disenoNombre: string;
+  regla: ReglaDeComposicion;
   codigoSugerido: string;
   /** Dentro de un diálogo sobra el marco: el diálogo ya es el contenedor y su título. */
   conTarjeta?: boolean;
@@ -52,14 +64,15 @@ export function CompositorTipo({
   const router = useRouter();
   const [guardando, iniciarGuardado] = useTransition();
 
-  const [composicion, setComposicion] = useState<Panel[]>(COMPOSICION_INICIAL);
+  const [composicion, setComposicion] = useState<Panel[]>(() => composicionInicial(regla));
   const [codigo, setCodigo] = useState(codigoSugerido);
   const [ancho, setAncho] = useState("300");
   const [alto, setAlto] = useState("170");
   const [publicado, setPublicado] = useState(true);
   const [errores, setErrores] = useState<Record<string, string[]>>({});
 
-  const sinCorrediza = !composicion.includes("D");
+  const minimoPaneles = Math.max(1, regla.min_paneles);
+  const faltanCorredizas = composicion.filter((panel) => panel === "D").length < regla.min_corredizas;
 
   function alternar(indice: number) {
     setComposicion((actual) =>
@@ -74,7 +87,7 @@ export function CompositorTipo({
   }
 
   function quitar() {
-    setComposicion((actual) => (actual.length <= 2 ? actual : actual.slice(0, -1)));
+    setComposicion((actual) => (actual.length <= minimoPaneles ? actual : actual.slice(0, -1)));
   }
 
   function guardar() {
@@ -114,7 +127,7 @@ export function CompositorTipo({
       });
 
       router.refresh();
-      setComposicion(COMPOSICION_INICIAL);
+      setComposicion(composicionInicial(regla));
       alGuardar?.();
     });
   }
@@ -179,7 +192,7 @@ export function CompositorTipo({
                 variant="outline"
                 size="icon"
                 onClick={quitar}
-                disabled={composicion.length <= 2}
+                disabled={composicion.length <= minimoPaneles}
                 aria-label="Quitar panel"
               >
                 <Minus className="size-4" />
@@ -187,9 +200,10 @@ export function CompositorTipo({
             </div>
           </div>
 
-          {sinCorrediza ? (
+          {faltanCorredizas ? (
             <p className="text-destructive-fuerte text-sm">
-              Un Puente Escondido requiere al menos una hoja corrediza.
+              {disenoNombre} necesita al menos{" "}
+              {regla.min_corredizas === 1 ? "una hoja corrediza" : `${regla.min_corredizas} hojas corredizas`}.
             </p>
           ) : (
             <p className="text-muted-foreground text-xs">
@@ -258,7 +272,7 @@ export function CompositorTipo({
             <Button
               type="button"
               variant="ghost"
-              onClick={() => setComposicion(COMPOSICION_INICIAL)}
+              onClick={() => setComposicion(composicionInicial(regla))}
               disabled={guardando}
             >
               <RotateCcw className="size-4" />
@@ -269,7 +283,7 @@ export function CompositorTipo({
               type="button"
               variant="brand"
               onClick={guardar}
-              disabled={guardando || sinCorrediza}
+              disabled={guardando || faltanCorredizas}
             >
               {guardando ? (
                 <>

@@ -17,13 +17,18 @@ src/features/nombre-feature/
 
 ## Las features que existen
 
-Medido el 2026-09-23. Esta lista se mantiene con el código: una carpeta nueva se añade aquí el día que nace.
+Medido el 2026-10-09 (la lista anterior, del 2026-09-23, se había quedado en tres). Esta lista se mantiene con el
+código: una carpeta nueva se añade aquí el día que nace.
 
 | Carpeta | Qué contiene |
 |---|---|
-| `cotizar/` | El cotizador CAD: plano, despiece, compra y costeo del cálculo en seco |
-| `plantillas/` | El compositor de tipos de un diseño |
-| `proyectos/` | Del lead al proyecto entregado: lista por etapa, alta con el cliente al vuelo, ficha, etapas e historia (tajada A) |
+| `clientes/` | La portada de Clientes, su panel y la ficha del cliente |
+| `cotizar/` | El cotizador CAD: plano, despiece, compra y costeo del cálculo en seco; el selector de tipo por su dibujo |
+| `materiales/` | El repositorio de insumos: lista, ficha, presentaciones, familias y «Cargar precios» |
+| `parametros/` | Los parámetros generales —comerciales y mano de obra— y las ayudas de cada parámetro |
+| `plantillas/` | Los tipos de un diseño: su dibujo, la galería (en la serie y en el cotizador) y el compositor de «Nuevo tipo» |
+| `proyectos/` | Del lead al proyecto entregado: lista por etapa, alta con el cliente al vuelo, la obra como espacio, cobros y corte |
+| `series/` | La serie como espacio: su lectura, sus pestañas, sus materiales con su uso y la certeza de cada pieza |
 
 *(Hasta esa fecha esta sección anunciaba `dashboard`, `projects`, `quotes`, `inventory` y `clients`, que nunca
 existieron. No todas usan todavía las cinco subcarpetas de arriba: se crean cuando hacen falta, no antes.)*

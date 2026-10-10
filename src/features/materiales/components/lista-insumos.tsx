@@ -52,6 +52,8 @@ export function ListaInsumos({ filas }: { filas: InsumoFila[] }) {
       className: "font-medium",
     },
     { clave: "material", titulo: "Material", celda: (fila) => fila.material?.nombre ?? "—", className: "text-muted-foreground" },
+    // De qué serie es, o común —vidrios, accesorios, felpas—: la misma palabra que en la pestaña de la serie (decisión 79)
+    { clave: "serie", titulo: "Serie", celda: (fila) => fila.serie?.codigo ?? "común", className: "text-muted-foreground" },
     { clave: "presentacion", titulo: "Presentación", celda: (fila) => fila.presentacion ?? "—", className: "text-muted-foreground" },
     {
       clave: "reglas",
@@ -97,7 +99,7 @@ export function ListaInsumos({ filas }: { filas: InsumoFila[] }) {
           </div>
           <p className="leading-snug font-medium">{fila.nombre_comercial}</p>
           <p className="text-muted-foreground text-sm">
-            {[fila.material?.nombre, fila.presentacion, plural(fila.reglas_activas, "regla", "reglas")]
+            {[fila.material?.nombre, fila.serie?.codigo ?? "común", fila.presentacion, plural(fila.reglas_activas, "regla", "reglas")]
               .filter(Boolean)
               .join(" · ")}
           </p>

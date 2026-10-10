@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  * El ancho del contenido de una página del ERP sale de lo que muestra, no de cada archivo (SEC.6). Había 13 envoltorios
  * con su `max-w-*` escrito a mano y cinco valores para tres usos (`INV-E11`).
  *
- *   amplio      listas, tablas y tableros: Inicio, Proyectos, Materiales, Plantillas y la obra     1152 px
+ *   amplio      listas, tablas y tableros: Inicio, Proyectos, Materiales, Series y la obra         1152 px
  *   ficha       un registro y sus datos, y las portadas con panel: el cliente, el insumo, Clientes   1024 px
  *   formulario  ajustes y formularios: Parámetros, Familias                                          768 px
  *

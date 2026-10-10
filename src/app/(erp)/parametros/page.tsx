@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { SlidersHorizontal } from "lucide-react";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
 import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
+import { EmptyState } from "@/components/comunes/empty-state";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -20,8 +22,10 @@ export const metadata: Metadata = {
 };
 
 /**
- * Los parámetros con que cotiza el sistema (`parametros/52-brief-parametros`, MAE.7, decisión 49): tres bloques en el
- * orden en que cambian. Sin `costeo:ver` el servidor solo manda el cálculo del diseño, y un bloque vacío no se pinta.
+ * Los parámetros generales con que cotiza el sistema (`parametros/52-brief-parametros`, MAE.7, decisiones 49 y 79): los
+ * comerciales y la mano de obra, en el orden en que cambian. El cálculo de cada diseño se consulta en su serie. Sin
+ * `costeo:ver` el servidor no manda ninguno —son todos de dinero— y el menú no ofrece esta página; quien llega por la
+ * URL lee dónde está lo suyo.
  */
 export default async function ParametrosPage() {
   const peticion = adelantar(apiGet<{ datos: Parametro[]; meta: Meta }>("/variables?por_pagina=100"));
@@ -42,20 +46,26 @@ export default async function ParametrosPage() {
       <CuerpoDeSeccion ancho="formulario">
         <CabeceraDeSeccion
           titulo="Parámetros"
-          descripcion="Los valores con que cotiza el sistema: cuánto vale una cotización, qué margen y anticipo se sugieren, a cuánto se cobra la mano de obra."
+          descripcion="Los valores generales con que cotiza el sistema: cuánto vale una cotización, qué margen y anticipo se sugieren, a cuánto se cobra la mano de obra. Los del cálculo de cada serie están en su espacio."
         />
+
+        {datos.length === 0 ? (
+          <EmptyState
+            icono={SlidersHorizontal}
+            titulo="Los parámetros generales se ven con permiso de costos"
+            descripcion="Margen, vigencia, anticipo y mano de obra hablan de dinero. Los del cálculo de cada serie están en Series, en su pestaña Parámetros."
+          />
+        ) : null}
 
         {GRUPOS.map(({ grupo, titulo, frase }) => {
           const filas = datos.filter((p) => p.grupo === grupo);
           if (filas.length === 0) return null;
-          const disenos = [...new Set(filas.map((p) => p.diseno).filter((d): d is string => d !== null))];
 
           return (
             <section key={grupo} aria-labelledby={`grupo-${grupo}`} className="flex flex-col gap-2">
               <div>
                 <h2 id={`grupo-${grupo}`} className="font-semibold">
                   {titulo}
-                  {grupo === "calculo" && disenos.length > 0 ? <span className="text-muted-foreground font-normal"> · {disenos.join(", ")}</span> : null}
                 </h2>
                 <p className="text-muted-foreground text-sm">{frase}</p>
               </div>
@@ -65,10 +75,7 @@ export default async function ParametrosPage() {
                   return (
                     <li key={p.id} className="flex flex-col gap-2 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <p className="font-medium">
-                          {p.nombre}
-                          {grupo === "calculo" && p.diseno === null ? <span className="text-muted-foreground text-xs font-normal"> · todos los diseños</span> : null}
-                        </p>
+                        <p className="font-medium">{p.nombre}</p>
                         {AYUDA[p.clave] ? <p className="text-muted-foreground text-sm">{AYUDA[p.clave]}</p> : null}
                         {ultimo ? (
                           <p className="text-muted-foreground text-xs">

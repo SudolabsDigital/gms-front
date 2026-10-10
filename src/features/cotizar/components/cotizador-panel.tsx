@@ -38,7 +38,7 @@ export function CotizadorPanel({
   puedeVerDinero: boolean;
   /** Con proyecto, tras calcular aparece «Agregar al proyecto» (tajada B.1). Sin él, cálculo en seco */
   destino?: DestinoDeCotizacion | null;
-  /** El tipo con que abre (`?tipo=`, lo que manda «Cotizar» desde Plantillas); sin él, el primero */
+  /** El tipo con que abre (`?tipo=`, lo que manda una tarjeta de la pestaña Tipos de la serie); sin él, el primero */
   tipoInicialId?: string;
   /** El tipo inicial ya calculado con sus medidas de referencia: la pantalla abre con su plano (P1) */
   resultadoInicial?: Despiece | null;
@@ -114,7 +114,7 @@ export function CotizadorPanel({
       <EmptyState
         icono={LayoutTemplate}
         titulo="Todavía no hay nada que cotizar"
-        descripcion="Cotizar parte de un tipo ya publicado. El maestro de taller debe crear y publicar al menos uno en Plantillas."
+        descripcion="Cotizar parte de un tipo ya publicado. El maestro de taller debe crear y publicar al menos uno en Series."
       />
     );
   }

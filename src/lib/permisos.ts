@@ -23,6 +23,7 @@ export type PermisoDelFront =
   | "medicion:registrar"
   | "precios:actualizar"
   | "plantillas:gestionar"
+  | "plantillas:ver"
   | "proyectos:avanzar"
   | "proyectos:crear"
   | "proyectos:ver"

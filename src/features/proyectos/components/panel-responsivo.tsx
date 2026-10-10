@@ -28,12 +28,15 @@ export function PanelResponsivo({
   alCambiar,
   titulo,
   descripcion,
+  ancho = "normal",
   children,
 }: {
   abierto: boolean;
   alCambiar: (abierto: boolean) => void;
   titulo: string;
   descripcion?: string;
+  /** En el escritorio: `amplio` para elegir entre muchas tarjetas —la galería de tipos—; un formulario, `normal` */
+  ancho?: "normal" | "amplio";
   children: React.ReactNode;
 }) {
   const escritorio = useEsEscritorio();
@@ -41,7 +44,7 @@ export function PanelResponsivo({
   if (escritorio) {
     return (
       <Dialog open={abierto} onOpenChange={alCambiar}>
-        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className={`max-h-[90svh] overflow-y-auto ${ancho === "amplio" ? "sm:max-w-3xl" : "sm:max-w-lg"}`}>
           <DialogHeader>
             <DialogTitle>{titulo}</DialogTitle>
             {descripcion ? <DialogDescription>{descripcion}</DialogDescription> : null}

@@ -3,7 +3,7 @@ import {
   Calculator,
   FolderKanban,
   Home,
-  LayoutTemplate,
+  Layers,
   SlidersHorizontal,
   Users,
   type LucideIcon,
@@ -16,8 +16,8 @@ import { puede, type PermisoDelFront } from "@/lib/permisos";
  * § 2): lo de hoy, la operación del día, el catálogo y la empresa. El grupo ordena el menú por lo que la persona va a
  * hacer, no por cómo está hecho el sistema, y un grupo sin ninguna entrada visible para quien entra no se pinta.
  *
- * `permiso` decide qué entrada se ve (`null`: basta la sesión). Esto es SOLO presentación: evita
- * mostrar enlaces que devolverían 403, y se pregunta por permiso, nunca por rol (`PER-01`).
+ * `permiso` decide qué entrada se ve (`null`: basta la sesión; una lista: hacen falta todos). Esto es SOLO presentación:
+ * evita mostrar enlaces que devolverían 403 —o una página vacía—, y se pregunta por permiso, nunca por rol (`PER-01`).
  * La autorización de verdad está en Laravel, y escribir la URL a mano no sirve de nada si el
  * backend dice que no.
  *
@@ -32,7 +32,7 @@ export type EntradaNavegacion = {
   titulo: string;
   href: string;
   icono: LucideIcon;
-  permiso: PermisoDelFront | null;
+  permiso: PermisoDelFront | readonly PermisoDelFront[] | null;
   descripcion: string;
   disponible: boolean;
   grupo: GrupoNavegacion;
@@ -83,11 +83,13 @@ export const NAVEGACION: EntradaNavegacion[] = [
     grupo: "Operación",
   },
   {
-    titulo: "Plantillas",
-    href: "/plantillas",
-    icono: LayoutTemplate,
-    permiso: "plantillas:gestionar",
-    descripcion: "Diseños, tipos y reglas de cálculo",
+    // SEC.2 (decisión 79): la serie como espacio —sus tipos, sus materiales, sus parámetros—; sustituye a Plantillas. Se ve
+    // con `plantillas:ver`, el permiso de su ruta: el maestro y el almacén consultan; crear un tipo pide gestionar
+    titulo: "Series",
+    href: "/series",
+    icono: Layers,
+    permiso: "plantillas:ver",
+    descripcion: "Tipos, materiales y parámetros de cada serie",
     disponible: true,
     grupo: "Catálogo",
   },
@@ -103,19 +105,22 @@ export const NAVEGACION: EntradaNavegacion[] = [
     grupo: "Catálogo",
   },
   {
-    // MAE.7: se ve con `variables:ver` —el maestro consulta el cálculo del diseño—; cambiar pide `variables:gestionar`
+    // Solo lo general (decisión 79): los generales son todos de dinero, así que sin `costeo:ver` la página saldría
+    // vacía. El cálculo de cada diseño se consulta en su serie
     titulo: "Parámetros",
     href: "/parametros",
     icono: SlidersHorizontal,
-    permiso: "variables:ver",
-    descripcion: "Margen, vigencia, mano de obra y cálculo",
+    permiso: ["variables:ver", "costeo:ver"],
+    descripcion: "Margen, vigencia, anticipo y mano de obra",
     disponible: true,
     grupo: "Empresa",
   },
 ];
 
 export function navegacionPara(usuario: { permisos: readonly string[] }): EntradaNavegacion[] {
-  return NAVEGACION.filter((entrada) => entrada.permiso === null || puede(usuario, entrada.permiso));
+  return NAVEGACION.filter(({ permiso }) =>
+    permiso === null || (typeof permiso === "string" ? puede(usuario, permiso) : permiso.every((p) => puede(usuario, p))),
+  );
 }
 
 /** Las entradas que ve quien entra, por grupo y en orden; sin los grupos que se quedan vacíos */

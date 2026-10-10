@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
 import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
+import { Enlace } from "@/components/comunes/enlace";
 import { SinAcceso } from "@/components/comunes/sin-acceso";
 import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
 import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
@@ -14,6 +15,7 @@ import { contenidoLegible, UNIDAD_DEL_MOTOR } from "@/features/materiales/conten
 import { EditarInsumo } from "@/features/materiales/components/editar-insumo";
 import { CLASE, MEDIDAS } from "@/features/materiales/textos";
 import type { InsumoFicha } from "@/features/materiales/types";
+import { InsigniaDeCerteza } from "@/features/series/components/insignia-de-certeza";
 import { adelantar, ApiError, apiGet } from "@/lib/api-server";
 import { fechaHora, haceDias, medida, moneda, numero } from "@/lib/formato";
 import { puede } from "@/lib/permisos";
@@ -167,28 +169,41 @@ export default async function InsumoPage({ params }: { params: Promise<{ id: str
             </CardContent>
           </Card>
 
+          {/* Lo que se corta y se ve hoy: las piezas de cada versión publicada, no las reglas viejas (SEC.2, `series/50-api`) */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Dónde se usa</CardTitle>
             </CardHeader>
-            <CardContent>
-              {insumo.reglas.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Ninguna regla de cálculo lo usa.</p>
+            <CardContent className="flex flex-col gap-3">
+              {insumo.usos.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No lo usa ningún diseño publicado.</p>
               ) : (
                 <ul className="divide-y text-sm">
-                  {insumo.reglas.map((r) => (
-                    <li key={r.id} className={r.activa ? "py-2" : "text-muted-foreground py-2"}>
-                      <span className="font-mono font-semibold">{r.codigo}</span>
-                      {r.rol ? ` · ${r.rol}` : ""}
-                      <span className="text-muted-foreground block text-xs">
-                        {r.ambito ?? "—"}
-                        {r.como === "origen" ? " · como origen de otra pieza" : ""}
-                        {r.activa ? "" : " · regla inactiva"}
+                  {insumo.usos.map((uso) => (
+                    <li key={`${uso.serie.codigo}-${uso.diseno}-${uso.pieza}`} className="flex items-start justify-between gap-3 py-2">
+                      <span className="min-w-0">
+                        <span className="font-mono font-semibold">{uso.pieza}</span>
+                        {uso.rol ? ` · ${uso.rol}` : ""}
+                        <span className="text-muted-foreground block text-xs">
+                          {uso.serie.nombre} · {uso.diseno}
+                        </span>
                       </span>
+                      <InsigniaDeCerteza certeza={uso.certeza} />
                     </li>
                   ))}
                 </ul>
               )}
+              {puede(usuario, "plantillas:ver")
+                ? [...new Map(insumo.usos.map((uso) => [uso.serie.codigo, uso.serie])).values()].map((serie) => (
+                    <Enlace
+                      key={serie.codigo}
+                      href={`/series/${encodeURIComponent(serie.codigo)}/materiales`}
+                      className="text-primary inline-flex min-h-11 w-fit items-center text-sm font-medium hover:underline md:min-h-0"
+                    >
+                      Ver los materiales de {serie.nombre}
+                    </Enlace>
+                  ))
+                : null}
             </CardContent>
           </Card>
 

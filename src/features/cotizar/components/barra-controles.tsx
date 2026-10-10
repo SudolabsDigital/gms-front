@@ -5,13 +5,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SelectorDeTipo } from "@/features/cotizar/components/selector-de-tipo";
 import type { Limites, Tipo } from "@/features/cotizar/types";
 import { numero } from "@/lib/formato";
 import { cn } from "@/lib/utils";
@@ -57,23 +51,12 @@ export function BarraControles({
 
   return (
     <div className="bg-background/95 sticky top-[var(--alto-barra-contexto)] z-10 -mx-4 flex flex-wrap items-start gap-3 border-b px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
-      <div className="min-w-52 flex-1 md:max-w-72">
+      <div className="min-w-52 flex-1 md:max-w-96">
         <Label htmlFor="tipo" className="sr-only">
           Tipo de ventana
         </Label>
-        <Select value={tipoId} onValueChange={alCambiarTipo}>
-          {/* 44 px en el móvil: cotizar en obra es operación de primera (decisión 18) */}
-          <SelectTrigger id="tipo" size="control" className="w-full">
-            <SelectValue placeholder="Seleccione un tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            {tipos.map((tipo) => (
-              <SelectItem key={tipo.id} value={tipo.id}>
-                {tipo.codigo} · {tipo.composicion.join("-")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Por su dibujo, no por su código (decisión 70); 44 px en el móvil: cotizar en obra es de primera (decisión 18) */}
+        <SelectorDeTipo id="tipo" tipos={tipos} tipoId={tipoId} alCambiar={alCambiarTipo} />
       </div>
 
       <div className="flex items-start gap-2">

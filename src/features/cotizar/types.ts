@@ -39,7 +39,8 @@ export type Tipo = {
   alto_default: number | null;
   version: number;
   publicado: boolean;
-  diseno?: { codigo: string; nombre: string };
+  /** Con su serie: el selector agrupa por ella cuando hay más de una (decisión 79) */
+  diseno?: { codigo: string; nombre: string; serie: { codigo: string; nombre: string } | null };
   limites: Limites;
 };
 
