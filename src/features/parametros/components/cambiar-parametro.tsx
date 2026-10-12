@@ -9,10 +9,11 @@ import { Notificacion } from "@/components/comunes/notificacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Parametro } from "@/features/parametros/types";
+import { ImpactoDelCambio } from "@/features/parametros/components/impacto-del-cambio";
+import type { Parametro, PruebaDeParametro } from "@/features/parametros/types";
 import { cambioDeParametro, unidadDelCampo, valorLegible } from "@/features/parametros/valor";
 import { PanelResponsivo } from "@/features/proyectos/components/panel-responsivo";
-import { erroresPorCampo, mensajeDeError, pedir } from "@/lib/api-cliente";
+import { erroresPorCampo, mensajeDeError, pedir, type RespuestaError } from "@/lib/api-cliente";
 import { fechaHora } from "@/lib/formato";
 import { notificar } from "@/lib/notificar";
 
@@ -20,14 +21,19 @@ import { notificar } from "@/lib/notificar";
  * Cambiar un parámetro (`parametros/52-brief-parametros` § 4, MAE.7): el valor, la diferencia en vivo y, en la mano de
  * obra, la advertencia de la cascada **antes** de guardar; el resultado —cuántas cotizaciones— después. Debajo, los
  * últimos cambios.
+ *
+ * `probar` es el cálculo de una serie (decisión 82): antes de guardar hay que ver qué cambia —los cortes de cada tipo, el
+ * cuaderno, las emitidas que se desactualizarán— y «Guardar» solo se abre para el valor que se probó.
  */
-export function CambiarParametro({ parametro }: { parametro: Parametro }) {
+export function CambiarParametro({ parametro, probar = false }: { parametro: Parametro; probar?: boolean }) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [valor, setValor] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [probando, setProbando] = useState(false);
+  const [prueba, setPrueba] = useState<{ valor: string; resultado: PruebaDeParametro } | null>(null);
 
   const actual = Number(parametro.valor);
   const escrito = valor.trim().replace(",", ".");
@@ -35,16 +41,43 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
   const cambio = escrito === "" ? null : cambioDeParametro(actual, nuevo, parametro.unidad);
   const manoDeObra = parametro.grupo === "mano_de_obra";
   const campoId = `parametro-${parametro.clave}`;
+  // Lo probado vale para ese valor: si se escribe otro, hay que volver a mirar qué cambia
+  const probado = prueba !== null && prueba.valor === escrito;
 
   function abrir() {
     setValor(String(actual));
     setError(null);
     setErrorGeneral(null);
+    setPrueba(null);
     setAbierto(true);
+  }
+
+  /** El error de un campo, debajo del campo; el resto, arriba con su mensaje real */
+  function mostrarError(errorDeApi: RespuestaError) {
+    const porCampo = erroresPorCampo(errorDeApi);
+    setError(porCampo.valor?.[0] ?? null);
+    if (!porCampo.valor) setErrorGeneral(mensajeDeError(errorDeApi));
+  }
+
+  async function verQueCambia() {
+    setProbando(true);
+    setErrorGeneral(null);
+    const respuesta = await pedir<PruebaDeParametro>(`/api/v1/variables/${parametro.id}/probar`, {
+      method: "POST",
+      body: JSON.stringify({ valor: escrito }),
+    });
+    setProbando(false);
+
+    if (!respuesta.ok) {
+      mostrarError(respuesta.error);
+      return;
+    }
+    setPrueba({ valor: escrito, resultado: respuesta.datos });
   }
 
   async function guardar(evento: React.FormEvent) {
     evento.preventDefault();
+    if (probar && !probado) return;
     setEnviando(true);
     setErrorGeneral(null);
     const respuesta = await pedir<{ cotizaciones_desactualizadas: number }>(`/api/v1/variables/${parametro.id}`, {
@@ -58,9 +91,7 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
         setErrorGeneral("Alguien lo cambió mientras lo tenía abierto. Cierre y recargue.");
         return;
       }
-      const porCampo = erroresPorCampo(respuesta.error);
-      setError(porCampo.valor?.[0] ?? null);
-      if (!porCampo.valor) setErrorGeneral(mensajeDeError(respuesta.error));
+      mostrarError(respuesta.error);
       return;
     }
 
@@ -68,7 +99,7 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
     notificar({
       tono: n > 0 ? "advertencia" : "exito",
       titulo: `${parametro.nombre}: ${valorLegible(nuevo, parametro.unidad)}`,
-      descripcion: !manoDeObra
+      descripcion: !manoDeObra && !probar
         ? "Cuenta para lo que se emita desde ahora."
         : n > 0
           ? `${n} ${n === 1 ? "cotización emitida quedó desactualizada" : "cotizaciones emitidas quedaron desactualizadas"}.`
@@ -89,10 +120,13 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
         abierto={abierto}
         alCambiar={setAbierto}
         titulo={parametro.nombre}
+        ancho={probar ? "amplio" : "normal"}
         descripcion={
-          manoDeObra
-            ? "Al guardar, las cotizaciones emitidas vigentes quedan marcadas como desactualizadas: el cliente tiene la tarifa de entonces. Las aprobadas no se tocan."
-            : "Cuenta para lo que se emita desde ahora; lo ya emitido no cambia."
+          probar
+            ? "Cambia el corte de los tipos de su diseño. Antes de guardar, mire qué cambia; al guardar, las cotizaciones emitidas vigentes que los llevan quedan desactualizadas. Las aprobadas no se tocan."
+            : manoDeObra
+              ? "Al guardar, las cotizaciones emitidas vigentes quedan marcadas como desactualizadas: el cliente tiene la tarifa de entonces. Las aprobadas no se tocan."
+              : "Cuenta para lo que se emita desde ahora; lo ya emitido no cambia."
         }
       >
         <form onSubmit={guardar} noValidate className="flex flex-col gap-4">
@@ -111,6 +145,7 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
                 onChange={(e) => {
                   setValor(e.target.value);
                   setError(null);
+                  setErrorGeneral(null);
                 }}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={describeError(campoId, error) ?? `${campoId}-diferencia`}
@@ -125,10 +160,26 @@ export function CambiarParametro({ parametro }: { parametro: Parametro }) {
               </p>
             ) : null}
           </div>
-          <Button type="submit" variant="brand" size="control" disabled={enviando || escrito === ""}>
-            {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
-            Guardar
-          </Button>
+          {probar && probado ? <ImpactoDelCambio prueba={prueba.resultado} /> : null}
+
+          <div className="flex flex-wrap gap-2">
+            {probar ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="control"
+                onClick={verQueCambia}
+                disabled={probando || escrito === "" || probado}
+              >
+                {probando ? <Loader2 className="size-4 animate-spin" /> : null}
+                Ver qué cambia
+              </Button>
+            ) : null}
+            <Button type="submit" variant="brand" size="control" disabled={enviando || escrito === "" || (probar && !probado)}>
+              {enviando ? <Loader2 className="size-4 animate-spin" /> : null}
+              Guardar
+            </Button>
+          </div>
 
           {parametro.historial.length > 0 ? (
             <div className="border-t pt-3">
