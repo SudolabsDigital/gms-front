@@ -2,6 +2,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
+import { ALTO_DE_CONTROL, ALTO_DE_CONTROL_COMPACTO } from "@/lib/interfaz"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
@@ -22,7 +23,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-muted hover:text-foreground transition-all duration-200 font-medium",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all duration-200 font-semibold shadow-sm",
+          "bg-destructive-fuerte text-destructive-foreground hover:bg-destructive-fuerte/90 transition-all duration-200 font-semibold shadow-sm",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -37,6 +38,10 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
+        // Los del ERP (SEC.6): 44 px en el táctil, también de ancho —un botón de solo icono no se queda en 34—; en el
+        // escritorio 36 de alto, o 32 en barras y filas
+        control: `${ALTO_DE_CONTROL} min-w-11 gap-1.5 px-2.5 md:min-w-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2`,
+        "control-compacto": `${ALTO_DE_CONTROL_COMPACTO} min-w-11 gap-1.5 px-2.5 md:min-w-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2`,
       },
     },
     defaultVariants: {

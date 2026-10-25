@@ -70,14 +70,15 @@ function SheetContent({
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close data-slot="sheet-close" asChild>
+            {/* 44 px para el pulgar con el icono en el mismo sitio: centro a 26 px de las esquinas (UX.2, V08) */}
             <Button
               variant="ghost"
-              className="absolute top-3 right-3"
+              className="absolute top-1 right-1 size-11"
               size="icon-sm"
             >
               <XIcon
               />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">Cerrar</span>
             </Button>
           </SheetPrimitive.Close>
         )}

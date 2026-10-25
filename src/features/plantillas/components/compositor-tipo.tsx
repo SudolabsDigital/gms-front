@@ -3,16 +3,17 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Minus, Plus, RotateCcw } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import type { ReglaDeComposicion } from "@/features/series/types";
 import { COLOR_CORREDIZO } from "@/lib/catalogo-visual";
+import { notificar } from "@/lib/notificar";
 import { cn } from "@/lib/utils";
-import type { RespuestaError } from "@/features/cotizar/types";
+import { erroresPorCampo, pedir } from "@/lib/api-cliente";
 
 /**
  * El compositor: crear un tipo nuevo escribiendo su secuencia de paneles.
@@ -24,22 +25,36 @@ import type { RespuestaError } from "@/features/cotizar/types";
  * [AVISO] Este componente NO deriva NADA de la composición —ni bloques, ni juntas, ni
  * carriles— aunque en JavaScript sería trivial. Toda variable derivada vive en el motor
  * (PC-GMS-006). Aquí solo se edita una secuencia de letras.
+ *
+ * Cuántos paneles y cuántas corredizas hacen falta lo dice el diseño (`regla`, decisión 80): el compositor no lo sabe
+ * de antemano, y el servidor vuelve a comprobarlo.
  */
 
 type Panel = "F" | "D";
 
-const COMPOSICION_INICIAL: Panel[] = ["F", "D", "F"];
 const MAXIMO_PANELES = 20;
+
+/** F-D-F, alargado con fijos si el diseño pide más paneles */
+function composicionInicial(regla: ReglaDeComposicion): Panel[] {
+  const inicial: Panel[] = ["F", "D", "F"];
+  while (inicial.length < regla.min_paneles) inicial.push("F");
+  return inicial;
+}
+
+/** Los campos que pintan su error debajo. Si se añade uno en el JSX, se añade aquí. */
+const CAMPOS_CON_ERROR_VISIBLE = ["codigo"];
 
 export function CompositorTipo({
   disenoId,
   disenoNombre,
+  regla,
   codigoSugerido,
   conTarjeta = true,
   alGuardar,
 }: {
   disenoId: string;
   disenoNombre: string;
+  regla: ReglaDeComposicion;
   codigoSugerido: string;
   /** Dentro de un diálogo sobra el marco: el diálogo ya es el contenedor y su título. */
   conTarjeta?: boolean;
@@ -49,14 +64,15 @@ export function CompositorTipo({
   const router = useRouter();
   const [guardando, iniciarGuardado] = useTransition();
 
-  const [composicion, setComposicion] = useState<Panel[]>(COMPOSICION_INICIAL);
+  const [composicion, setComposicion] = useState<Panel[]>(() => composicionInicial(regla));
   const [codigo, setCodigo] = useState(codigoSugerido);
   const [ancho, setAncho] = useState("300");
   const [alto, setAlto] = useState("170");
   const [publicado, setPublicado] = useState(true);
   const [errores, setErrores] = useState<Record<string, string[]>>({});
 
-  const sinCorrediza = !composicion.includes("D");
+  const minimoPaneles = Math.max(1, regla.min_paneles);
+  const faltanCorredizas = composicion.filter((panel) => panel === "D").length < regla.min_corredizas;
 
   function alternar(indice: number) {
     setComposicion((actual) =>
@@ -71,16 +87,15 @@ export function CompositorTipo({
   }
 
   function quitar() {
-    setComposicion((actual) => (actual.length <= 2 ? actual : actual.slice(0, -1)));
+    setComposicion((actual) => (actual.length <= minimoPaneles ? actual : actual.slice(0, -1)));
   }
 
   function guardar() {
     setErrores({});
 
     iniciarGuardado(async () => {
-      const respuesta = await fetch(`/api/v1/disenos/${disenoId}/tipos`, {
+      const respuesta = await pedir(`/api/v1/disenos/${disenoId}/tipos`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           codigo,
           composicion,
@@ -90,28 +105,29 @@ export function CompositorTipo({
         }),
       });
 
-      const datos = await respuesta.json().catch(() => null);
-
-      if (respuesta.status === 422) {
-        setErrores(datos?.errors ?? {});
-        toast.error("Revise los datos del tipo.");
-
-        return;
-      }
-
       if (!respuesta.ok) {
-        const error = datos as RespuestaError | null;
-        toast.error(error?.detalles?.[0]?.mensaje ?? "No se pudo crear el tipo.");
+        setErrores(erroresPorCampo(respuesta.error));
+
+        // Lo que tiene sitio en el formulario se pinta ahí. Lo que no —la composición, las medidas
+        // por defecto, un fallo de red o de permiso— solo lo puede contar el aviso, con su mensaje
+        // real: un «revise los datos» sin decir cuál deja al maestro adivinando.
+        const sinSitio = respuesta.error.detalles.find(
+          ({ campo }) => campo === null || !CAMPOS_CON_ERROR_VISIBLE.includes(campo),
+        );
+
+        notificar({ tono: "error", titulo: sinSitio?.mensaje ?? "Revise los datos del tipo." });
 
         return;
       }
 
-      toast.success(`Tipo ${codigo} creado`, {
-        description: "Ya se puede cotizar: hereda las reglas del diseño.",
+      notificar({
+        tono: "exito",
+        titulo: `Tipo ${codigo} creado`,
+        descripcion: "Ya se puede cotizar: hereda las reglas del diseño.",
       });
 
       router.refresh();
-      setComposicion(COMPOSICION_INICIAL);
+      setComposicion(composicionInicial(regla));
       alGuardar?.();
     });
   }
@@ -153,7 +169,7 @@ export function CompositorTipo({
                   }
                 >
                   {panel}
-                  <span className="text-[10px] font-normal opacity-70">
+                  <span className="text-xs font-normal opacity-70">
                     {panel === "F" ? "fijo" : "corre."}
                   </span>
                 </button>
@@ -176,7 +192,7 @@ export function CompositorTipo({
                 variant="outline"
                 size="icon"
                 onClick={quitar}
-                disabled={composicion.length <= 2}
+                disabled={composicion.length <= minimoPaneles}
                 aria-label="Quitar panel"
               >
                 <Minus className="size-4" />
@@ -184,9 +200,10 @@ export function CompositorTipo({
             </div>
           </div>
 
-          {sinCorrediza ? (
-            <p className="text-destructive text-sm">
-              Un Puente Escondido requiere al menos una hoja corrediza.
+          {faltanCorredizas ? (
+            <p className="text-destructive-fuerte text-sm">
+              {disenoNombre} necesita al menos{" "}
+              {regla.min_corredizas === 1 ? "una hoja corrediza" : `${regla.min_corredizas} hojas corredizas`}.
             </p>
           ) : (
             <p className="text-muted-foreground text-xs">
@@ -202,11 +219,20 @@ export function CompositorTipo({
             <Input
               id="codigo"
               value={codigo}
-              onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                setCodigo(e.target.value.toUpperCase());
+                // «Ya existe un tipo con ese código» habla del código de antes: con otro, miente
+                setErrores((actuales) => {
+                  const siguientes = { ...actuales };
+                  delete siguientes.codigo;
+
+                  return siguientes;
+                });
+              }}
               className="font-mono"
             />
             {errores.codigo ? (
-              <p className="text-destructive text-xs">{errores.codigo[0]}</p>
+              <p className="text-destructive-fuerte text-xs">{errores.codigo[0]}</p>
             ) : null}
           </div>
 
@@ -246,7 +272,7 @@ export function CompositorTipo({
             <Button
               type="button"
               variant="ghost"
-              onClick={() => setComposicion(COMPOSICION_INICIAL)}
+              onClick={() => setComposicion(composicionInicial(regla))}
               disabled={guardando}
             >
               <RotateCcw className="size-4" />
@@ -257,7 +283,7 @@ export function CompositorTipo({
               type="button"
               variant="brand"
               onClick={guardar}
-              disabled={guardando || sinCorrediza}
+              disabled={guardando || faltanCorredizas}
             >
               {guardando ? (
                 <>

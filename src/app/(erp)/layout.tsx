@@ -1,26 +1,33 @@
-import { redirect } from "next/navigation";
-
 import { ErpBarraMovil } from "@/components/erp/erp-barra-movil";
 import { ErpSidebar } from "@/components/erp/erp-sidebar";
-import { obtenerUsuario } from "@/lib/session";
+import { ErpSinServidor } from "@/components/erp/aviso-sin-servidor";
+import { estadoDeSesion, exigirUsuario } from "@/lib/session";
 
 /**
  * Guard REAL del ERP.
  *
  * El proxy solo comprobó que existiera una cookie. Aquí se pregunta al backend quién es
- * el usuario: si el token caducó, se revocó o la cuenta se desactivó, la sesión no vale
- * y se vuelve al login. También es donde se conoce el ROL, que el proxy no puede saber.
+ * el usuario: si el token caducó, se revocó o la cuenta se desactivó, `exigirUsuario`
+ * borra la cookie y lleva al login; si el backend no responde, el propio layout pinta el
+ * aviso de «Reintentar» (`error.tsx` no atrapa lo que falla en su layout). También es donde
+ * se conocen los PERMISOS, que el proxy no puede saber.
  */
 export default async function ErpLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const usuario = await obtenerUsuario();
-
-  if (!usuario) {
-    redirect("/login");
+  // Sin servidor no se sabe quién es el usuario, pero la sesión sigue siendo buena: ni se
+  // borra ni se redirige. Se avisa aquí porque `error.tsx` no atrapa lo que falla en su layout
+  if ((await estadoDeSesion()).estado === "sin_backend") {
+    return (
+      <div className="bg-background flex min-h-svh px-4">
+        <ErpSinServidor />
+      </div>
+    );
   }
+
+  const usuario = await exigirUsuario();
 
   /*
    * Fondo OPACO, a diferencia de la landing.
@@ -32,20 +39,23 @@ export default async function ErpLayout({
    * apoya sobre su propio fondo sólido y las deja fuera.
    */
   /*
-   * Sin barra superior en escritorio.
-   *
-   * La que había mostraba un nombre y un rol que no cambian nunca, y a cambio se llevaba
-   * 56px a lo ancho de la pantalla en la página donde más falta hace el alto: la del
-   * plano. Esa información vive ahora al pie del riel, y por debajo de `md` —donde el
-   * riel no existe— la reemplaza <ErpBarraMovil/>, que sí es navegación imprescindible.
+   * La barra de contexto no vive aquí: la pone cada página con su `MarcoDeTrabajo` (SEC.9a, decisión 76), porque
+   * solo la página sabe dónde se está y en qué estado. Una barra fija que dijera un nombre y un rol que no cambian se
+   * quitó hace tiempo para dar el alto al plano; la de ahora dice lo que cambia. Por debajo de `md` —donde no se
+   * pinta— navega <ErpBarraMovil/>. El relleno del contenido también lo pone el marco: la barra va de borde a borde.
    */
+  // En papel solo sale la página: la navegación no se imprime (lista de corte, tajada D)
   return (
     <div className="bg-background flex min-h-svh">
-      <ErpSidebar usuario={usuario} />
+      <div className="contents print:hidden">
+        <ErpSidebar usuario={usuario} />
+      </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <ErpBarraMovil usuario={usuario} />
-        <main className="flex min-h-0 flex-1 flex-col p-4 md:p-6">{children}</main>
+        <div className="contents print:hidden">
+          <ErpBarraMovil usuario={usuario} />
+        </div>
+        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
       </div>
     </div>
   );

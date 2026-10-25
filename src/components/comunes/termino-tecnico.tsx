@@ -49,7 +49,7 @@ export function TerminoTecnico({
         </p>
 
         {nombreComercial && nombreComercial !== etiqueta ? (
-          <p className="text-muted-foreground/80 text-[11px] leading-tight">
+          <p className="text-muted-foreground/80 text-xs leading-tight">
             {nombreComercial}
           </p>
         ) : null}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { env } from "@/lib/env";
+import { urlDelBackend } from "@/lib/env";
 import { borrarSesion, leerToken } from "@/lib/session";
 
 /**
@@ -15,7 +15,7 @@ export async function POST() {
 
   if (token) {
     try {
-      await fetch(`${env.BACKEND_URL}/api/v1/auth/logout`, {
+      await fetch(urlDelBackend("/api/v1/auth/logout"), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

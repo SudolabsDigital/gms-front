@@ -129,6 +129,24 @@ export function enlaceDeWhatsApp(mensaje?: string): string {
 }
 
 /**
+ * Enlace para que la EMPRESA le escriba a un cliente (la ficha del proyecto en el ERP).
+ *
+ * La tercera intención, y por eso otra función: aquí el destinatario es el teléfono del cliente, no
+ * el de GMS. Se normaliza lo que Miguel anota como venga —«964 123 456», «+51 964-123-456»—: un
+ * celular peruano de 9 dígitos gana el prefijo 51. Sin dígitos suficientes no hay enlace (`null`),
+ * y la pantalla no pinta el botón en vez de abrir un chat roto.
+ */
+export function enlaceParaEscribirA(telefono: string | null | undefined, mensaje?: string): string | null {
+  let digitos = (telefono ?? "").replace(/\D/g, "");
+
+  if (digitos.length === 9 && digitos.startsWith("9")) digitos = `51${digitos}`;
+  if (digitos.length < 9) return null;
+
+  const base = `https://wa.me/${digitos}`;
+  return mensaje ? `${base}?text=${encodeURIComponent(mensaje)}` : base;
+}
+
+/**
  * Enlace para COMPARTIR con cualquier contacto — sin destinatario, lo elige quien comparte.
  *
  * Es otra función y no un parámetro opcional de la anterior porque son dos intenciones distintas:

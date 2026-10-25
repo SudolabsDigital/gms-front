@@ -1,19 +1,66 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 
-import { PageHeader } from "@/components/comunes/page-header";
+import { CabeceraDeSeccion } from "@/components/comunes/cabecera-de-seccion";
+import { CuerpoDeSeccion } from "@/components/comunes/cuerpo-de-seccion";
+import { Enlace } from "@/components/comunes/enlace";
+import { BarraDeContexto } from "@/components/erp/barra-de-contexto";
+import { MarcoDeTrabajo } from "@/components/erp/marco-de-trabajo";
 import { navegacionPara } from "@/components/erp/navegacion";
 import { Card, CardContent } from "@/components/ui/card";
+import { AltaProyecto } from "@/features/proyectos/components/alta-proyecto";
+import { PendientesDeHoy } from "@/features/proyectos/components/pendientes-de-hoy";
+import type { Pendientes } from "@/features/proyectos/types";
+import { adelantar, apiGet } from "@/lib/api-server";
+import { puede } from "@/lib/permisos";
 import { cn } from "@/lib/utils";
-import { obtenerUsuario } from "@/lib/session";
+import { exigirUsuario } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "Inicio · GMS Integra",
 };
 
 /**
- * La puerta del ERP.
+ * La puerta del ERP: **qué hacer hoy** (`proyectos/54-brief-inicio`, decisión 43).
+ *
+ * Quien ve proyectos llega a lo que le necesita —cotizaciones que vencen, aprobados sin medir, saldos—, en orden de
+ * urgencia y a un toque de donde se resuelve. El mapa del sistema de abajo se queda para quien no los ve (el maestro y
+ * el almacén): a Miguel el menú ya le da las secciones, y ver el mapa cada mañana era ruido (recorrido UX.0, R26).
+ */
+export default async function InicioPage() {
+  const peticion = adelantar(apiGet<Pendientes>("/inicio"));
+  const usuario = await exigirUsuario();
+  const nombre = usuario.nombre.split(" ")[0];
+  const barra = <BarraDeContexto ruta={[{ etiqueta: "Inicio" }]} />;
+
+  if (!puede(usuario, "proyectos:ver")) {
+    return (
+      <MarcoDeTrabajo barra={barra}>
+        <MapaDelSistema nombre={nombre} usuario={usuario} />
+      </MarcoDeTrabajo>
+    );
+  }
+
+  const pendientes = await peticion;
+
+  return (
+    <MarcoDeTrabajo barra={barra}>
+      {/* Espacio abajo en el móvil: la barra fija de «Nuevo proyecto» no debe tapar la última tarjeta */}
+      <CuerpoDeSeccion ancho="amplio" className="pb-24 md:pb-0">
+        <CabeceraDeSeccion
+          titulo={`Hola, ${nombre}`}
+          descripcion="Lo que necesita atención hoy, de lo más urgente a lo que puede esperar."
+        />
+        <PendientesDeHoy pendientes={pendientes} />
+        {/* En el escritorio, «Nuevo proyecto» está en la barra de contexto */}
+        {puede(usuario, "proyectos:crear") ? <AltaProyecto disparador="movil" /> : null}
+      </CuerpoDeSeccion>
+    </MarcoDeTrabajo>
+  );
+}
+
+/**
+ * El mapa del sistema, para quien no ve proyectos.
  *
  * Antes el login dejaba al usuario directamente en el cotizador, que es la pantalla que
  * más se usa pero la peor para llegar en frío: no dice qué es el sistema ni qué más
@@ -23,16 +70,15 @@ export const metadata: Metadata = {
  * no hay nada que cotizar, y sin cotización no hay orden de producción. Ver esa cadena
  * explica el sistema entero mejor que cualquier manual.
  */
-export default async function InicioPage() {
-  const usuario = await obtenerUsuario();
-  const entradas = navegacionPara(usuario!.rol).filter(
+function MapaDelSistema({ nombre, usuario }: { nombre: string; usuario: Awaited<ReturnType<typeof exigirUsuario>> }) {
+  const entradas = navegacionPara(usuario).filter(
     (entrada) => entrada.href !== "/inicio",
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <PageHeader
-        titulo={`Hola, ${usuario!.nombre.split(" ")[0]}`}
+    <CuerpoDeSeccion ancho="ficha">
+      <CabeceraDeSeccion
+        titulo={`Hola, ${nombre}`}
         descripcion="GMS Integra calcula ventanas y mamparas a medida: usted da las medidas y el sistema devuelve el plano, la lista de corte y el precio."
       />
 
@@ -43,7 +89,7 @@ export default async function InicioPage() {
           <Paso
             numero={1}
             titulo="Se define el tipo"
-            descripcion="En Plantillas se dice cómo se compone la ventana: cuántos paneles y cuáles corren."
+            descripcion="En Series, cada serie dice cómo se compone su ventana: cuántos paneles y cuáles corren."
           />
           <Paso
             numero={2}
@@ -53,7 +99,7 @@ export default async function InicioPage() {
           <Paso
             numero={3}
             titulo="Se lleva al taller"
-            descripcion="El despiece es la lista de corte y la compra es lo que el almacén debe pedir."
+            descripcion="Desde que el proyecto pasa a producción, su despiece se imprime como lista de corte para el banco."
           />
         </ol>
       </section>
@@ -80,7 +126,7 @@ export default async function InicioPage() {
                   <span className="flex items-center gap-2">
                     <span className="font-medium">{entrada.titulo}</span>
                     {entrada.disponible ? null : (
-                      <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-[10px]">
+                      <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
                         Pronto
                       </span>
                     )}
@@ -109,15 +155,15 @@ export default async function InicioPage() {
                 key={entrada.href}
                 className="hover:border-primary/30 transition-colors"
               >
-                <Link href={entrada.href} className="block">
+                <Enlace href={entrada.href} className="block">
                   {contenido}
-                </Link>
+                </Enlace>
               </Card>
             );
           })}
         </div>
       </section>
-    </div>
+    </CuerpoDeSeccion>
   );
 }
 

@@ -11,13 +11,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const PESTANAS_RESULTADO = [
+  { id: "modelo", etiqueta: "Modelo" },
+  { id: "medidas", etiqueta: "Medidas" },
+  { id: "perfiles", etiqueta: "Perfiles" },
+  { id: "despiece", etiqueta: "Despiece" },
+  // «Barras», no «Compra»: es el mínimo con que se costea, no una lista de compra (decisión 42, R21)
+  { id: "compra", etiqueta: "Barras" },
+  { id: "costeo", etiqueta: "Costeo" },
+] as const;
 import { FilaMonto } from "@/components/comunes/fila-monto";
 import { StatTile } from "@/components/comunes/stat-tile";
 import { TerminoTecnico } from "@/components/comunes/termino-tecnico";
 import { PanelPerfiles } from "@/features/cotizar/components/panel-perfiles";
+import { LeyendaDeCerteza, PieDelPlano, VeloDeOtrasMedidas } from "@/features/cotizar/components/pie-del-plano";
 import { VentanaSVG } from "@/features/cotizar/components/ventana-svg";
-import type { Despiece } from "@/features/cotizar/types";
+import { esPlanoV2, type Despiece } from "@/features/cotizar/types";
 import { medida, moneda, numero, porcentaje } from "@/lib/formato";
+import { ALTO_DE_CONTROL } from "@/lib/interfaz";
 
 /**
  * El resultado del cálculo, repartido en pestañas.
@@ -25,7 +37,7 @@ import { medida, moneda, numero, porcentaje } from "@/lib/formato";
  * Del mismo cálculo salen documentos con públicos distintos, y confundirlos es el error
  * clásico de este tipo de sistema (negocio.md §5):
  *
- *   Despiece → taller   · Compra → almacén   · Costeo → cliente
+ *   Despiece → taller   · Barras → costo   · Costeo → cliente
  *
  * El **modelo** abre la baraja y ocupa todo el alto disponible: es lo que se mira
  * mientras se ajustan medidas, y lo que hace que un tipo se entienda sin leer una tabla.
@@ -36,36 +48,70 @@ export function ResultadoCalculo({
   puedeVerDinero,
   insumoResaltado,
   alResaltar,
+  medidasDelPlano = null,
 }: {
   despiece: Despiece;
   puedeVerDinero: boolean;
   insumoResaltado: string | null;
   alResaltar: (codigo: string | null) => void;
+  /** Si lo escrito ya no es lo calculado: las medidas con que se calculó lo que se ve (P8) */
+  medidasDelPlano?: { ancho: string; alto: string } | null;
 }) {
   const { metricas, costeo } = despiece;
   const conCosteo = puedeVerDinero && costeo;
+  const plano = despiece.geometria && esPlanoV2(despiece.geometria) ? despiece.geometria : null;
+  const velo = medidasDelPlano ? <VeloDeOtrasMedidas ancho={medidasDelPlano.ancho} alto={medidasDelPlano.alto} /> : null;
 
   return (
     <Tabs defaultValue="modelo" className="flex min-h-0 flex-1 flex-col gap-4">
-      <TabsList className="w-full justify-start overflow-x-auto">
-        <TabsTrigger value="modelo">Modelo</TabsTrigger>
-        <TabsTrigger value="medidas">Medidas</TabsTrigger>
-        <TabsTrigger value="perfiles">Perfiles</TabsTrigger>
-        <TabsTrigger value="despiece">Despiece</TabsTrigger>
-        <TabsTrigger value="compra">Compra</TabsTrigger>
-        {conCosteo ? <TabsTrigger value="costeo">Costeo</TabsTrigger> : null}
+      {/*
+        Medido el 2026-09-24 a 390 px: con una fila, barra de desplazamiento visible, «Compra» cortada,
+        «Costeo» escondida y 8 px de alto; a 44 px en una fila, 395 px en 358 y la página entera desplazaba.
+        En el móvil van en tres columnas —el maestro, sin Costeo, ve 3 + 2—; «Costeo» es el dinero y no se
+        esconde tras un desplazamiento
+      */}
+      {/* `group-data-horizontal/tabs:h-auto`: la variante fija `h-8` con ese prefijo y un `h-auto` suelto no la pisa */}
+      <TabsList
+        variant="line"
+        className="grid w-full grid-cols-3 gap-0 border-b group-data-horizontal/tabs:h-auto md:flex md:justify-start md:gap-2"
+      >
+        {PESTANAS_RESULTADO.filter((p) => conCosteo || p.id !== "costeo").map((p) => (
+          <TabsTrigger key={p.id} value={p.id} className={`${ALTO_DE_CONTROL} px-1 md:flex-none md:px-3`}>
+            {p.etiqueta}
+          </TabsTrigger>
+        ))}
       </TabsList>
 
       {/* ── Modelo ─────────────────────────────────────────────────────────── */}
       <TabsContent value="modelo" className="flex min-h-0 flex-1 flex-col">
-        {despiece.geometria ? (
+        {plano ? (
+          // El plano grande también se elige tocándolo, con la selección que comparte con «Perfiles» (decisión 61)
           <>
-            <VentanaSVG
-              geometria={despiece.geometria}
-              ancho={metricas.ancho}
-              alto={metricas.alto}
-              className="mx-auto h-auto max-h-[68svh] w-full max-w-4xl"
-            />
+            <div className="relative">
+              <VentanaSVG
+                geometria={plano}
+                ancho={metricas.ancho}
+                alto={metricas.alto}
+                insumoResaltado={insumoResaltado}
+                alElegir={alResaltar}
+                className="mx-auto h-auto max-h-[68svh] w-full max-w-4xl"
+              />
+              {velo}
+            </div>
+            <LeyendaDeCerteza plano={plano} className="mt-2 justify-center" />
+            <PieDelPlano plano={plano} despiece={despiece} insumo={insumoResaltado} className="mx-auto mt-2 max-w-2xl text-center" />
+          </>
+        ) : despiece.geometria ? (
+          <>
+            <div className="relative">
+              <VentanaSVG
+                geometria={despiece.geometria}
+                ancho={metricas.ancho}
+                alto={metricas.alto}
+                className="mx-auto h-auto max-h-[68svh] w-full max-w-4xl"
+              />
+              {velo}
+            </div>
             <p className="text-muted-foreground mt-3 text-center text-xs">
               El plano lo calcula el motor en la misma pasada que el despiece: lo que se
               dibuja es exactamente lo que se corta.
@@ -133,6 +179,7 @@ export function ResultadoCalculo({
           despiece={despiece}
           insumoResaltado={insumoResaltado}
           alResaltar={alResaltar}
+          velo={velo}
         />
       </TabsContent>
 
@@ -196,8 +243,12 @@ export function ResultadoCalculo({
         </p>
       </TabsContent>
 
-      {/* ── Compra: lo que el almacén debe pedir ───────────────────────────── */}
+      {/* ── Barras: el mínimo con que se costea. La compra será su propio sistema (decisión 29) ── */}
       <TabsContent value="compra">
+        <p className="text-muted-foreground mb-3 text-sm">
+          Las barras mínimas con que se costea: sin empalmes ni merma de corte. No es una lista de compra; las compras
+          tendrán su propio sistema.
+        </p>
         <Card>
           <CardContent className="overflow-x-auto p-0">
             <Table>
@@ -205,7 +256,7 @@ export function ResultadoCalculo({
                 <TableRow>
                   <TableHead>Insumo</TableHead>
                   <TableHead className="text-right">Se necesita</TableHead>
-                  <TableHead className="text-right">Hay que comprar</TableHead>
+                  <TableHead className="text-right">Barras mínimas</TableHead>
                   <TableHead className="text-right">Presentación</TableHead>
                   <TableHead className="text-right">Sobra</TableHead>
                 </TableRow>

@@ -5,13 +5,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SelectorDeTipo } from "@/features/cotizar/components/selector-de-tipo";
 import type { Limites, Tipo } from "@/features/cotizar/types";
 import { numero } from "@/lib/formato";
 import { cn } from "@/lib/utils";
@@ -56,23 +50,13 @@ export function BarraControles({
     juicioAncho.estado === "error" || juicioAlto.estado === "error";
 
   return (
-    <div className="bg-background/95 sticky top-0 z-10 -mx-4 flex flex-wrap items-start gap-3 border-b px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
-      <div className="min-w-52 flex-1 md:max-w-72">
+    <div className="bg-background/95 sticky top-[var(--alto-barra-contexto)] z-10 -mx-4 flex flex-wrap items-start gap-3 border-b px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
+      <div className="min-w-52 flex-1 md:max-w-96">
         <Label htmlFor="tipo" className="sr-only">
           Tipo de ventana
         </Label>
-        <Select value={tipoId} onValueChange={alCambiarTipo}>
-          <SelectTrigger id="tipo" className="w-full">
-            <SelectValue placeholder="Seleccione un tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            {tipos.map((tipo) => (
-              <SelectItem key={tipo.id} value={tipo.id}>
-                {tipo.codigo} · {tipo.composicion.join("-")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Por su dibujo, no por su código (decisión 70); 44 px en el móvil: cotizar en obra es de primera (decisión 18) */}
+        <SelectorDeTipo id="tipo" tipos={tipos} tipoId={tipoId} alCambiar={alCambiarTipo} />
       </div>
 
       <div className="flex items-start gap-2">
@@ -97,7 +81,7 @@ export function BarraControles({
         />
       </div>
 
-      <Button onClick={alCalcular} disabled={calculando || bloqueado} variant="brand">
+      <Button onClick={alCalcular} disabled={calculando || bloqueado} variant="brand" size="control">
         {calculando ? (
           <>
             <Loader2 className="size-4 animate-spin" />
@@ -139,6 +123,7 @@ function CampoMedida({
           onChange={(evento) => alCambiar(evento.target.value)}
           aria-invalid={juicio.estado === "error"}
           aria-describedby={juicio.mensaje ? `${id}-nota` : undefined}
+          size="control"
           className={cn(
             "w-28 pr-9 tabular-nums",
             juicio.estado === "aviso" && "border-warning",
@@ -156,8 +141,8 @@ function CampoMedida({
         <p
           id={`${id}-nota`}
           className={cn(
-            "flex max-w-56 items-start gap-1 text-[11px] leading-tight",
-            juicio.estado === "error" ? "text-destructive" : "text-muted-foreground",
+            "flex max-w-56 items-start gap-1 text-xs leading-tight",
+            juicio.estado === "error" ? "text-destructive-fuerte" : "text-muted-foreground",
           )}
         >
           {juicio.estado !== "ok" ? (

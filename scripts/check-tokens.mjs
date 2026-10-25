@@ -109,6 +109,190 @@ const INVARIANTES = [
     umbral: 0,
     salida: "Lee el dato de `@/config/site-config`: `telefonoVisible()`, `enlaceDeLlamada()`, `direccionCompleta()`, `horarioVisible()`, `siteConfig.redes`… Es la única copia de los datos de la empresa.",
   },
+  {
+    id: "INV-E01",
+    nombre: "el dinero se formatea en lib/formato",
+    // `G-32` (2026-09-24, tajada B.1): la primera pantalla del ERP con importes compuestos llega con la
+    // cotización. «El motor existe una sola vez, en PHP» era texto; SofTana lo sostiene con una prueba
+    // («ninguna plantilla formatea moneda ni calcula un importe»). Medido antes de declararla: 0 fuera
+    // de `formato.ts`.
+    patron: /\bS\/\s?\$\{|["'`]S\/\s|\bcurrency\s*:|minimumFractionDigits|maximumFractionDigits|toFixed\(2\)|Intl\.NumberFormat/g,
+    exentos: ["src/lib/formato.ts"],
+    umbral: 0,
+    salida: "Usa `moneda()` de `@/lib/formato` (o `FilaMonto`). Un importe formateado a mano es un segundo criterio de redondeo y de símbolo.",
+  },
+  {
+    id: "INV-E02",
+    nombre: "el ERP no compone importes: los compone el servidor",
+    // `G-32`: el total, el IGV y la línea los calcula la API (`proyectos/50-api` § el borrador). Aquí se
+    // busca aritmética sobre una propiedad de dinero —`doc.subtotal * 2`, `a + item.subtotal`—, solo en
+    // el ERP y sin `meta.total`, que es un recuento de paginación. Medido antes de declararla: 0.
+    // Límite declarado: un importe desestructurado a una variable suelta (`const { total } = doc`) no
+    // se ve. La regla la sostiene también la revisión.
+    patron: /(?<!meta)\.(?:subtotal|total|total_vigente|igv|descuento|transporte|monto|saldo|precio_unitario|mano_obra|material|margen_pct)(?:\s*\?\?\s*[\w.]+)?\)?\s*[-+*/](?![-+=/*])|[-+*/]\s*(?!meta\.)[\w$]+(?:\??\.[\w$]+)*\??\.(?:subtotal|total|total_vigente|igv|descuento|transporte|monto|saldo|precio_unitario|mano_obra|material|margen_pct)\b/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Pide el importe a la API: si falta uno, se añade al Resource del servidor. El front solo lo pinta (`CAL-01`, `G-32`).",
+  },
+  {
+    id: "INV-E03",
+    nombre: "las listas del ERP por ListaDeRegistros",
+    // SEC.0 (2026-10-03): tres listas escritas a mano iluminaban la fila entera y solo dejaban pulsar el código o el
+    // nombre —el 2, 4 y 5 % de la fila—, sin teclado. En `ListaDeRegistros` la fila es el enlace. Exentas: la hoja de
+    // corte, que se imprime —es un documento, no una lista que se abre—, y cargar precios, cuyas filas se editan.
+    patron: /<table\b/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: ["src/features/proyectos/components/hoja-de-corte.tsx", "src/features/materiales/components/cargar-precios.tsx"],
+    umbral: 0,
+    salida: "Usa `ListaDeRegistros` (o sus mitades `TablaDeRegistros` y `TarjetasDeRegistros`) de `@/components/comunes/lista-de-registros`: la fila entera abre, con teclado y en otra pestaña.",
+  },
+  {
+    id: "INV-E04",
+    nombre: "una página del ERP no espera al usuario para pedir sus datos",
+    // SEC.5 (2026-10-04): 12 páginas esperaban `auth/me` y solo después pedían lo suyo; la ficha del proyecto encadenaba
+    // 4 llamadas. Una página que espera a `exigirUsuario()` antes de su primer `apiGet` paga una llamada entera de
+    // más. Lo suyo se adelanta con `adelantar()` y se espera después del permiso (decisión 75).
+    patron: /^(?:(?!\bapiGet<|\bapiPost<|\badelantar\()[\s\S])*?await exigirUsuario\(\)[\s\S]*?\b(?:apiGet|apiPost)</g,
+    archivoEntero: true,
+    solo: ["src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Empieza la petición con `adelantar(apiGet(…))` de `@/lib/api-server` ANTES de `await exigirUsuario()`, y espérala después del permiso.",
+  },
+  {
+    id: "INV-E05",
+    nombre: "los enlaces del ERP dicen que están abriendo",
+    // SEC.5 (2026-10-04): sin el skeleton, la página actual se queda hasta que llega la nueva; un enlace sin
+    // `EnlacePendiente` deja el clic sin respuesta. Los componentes comunes lo llevan dentro; en el resto, `Enlace`.
+    patron: /from\s+["']next\/link["']/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `Enlace` de `@/components/comunes/enlace` (un `Link` con la línea de «abriendo»), o un componente común que ya la lleve.",
+  },
+  {
+    id: "INV-E06",
+    nombre: "toda página del ERP va en un MarcoDeTrabajo",
+    // SEC.9a (2026-10-04, decisión 76): la barra de contexto la pone cada página —o el layout de la obra— con los
+    // datos que ya tiene. Una página sin marco se queda sin barra, sin «Cotizar» y sin la persona. Cuenta las
+    // `page.tsx` que no lo nombran; las secciones de la obra lo heredan de su layout (9b)
+    patron: /^(?![\s\S]*MarcoDeTrabajo)[\s\S]*export default/g,
+    archivoEntero: true,
+    solo: ["src/app/(erp)/"],
+    // Las secciones de la obra heredan el marco de `proyectos/[id]/layout.tsx` (SEC.9b), que sí lo nombra; las pestañas
+    // de la serie, el de `series/[codigo]/layout.tsx` (SEC.2, decisión 79). `/plantillas` solo redirige a `/series`
+    exentos: [
+      "src/app/(erp)/layout.tsx",
+      "src/app/(erp)/error.tsx",
+      "src/app/(erp)/plantillas/page.tsx",
+      ...["", "/resumen", "/cotizacion", "/obra", "/cobros", "/historia", "/corte"].map((s) => `src/app/(erp)/proyectos/[id]${s}/page.tsx`),
+      ...["", "/materiales", "/parametros"].map((s) => `src/app/(erp)/series/[codigo]${s}/page.tsx`),
+    ],
+    umbral: 0,
+    salida: "Envuelve la página en `<MarcoDeTrabajo barra={<BarraDeContexto ruta={…} />}>` de `@/components/erp/marco-de-trabajo`, también la rama de `SinAcceso`.",
+  },
+  {
+    id: "INV-E08",
+    nombre: "los enlaces a una obra van a su sección, no a ?pestana=",
+    // SEC.9b (2026-10-04): las pestañas de la ficha pasaron a subrutas (`/proyectos/{id}/cobros`). `?pestana=` sigue
+    // funcionando —la página de la obra lo redirige— para los enlaces ya compartidos, pero el código no lo escribe:
+    // cada uno cuesta un viaje de más. Cuenta la query escrita en el código, no la que se menciona en un comentario
+    // Un comentario la cita entre comillas invertidas (`` `?pestana=obra` ``); el código la escribe tras la ruta
+    patron: /(?<!`)\?pestana=(?:\$\{|[a-z])/g,
+    solo: ["src/features/", "src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `rutaDeSeccion(id, seccion)` o `rutaDeObra(id, etapa)` de `@/features/proyectos/pestanas`.",
+  },
+  {
+    id: "INV-E07",
+    nombre: "las migas viven en la barra, no en la página",
+    // SEC.9a: `PageHeader` llevaba las migas; ahora las dice `BarraDeContexto` y la página usa `CabeceraDeSeccion`
+    patron: /comunes\/page-header["']/g,
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `CabeceraDeSeccion` de `@/components/comunes/cabecera-de-seccion`; la ruta va en `BarraDeContexto`.",
+  },
+  {
+    id: "INV-E09",
+    nombre: "el alto de un control del ERP por su variante, no a mano",
+    // SEC.6 (2026-10-09): el par «44 px en el táctil, 36 o 32 en el escritorio» estaba escrito a mano 105 veces, con dos
+    // altos de escritorio y ninguna regla para elegir. Se decide en `lib/interfaz.ts` y llega por `size="control"` o
+    // `size="control-compacto"`; lo que no es un componente del sistema usa las constantes de ese archivo
+    patron: /(?<![\w-])h-11(?![\w-])(?=[^"'`\n]*?(?<![\w-])md:h-[89](?![\w-]))/g,
+    solo: ["src/features/", "src/app/(erp)/", "src/components/erp/", "src/components/comunes/"],
+    // Organismos del portal que viven en `comunes/`: SEC.6 es del ERP
+    exentos: ["src/components/comunes/acciones-contenido.tsx", "src/components/comunes/tarjeta-contenido.tsx"],
+    umbral: 0,
+    salida: "Usa `size=\"control\"` (campos y acciones del contenido) o `size=\"control-compacto\"` (barras y filas) en `Button`, `Input` o `SelectTrigger`; en otro elemento, `ALTO_DE_CONTROL` de `@/lib/interfaz`.",
+  },
+  {
+    id: "INV-E10",
+    nombre: "ningún texto del ERP por debajo de 12 px",
+    // SEC.6: 20 textos de 10 y 11 px en paneles, insignias, el riel y el cotizador. El contenido va a 14 px (`text-sm`),
+    // los metadatos a 12 (`text-xs`) y nada por debajo
+    patron: /text-\[1[01]px\]/g,
+    solo: ["src/features/", "src/app/(erp)/", "src/components/erp/", "src/components/comunes/"],
+    exentos: ["src/components/comunes/acciones-contenido.tsx", "src/components/comunes/tarjeta-contenido.tsx"],
+    umbral: 0,
+    salida: "Usa `text-xs` (12 px) para metadatos y `text-sm` (14 px) para el contenido.",
+  },
+  {
+    id: "INV-E12",
+    nombre: "ningún nombre de serie ni de diseño escrito en las pantallas del ERP",
+    // SEC.2 (decisión 81, `SER-I03`): la serie y el diseño los dice la API. Una pantalla que los nombra miente el día que
+    // llegue la segunda serie —«Calibrado contra el cuaderno de la serie Nova» lo hacía en Parámetros—. Medido al
+    // declararla: 0 fuera de los comentarios. Los comentarios no cuentan: explicar con el ejemplo de hoy no es afirmarlo
+    patron: /\b(?:Nova|NOVA|Puente Escondido)\b/g,
+    solo: ["src/features/", "src/app/(erp)/", "src/components/erp/", "src/components/comunes/"],
+    sinComentarios: true,
+    exentos: [],
+    umbral: 0,
+    salida: "Lee el nombre de la serie o del diseño de la API (`GET series/{codigo}`, `tipo.diseno`): la interfaz no sabe cuántas series hay.",
+  },
+  {
+    id: "INV-E11",
+    nombre: "el ancho de una página del ERP por CuerpoDeSeccion",
+    // SEC.6: 13 envoltorios de página con su `max-w-*` y cinco valores para tres usos. El ancho sale de lo que la página
+    // muestra —una lista, una ficha, un formulario—, no de cada archivo
+    patron: /(?<![\w-])max-w-[3-7]xl(?![\w-])/g,
+    solo: ["src/app/(erp)/"],
+    exentos: [],
+    umbral: 0,
+    salida: "Envuelve el contenido en `<CuerpoDeSeccion ancho=\"amplio\" | \"ficha\" | \"formulario\">` de `@/components/comunes/cuerpo-de-seccion`.",
+  },
+  {
+    id: "INV-N01",
+    nombre: "los avisos flotantes por notificar()",
+    // Decisión 33 (2026-09-26): 19 llamadas a `toast` en 15 archivos, cada una con su título, su duración y su tono.
+    // Migradas el mismo día; `notificar()` es el único que habla con Sonner.
+    patron: /from\s+["']sonner["']/g,
+    exentos: ["src/components/ui/sonner.tsx", "src/lib/notificar.ts"],
+    umbral: 0,
+    salida: "Usa `notificar({ tono, titulo, descripcion, accion })` de `@/lib/notificar`: el tono, la duración y los iconos se deciden ahí.",
+  },
+  {
+    id: "INV-N02",
+    nombre: "los avisos en pantalla por <Notificacion>",
+    // Había `AvisoDeError`, `PanelError` y cuatro maneras de pintar advertencias; el texto rojo medía 3,54:1. Los
+    // dos avisos de conflicto hechos a mano se migraron el mismo día. Los de `ui/` son de shadcn.
+    patron: /role=\{?["']alert["']\}?/g,
+    solo: ["src/features/", "src/app/", "src/components/comunes/", "src/components/erp/"],
+    exentos: ["src/components/comunes/notificacion.tsx"],
+    umbral: 0,
+    salida: "Usa `<Notificacion tono=… titulo=… detalles=… acciones=…>` de `@/components/comunes/notificacion`: contraste medido, icono y palabra.",
+  },
+  {
+    id: "INV-N03",
+    nombre: "el texto de error en el tono fuerte",
+    // `#ef4444` como texto da 3,76:1 sobre blanco. El 2026-09-26 había 30 usos (errores bajo el campo, badge, etiqueta
+    // de formulario, menú); pasaron a `text-destructive-fuerte` (decisión 32). El tinte (`bg-destructive/10`) no es texto
+    patron: /\btext-destructive(?![-\w/])/g,
+    exentos: [],
+    umbral: 0,
+    salida: "Usa `text-destructive-fuerte` (6,47:1). `--destructive` es para tintes y filetes, no para letras.",
+  },
 ];
 
 /**
@@ -300,6 +484,13 @@ for (const o of OBJETIVOS) {
 /** Normaliza a rutas con `/` para que los exentos funcionen igual en Windows y en CI. */
 const rutaRelativa = (archivo) => relative(RAIZ, archivo).split("\\").join("/");
 
+/**
+ * `sinComentarios`: el texto sin `/* … *\/` (también los de JSX) ni `// …` —el que empieza la línea o va tras un
+ * espacio, no el de una URL—, con las mismas líneas para que el aviso siga señalando la buena.
+ */
+const sinComentarios = (texto) =>
+  texto.replace(/\/\*[\s\S]*?\*\//g, (bloque) => bloque.replace(/[^\n]/g, "")).replace(/(^|[ \t])\/\/.*$/gm, "$1");
+
 const resultados = INVARIANTES.map((inv) => {
   const porArchivo = new Map();
   let total = 0;
@@ -307,8 +498,22 @@ const resultados = INVARIANTES.map((inv) => {
   for (const archivo of archivos) {
     const rel = rutaRelativa(archivo);
     if (inv.exentos.includes(rel)) continue;
+    // `solo` acota una regla a una parte del árbol: la del dinero no mira el portal, donde «total» cuenta
+    if (inv.solo && !inv.solo.some((prefijo) => rel.startsWith(prefijo))) continue;
 
-    const lineas = readFileSync(archivo, "utf8").split("\n");
+    const crudo = readFileSync(archivo, "utf8");
+    const contenido = inv.sinComentarios ? sinComentarios(crudo) : crudo;
+    // `archivoEntero`: reglas sobre el orden dentro de un archivo (INV-E04), que ninguna línea sola puede ver. Se
+    // anota la línea donde acaba la coincidencia
+    if (inv.archivoEntero) {
+      const coincidencias = [...contenido.matchAll(inv.patron)];
+      if (!coincidencias.length) continue;
+      total += coincidencias.length;
+      porArchivo.set(rel, coincidencias.map((c) => contenido.slice(0, c.index + c[0].length).split("\n").length));
+      continue;
+    }
+
+    const lineas = contenido.split("\n");
     lineas.forEach((linea, i) => {
       const coincidencias = linea.match(inv.patron);
       if (!coincidencias) return;
